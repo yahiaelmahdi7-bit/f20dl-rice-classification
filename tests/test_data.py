@@ -211,3 +211,103 @@ def test_subset_outside_smoke_is_refused_before_any_write():
     first_write = min(n.lineno for n in ast.walk(main) if isinstance(n, ast.Call) and ast.unparse(n.func).endswith(("mkdir", "to_csv")))
     guard = min(n.lineno for n in ast.walk(main) if isinstance(n, ast.Call) and ast.unparse(n.func) == "require_smoke_for_subset")
     assert guard < first_write
+
+
+# ---- tools/leak_audit.py on tiny made-up data (the tool is imported, never run on real data)
+def _audit_mod():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("leak_audit", ROOT / "tools" / "leak_audit.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def _tiny(tmp_path, n=20):
+    import common as C
+    rng = np.random.default_rng(1)
+    split = ["train"] * 12 + ["val"] * 4 + ["test"] * 4
+    g = pd.DataFrame(rng.normal(size=(n, len(C.ALL106))) * 10 + 50, columns=C.ALL106)
+    g.insert(0, "split", split)
+    g.insert(0, "grain_id", [f"c-{i}" for i in range(n)])
+    paths = []
+    for i in range(n):
+        p = tmp_path / f"{i}.jpg"
+        p.write_bytes(f"jpg-{i}".encode())
+        paths.append(str(p))
+    g.insert(2, "path", paths)
+    g.insert(3, "row", np.arange(n))
+    sp = pd.DataFrame({"grain_id": g.grain_id, "msc_row": np.arange(n), "split": split})
+    mm = rng.integers(0, 256, size=(n, 128, 128, 3), dtype=np.uint8)
+    return sp, g, mm
+
+
+def test_leak_audit_clean_data_reports_no_overlap(tmp_path):
+    L = _audit_mod()
+    sp, g, mm = _tiny(tmp_path)
+    R = L.audit(sp, g, mm)
+    assert R["counts"] == {"train": 12, "val": 4, "test": 4}
+    assert R["dup_grain_id"] == 0 and R["dup_msc_row"] == 0
+    assert R["id_overlap"] == {"train&val": 0, "train&test": 0, "val&test": 0}
+    assert R["parquet_vs_csv_split_mismatch"] == 0 and R["parquet_rows"] == 20
+    for k in ["table_exact", "table_6dp", "table_3dp", "shape16_6dp", "colour90_6dp", "jpg_bytes",
+              "pixels128", "pixels_any_rotation_flip", "thumb16_any_rotation_flip"]:
+        assert R[k]["groups_across_splits"] == 0 and R[k]["grains_across_splits"] == 0, k
+    nn = R["nearest_train_neighbour_distinct91"]
+    assert nn["train_to_train"]["n"] == 12 and nn["val_to_train"]["n"] == 4 and nn["test_to_train"]["n"] == 4
+    assert nn["val_to_train"]["under_0_5"] == 0
+
+
+def test_leak_audit_detects_planted_overlaps(tmp_path):
+    import common as C
+    L = _audit_mod()
+    sp, g, mm = _tiny(tmp_path)
+    g.loc[18, C.ALL106] = g.loc[0, C.ALL106].to_numpy()          # test grain 18 repeats train grain 0's table row
+    mm[13] = mm[1]                                                # val grain 13 has train grain 1's pixels
+    mm[19] = np.rot90(mm[2], 1)                                   # test grain 19 is train grain 2 rotated a quarter turn
+    (tmp_path / "14.jpg").write_bytes((tmp_path / "3.jpg").read_bytes())   # val 14 is train 3's file
+    sp.loc[16, "grain_id"] = "c-0"                                # id appears in train and test
+    R = L.audit(sp, g, mm)
+    assert R["id_overlap"]["train&test"] == 1 and R["dup_grain_id"] == 1
+    for k in ["table_exact", "table_6dp", "table_3dp", "shape16_6dp", "colour90_6dp"]:
+        assert R[k]["groups_across_splits"] == 1 and R[k]["by_split"] == {"test": 1, "train": 1}, k
+    assert R["pixels128"]["groups_across_splits"] == 1 and R["pixels128"]["by_split"] == {"train": 1, "val": 1}
+    assert R["pixels_any_rotation_flip"]["groups_across_splits"] == 2      # the exact copy and the rotated copy
+    assert R["thumb16_any_rotation_flip"]["groups_across_splits"] == 2
+    assert R["jpg_bytes"]["groups_across_splits"] == 1
+    assert R["nearest_train_neighbour_distinct91"]["test_to_train"]["min"] == 0.0
+
+
+def test_leak_audit_flatten_names_and_values(tmp_path):
+    L = _audit_mod()
+    sp, g, mm = _tiny(tmp_path)
+    rows = dict(L.flatten(L.audit(sp, g, mm)))
+    for name in ["counts.train", "dup_grain_id", "id_overlap.train&val", "parquet_rows", "table_exact.repeat_groups",
+                 "jpg_bytes.groups_across_splits", "nearest_train_neighbour_distinct91.val_to_train.p0.1",
+                 "nearest_train_neighbour_distinct91.test_to_train.under_0_5"]:
+        assert name in rows, name
+    assert rows["counts.test"] == 4 and rows["parquet_rows"] == 20
+    assert all(not isinstance(v, (np.generic, dict)) for v in rows.values())
+    assert L.flatten({"a": {"b": {}, "c": np.int64(3)}, "d": 1.5}) == [("a.c", 3), ("d", 1.5)]
+
+
+def test_leak_audit_csv_columns_and_atomic_write(tmp_path):
+    L = _audit_mod()
+    out = tmp_path / "leak_audit.csv"
+    L.write_rows([("a.b", 1), ("c", 2.5)], out)
+    df = pd.read_csv(out)
+    assert list(df.columns) == ["check", "value"] and df.check.tolist() == ["a.b", "c"]
+    assert [p.name for p in tmp_path.iterdir()] == ["leak_audit.csv"]
+
+
+def test_leak_audit_source_rules():
+    src = (ROOT / "tools" / "leak_audit.py").read_text()
+    tree = ast.parse(src)
+    main = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "main")
+    assert ast.unparse(main.body[0]) == "assert not C.SMOKE"
+    assert not main.args.args
+    assert "sys.argv" not in src
+    reads = [ast.unparse(n) for n in ast.walk(main) if isinstance(n, ast.Call) and ast.unparse(n.func) in ("pd.read_csv", "pd.read_parquet")]
+    assert len(reads) == 2 and all("class" not in r and "'y'" not in r and '"y"' not in r for r in reads)
+    assert "usecols=['grain_id', 'msc_row', 'split']" in reads[0]
+    assert "'path', 'row', *C.ALL106" in reads[1]
+    assert "quality" in ast.unparse(main) and "leak_audit.csv" in ast.unparse(main)
