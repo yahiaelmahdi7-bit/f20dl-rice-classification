@@ -117,6 +117,7 @@ _S1, _S2, _S3, _S4, _S5, _S6, _S7, _S8, _S9 = ("01_build_grains.py", "02_eda.py"
                                                "06_neural.py", "07_compare.py", "08_routing.py", "09_robustness.py")
 _METRICS = "model featureset seed split n accuracy errors acc_lo acc_hi macro_f1 macro_precision macro_recall f1_lo f1_hi"
 _MODEL_KEYS = "pipe cols params"
+_RECHECK = "table key metric saved recomputed abs_diff limit passes"
 # The contract. Paths are the full-mode ones, relative to the repo root; {sp} is val or test.
 # columns: CSV or parquet columns, or the top-level keys of a JSON or joblib dict; empty for a binary file.
 ARTEFACTS = {
@@ -129,7 +130,7 @@ ARTEFACTS = {
     },
     "files": {
         "data/splits.csv": _a(_S1, f"{_S1} {_S2} freeze.py leak_audit.py", "grain_id class lot file_no msc_row split"),
-        "data/derived/grains.parquet": _a(_S1, f"common.py {_S2} {_S3} {_S4} {_S5} {_S6} {_S7} {_S8} {_S9} predict.py leak_audit.py",
+        "data/derived/grains.parquet": _a(_S1, f"common.py {_S2} {_S3} {_S4} {_S5} {_S6} {_S7} {_S8} {_S9} predict.py leak_audit.py recheck_r2.py",
                                           "grain_id class y lot file_no msc_row path row split " + " ".join(ALL106)),
         "data/derived/images128.u8": _a(_S1, "common.py"),
         "data/derived/measures.parquet": _a(_S1, _S1),
@@ -165,6 +166,9 @@ ARTEFACTS = {
         "results/cluster/pca_variance.csv": _a(_S4, "", "featureset pca_components cumulative_explained_variance"),
         "results/cluster/profiles.csv": _a(_S4, "", "featureset method k cluster size median_AREA median_ASPECT_RATIO median_SOLIDITY "
                                                     "median_meanRR median_meanRG median_meanRB dominant_variety purity"),
+        "results/checks/recheck_clusters.csv": _a("recheck_r2.py", "", _RECHECK),
+        "results/checks/recheck_features.csv": _a("recheck_r2.py", "", _RECHECK),
+        "results/checks/recheck_summary.csv": _a("recheck_r2.py", "", "check rows failed max_abs_diff passes"),
         "results/baselines/grid.csv": _a(_S5, _S5, "model featureset params val_macro_f1"),
         "results/baselines/val_results.csv": _a(_S5, f"{_S5} report.py", "model featureset val_accuracy val_macro_f1 val_macro_precision val_macro_recall params"),
         "results/baselines/control.csv": _a(_S5, _S5, "model featureset val_accuracy"),
