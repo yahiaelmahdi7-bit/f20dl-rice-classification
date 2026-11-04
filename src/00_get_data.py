@@ -82,7 +82,7 @@ URL = "https://www.kaggle.com/api/v1/datasets/download/muratkokludataset/{}"
 MANUAL = """Manual download:
   1. open https://www.kaggle.com/datasets/muratkokludataset/rice-msc-dataset and rice-image-dataset
   2. download both zips, name them rice-msc.zip and rice-image.zip
-  3. put them in data/raw/ (or point RICE_ZIP_DIR at their folder) and rerun: make data"""
+  3. put them in data/raw/ (or point RICE_ZIP_DIR at their folder) and rerun: make get-data"""
 
 
 def sha(p):
