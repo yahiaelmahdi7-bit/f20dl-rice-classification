@@ -68,7 +68,7 @@ def prompt_for(path):
     rel = path.relative_to(ROOT).as_posix()
     n = path.name
     if rel.startswith("src/") and n[:2].isdigit():
-        hits = sorted((ROOT / "prompts").glob(n[:2] + "-*.md"))
+        hits = sorted(h for h in (ROOT / "prompts").glob(n[:2] + "-*.md") if h.name != "00-context.md")
         return hits[0] if hits else None
     if n == "report.py": return ROOT / "prompts" / "report.md"
     if n == "predict.py": return ROOT / "prompts" / "10-predict.md"
