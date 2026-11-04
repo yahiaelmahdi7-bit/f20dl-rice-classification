@@ -26,4 +26,4 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 - `Makefile`: `data` and `smoke` run stage 3 before stage 2, so the data dictionary carries its `selected` tags on a clean run. Stages 3 and 4 read no stage 2 output.
 
 ## Fix 4
-- `Makefile`: add `controls`, which runs `06_neural.py --overfit-test`, `05_baselines.py --control`, `06_neural.py --control`. It has no prerequisites, so it never retrains. It stops with a message if `results/neural/best_config.json` is missing, because control reads the chosen configs and so runs after `train`. `all` runs it straight after `train`.
+- `Makefile`: add `overfit`, which runs `06_neural.py --overfit-test`. It uses a fixed config and needs nothing trained, so `all` runs it before `train`. Add `controls`, which runs `05_baselines.py --control`, `06_neural.py --control`. It has no prerequisites, so it never retrains. It stops with a message if `results/neural/best_config.json` is missing, because control reads the chosen configs and so runs after `train`. `all` runs it straight after `train`.

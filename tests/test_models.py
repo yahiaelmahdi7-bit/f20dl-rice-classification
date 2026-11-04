@@ -181,14 +181,17 @@ def test_chan_stats_hold_at_full_sample(monkeypatch):
 # Job 2: read as text, make is never run
 def test_controls_target_text():
     mk = (ROOT / "Makefile").read_text()
-    assert "controls" in re.search(r"^\.PHONY:(.*)$", mk, re.M).group(1).split()
+    assert {"overfit", "controls"} <= set(re.search(r"^\.PHONY:(.*)$", mk, re.M).group(1).split())
     pre, _, note = re.search(r"^controls:(.*)$", mk, re.M).group(1).partition("##")
     assert pre.strip() == "" and note.strip()                                   # no prerequisite can retrain
     recipe = re.search(r"^controls:.*\n((?:\t.*\n)+)", mk, re.M).group(1)
-    at = [recipe.index(x) for x in ("best_config.json", "06_neural.py --overfit-test", "05_baselines.py --control", "06_neural.py --control")]
-    assert at == sorted(at)
+    at = [recipe.index(x) for x in ("best_config.json", "05_baselines.py --control", "06_neural.py --control")]
+    assert at == sorted(at) and "--overfit-test" not in recipe
+    overfit = re.search(r"^overfit:(.*)\n((?:\t.*\n)+)", mk, re.M)
+    assert overfit.group(1).partition("##")[0].strip() == ""                    # the sanity check waits on nothing trained
+    assert "06_neural.py --overfit-test" in overfit.group(2) and "best_config" not in overfit.group(2)
     steps = re.search(r"^all:([^#]*)##", mk, re.M).group(1).split()
-    assert steps.index("train") < steps.index("controls") < steps.index("freeze")
+    assert steps.index("overfit") < steps.index("train") < steps.index("controls") < steps.index("freeze")
 
 
 # predict
