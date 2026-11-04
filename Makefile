@@ -106,7 +106,7 @@ check:  ## fail if a prompt record differs
 	$(PY) tools/check_prompts.py
 test:  ## pytest
 	env -u RICE_SMOKE $(PY) -m pytest -q tests
-smoke:  ## every stage 1-10 and report on a 2,000-grain slice
+smoke: get-data  ## every stage 0-10 and report on a 2,000-grain slice
 	$(SM) $(PY) src/01_build_grains.py
 	$(SM) $(PY) src/02_eda.py
 	$(SM) $(PY) src/03_features.py
@@ -120,5 +120,5 @@ smoke:  ## every stage 1-10 and report on a 2,000-grain slice
 	$(SM) $(PY) src/08_routing.py --score
 	$(SM) $(PY) src/09_robustness.py --train
 	$(SM) $(PY) src/09_robustness.py --score
-	$(SM) $(PY) src/predict.py $$($(SM) $(PY) tools/smoke_images.py 3)
+	paths="$$($(SM) $(PY) tools/smoke_images.py 3)" || exit 1; printf '%s\n' "$$paths" | while IFS= read -r p; do $(SM) $(PY) src/predict.py "$$p" || exit 1; done
 	$(SM) $(PY) src/report.py

@@ -62,4 +62,4 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import common as C  # noqa: E402
 
 g = C.load_split("val")
-print(*[g[g.y == k].path.iloc[0] for k in range(int(sys.argv[1]))])
+print(*[g[g.y == k].path.iloc[0] for k in range(int(sys.argv[1]))], sep="\n")
