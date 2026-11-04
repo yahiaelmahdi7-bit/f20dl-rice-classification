@@ -422,3 +422,48 @@ def test_cluster_titles_state_their_own_n():
     assert _fstrings("src/04_cluster.py", "Silhouette vs k", **names) == ["Silhouette vs k, k-means (n=10 of 63)"]
     assert _fstrings("src/04_cluster.py", "inertia vs k", **names) == ["K-means inertia vs k (n=63)"]
     assert _fstrings("src/04_cluster.py", "BIC vs k", **names) == ["GMM BIC vs k (n=63)"]
+
+
+# ---- stage 0: a part-filled folder is not unpacked
+def _stage0(tmp_path, monkeypatch, members):
+    import zipfile
+    m = _mod("00_get_data")
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    z = raw / "rice-msc.zip"
+    with zipfile.ZipFile(z, "w") as zf:
+        for name, text in members.items(): zf.writestr(name, text)
+    monkeypatch.delenv("RICE_ZIP_DIR", raising=False)
+    for k, v in dict(RAW=raw, DIRS={"rice-msc.zip": "D"}, expected=lambda: {"rice-msc.zip": m.sha(z)}, make_read_only=lambda p: None).items():
+        monkeypatch.setattr(m, k, v)
+    (raw / "D").mkdir()
+    (raw / "D" / "a.txt").write_text("aaaa")
+    return m, raw
+
+
+def test_part_filled_folder_is_filled_from_the_zip(tmp_path, monkeypatch, capsys):
+    m, raw = _stage0(tmp_path, monkeypatch, {"D/a.txt": "aaaa", "D/s/b.txt": "bb"})
+    assert m.main() == 0
+    assert (raw / "D/s/b.txt").read_text() == "bb" and "already unpacked" not in capsys.readouterr().out
+
+
+def test_part_written_file_is_replaced(tmp_path, monkeypatch):
+    m, raw = _stage0(tmp_path, monkeypatch, {"D/a.txt": "aaaaaaaa"})
+    assert m.main() == 0 and (raw / "D/a.txt").read_text() == "aaaaaaaa"
+
+
+def test_part_filled_read_only_folder_stops_loudly(tmp_path, monkeypatch, capsys):
+    m, raw = _stage0(tmp_path, monkeypatch, {"D/a.txt": "aaaa", "D/b.txt": "bb"})
+    os.chmod(raw / "D", 0o555)
+    try:
+        assert m.main() == 1
+    finally:
+        os.chmod(raw / "D", 0o755)
+    assert "cannot finish unpacking" in capsys.readouterr().out
+
+
+def test_full_folder_is_left_alone(tmp_path, monkeypatch, capsys):
+    m, raw = _stage0(tmp_path, monkeypatch, {"D/a.txt": "aaaa"})
+    os.utime(raw / "D/a.txt", (1, 1))
+    assert m.main() == 0 and "already unpacked" in capsys.readouterr().out
+    assert (raw / "D/a.txt").stat().st_mtime == 1

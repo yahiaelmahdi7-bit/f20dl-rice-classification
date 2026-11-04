@@ -115,6 +115,12 @@ def download(name, dest):
     print()
 
 
+def unpack_gaps(zf, raw):
+    """Zip files missing under raw, or there at the wrong size: a part-filled folder is not unpacked."""
+    return [i.filename for i in zf.infolist() if not i.is_dir()
+            and not ((raw / i.filename).is_file() and (raw / i.filename).stat().st_size == i.file_size)]
+
+
 def make_read_only(path):
     subprocess.run(["chmod", "-R", "a-w", str(path)], check=True)
 
@@ -136,10 +142,16 @@ def main():
             print(f"checksum mismatch for {z}: {got} != {want}\n{MANUAL}"); return 1
         print(f"verified {z.name} sha256 {got[:16]}...", flush=True)
         d = RAW / DIRS[name]
-        if d.exists() and any(d.iterdir()):
-            print(f"already unpacked: {d}, no download, no unpack")
-        else:
-            with zipfile.ZipFile(z) as zf: zf.extractall(RAW)
+        with zipfile.ZipFile(z) as zf:
+            gaps = unpack_gaps(zf, RAW)
+            if not gaps:
+                print(f"already unpacked: {d}, no download, no unpack")
+                continue
+            print(f"{d}: {len(gaps)} zip files missing or part-written, unpacking them", flush=True)
+            try:
+                for f in gaps: zf.extract(f, RAW)
+            except OSError as e:
+                print(f"cannot finish unpacking {d}: {e}\nThe folder is part-filled and stays unusable. Run chmod -R u+w on it, then rerun: make get-data"); return 1
             print(f"unpacked {d}")
     for name in DIRS.values():                    # read-only: remove write bits only
         make_read_only(RAW / name)
