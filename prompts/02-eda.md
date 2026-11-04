@@ -20,5 +20,4 @@ Add these outputs. Train and validation only for anything using labels beyond cl
 - Entropy check: the entropy columns are flagged out of range. A manual check on 40 photos matched `entropyRR` and `entropyRG` within 0.07% with `-sum(s^2 * ln(s^2))` over non-zero pixel values of the whole 250px image, RGB on the 0-255 scale. H and S matched less closely. Write `results/quality/entropy_check.csv` on 200 train grains, for channels RR RG RB (0-255) and H S V (0-1, matplotlib `rgb_to_hsv`): `column, scale, n, pearson, median_ratio, min_ratio, max_ratio`. Report what comes out. Do not tune the formula to force a match, and add no packages. Add the formula and file name to the `validity_out_of_range` reason in the cleaning log.
 
 ## Fix 3
-- Class balance counts come from `load_grains()`, which holds train and validation only. The stage no longer reads `data/splits.csv`, because that loads test labels outside `load_split("test")`. `results/eda/class_balance.csv` has columns `class, train, val`, and the class-balance figure shows train and validation bars with n for those two splits.
 - `results/eda/jasmine_lots.csv` names its first column `feature`.
