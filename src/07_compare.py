@@ -167,7 +167,7 @@ def main():
     pd.DataFrame(rec).to_csv(out / f"{sp}_recall.csv", index=False); C.wrote(out / f"{sp}_recall.csv")
     if sp == "val":
         vg = C.load_grains().set_index("grain_id").reindex(ref.grain_id)
-        pd.DataFrame(lot_rows(ref.y.to_numpy(), pred, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / "val_by_lot.csv", index=False); C.wrote(out / "val_by_lot.csv")
+        pd.DataFrame(lot_rows(y, pred, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / "val_by_lot.csv", index=False); C.wrote(out / "val_by_lot.csv")
     pd.DataFrame(cm).to_csv(out / f"{sp}_confusion.csv", index=False); C.wrote(out / f"{sp}_confusion.csv")
     sd = M.groupby(["model", "featureset"]).agg(seeds=("seed", "size"), acc_mean=("accuracy", "mean"), acc_sd=("accuracy", "std"),
                                                   f1_mean=("macro_f1", "mean"), f1_sd=("macro_f1", "std"), err_min=("errors", "min"), err_max=("errors", "max")).reset_index()

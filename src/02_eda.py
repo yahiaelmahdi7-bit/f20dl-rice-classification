@@ -378,7 +378,7 @@ def column_effects(g, rng):
 
 def share_rows(cnt):
     """Share of each class and lot in each split, from counts: stratification holds if a group's share matches across splits."""
-    t = cnt.sum(0)
+    t = cnt.sum(axis=0)
     return [shift_row("split_share", f"{c} {l}", "all rows in split", "", cnt.loc[(c, l), s], t[s], cnt.loc[(c, l), s] / t[s], note=s) for c, l in cnt.index for s in cnt.columns]
 
 
@@ -390,25 +390,31 @@ def off_axis(m):
     return min(a, 90 - a)
 
 
+def angles(s):
+    """Off-axis degrees per row, measured on its image; NaN where no usable mask is found."""
+    return np.array([off_axis(m) if m is not None and m.sum() > 2 else np.nan for m in map(C.grain_mask, C.read_images(s))])
+
+
 def extent_shift(d, rng, n=300):
     """EXTENT late against main, before and after removing what grain angle explains. Angle comes from the images, so it does not reuse EXTENT; the fit uses main rows only."""
     s = pd.concat([d[d.lot == l].sample(min(n // 2, int((d.lot == l).sum())), random_state=C.SEED) for l in ("late", "main")])
-    masks = [C.grain_mask(im) for im in C.read_images(s)]
-    ok = np.array([m is not None and m.sum() > 2 for m in masks])
-    s, ang = s[ok], np.array([off_axis(m) for m, o in zip(masks, ok) if o])
+    ang = angles(s)
+    s, ang = s[np.isfinite(ang)], ang[np.isfinite(ang)]
     main, e = (s.lot == "main").to_numpy(), s.EXTENT.to_numpy(float)
     X = np.c_[np.ones(len(s)), ang, ang ** 2]
     resid = e - X @ np.linalg.lstsq(X[main], e[main], rcond=None)[0]
     return [shift_row("extent_angle", "Jasmine late", "Jasmine main", "EXTENT", (~main).sum(), main.sum(), *effect(v[~main], v[main], rng), note=t)
-            for v, t in ((e, "before adjusting for grain angle"), (resid, "after adjusting for grain angle"))]
+            for v, t in ((e, "before adjusting for grain angle"), (resid, "after adjusting for grain angle"))] + \
+        [shift_row("extent_angle", "Jasmine late and main", "", "EXTENT", len(s), 0, np.corrcoef(ang, e)[0, 1], note="pearson against off-axis degrees")]
 
 
 def late_drift(d, blocks=6):
-    """Median AREA and EXTENT per block of consecutive file numbers inside one lot."""
+    """Median AREA, EXTENT and image-measured grain angle per block of consecutive file numbers inside one lot."""
     d = d.sort_values("file_no")
+    d = d.assign(off_axis_deg=angles(d))
     b = np.arange(len(d)) * blocks // max(len(d), 1)
     return [shift_row("late_drift", f"block {i}", "", c, (b == i).sum(), 0, d.loc[b == i, c].median(), note=f"files {d.file_no[b == i].min()}-{d.file_no[b == i].max()}, median")
-            for i in range(blocks) if (b == i).any() for c in ("AREA", "EXTENT")]
+            for i in range(blocks) if (b == i).any() for c in ("AREA", "EXTENT", "off_axis_deg")]
 
 
 # shift accounting run

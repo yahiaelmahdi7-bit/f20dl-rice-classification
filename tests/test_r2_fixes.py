@@ -276,15 +276,59 @@ def test_extent_effect_shrinks_when_angle_explains_it():
     ang = np.where(late, r.uniform(0, 10, 400), r.uniform(0, 45, 400))
     d = pd.DataFrame({"lot": np.where(late, "late", "main"), "ang": ang, "EXTENT": 0.8 - 0.005 * ang + r.normal(0, 0.002, 400)})
     ns = _shift_ns(read_images=lambda s: s.ang.to_numpy(), grain_mask=_bar)
-    before, after = ns["extent_shift"](d, r)
+    before, after, link = ns["extent_shift"](d, r)
     assert before["note"].startswith("before") and after["note"].startswith("after") and before["n"] == 150 and before["n_ref"] == 150
     assert before["value"] > 1 and abs(after["value"]) < 0.5
+    assert link["note"].startswith("pearson") and link["value"] < -0.9 and link["n"] == 300
 
 
 def test_late_drift_reports_a_median_per_file_block():
-    d = pd.DataFrame({"file_no": range(60, 0, -1), "AREA": np.arange(60.0, 0, -1), "EXTENT": 1.0})
-    x = pd.DataFrame(_shift_ns()["late_drift"](d, blocks=3)).query("column == 'AREA'")
+    d = pd.DataFrame({"file_no": range(60, 0, -1), "AREA": np.arange(60.0, 0, -1), "EXTENT": 1.0, "ang": np.repeat([40.0, 20.0, 0.0], 20)})
+    y = pd.DataFrame(_shift_ns(read_images=lambda s: s.ang.to_numpy(), grain_mask=_bar)["late_drift"](d, blocks=3))
+    x = y.query("column == 'AREA'")
     assert x.value.tolist() == [10.5, 30.5, 50.5] and x.n.tolist() == [20, 20, 20] and x.note.iloc[0].startswith("files 1-20")
+    assert y.query("column == 'off_axis_deg'").value.tolist() == pytest.approx([0, 20, 40], abs=3)     # block 0 holds the lowest file numbers
+
+
+def test_rows_with_no_usable_mask_are_dropped_from_the_angle_check():
+    r = np.random.default_rng(4)
+    late = np.arange(200) < 100
+    ang = r.uniform(0, 40, 200)
+    ang[0] = ang[150] = 99
+    d = pd.DataFrame({"lot": np.where(late, "late", "main"), "ang": ang, "EXTENT": 0.8 - 0.005 * ang})
+    ns = _shift_ns(read_images=lambda s: s.ang.to_numpy(), grain_mask=lambda a: None if a == 99 else _bar(a))
+    assert np.isnan(ns["angles"](d)).sum() == 2
+    before = ns["extent_shift"](d, r)[0]
+    assert before["n"] == 99 and before["n_ref"] == 99
+
+
+def _shift_frames():
+    r = np.random.default_rng(5)
+    n = 600
+    cl = np.where(np.arange(n) < 400, "Jasmine", "Arborio")
+    lot = np.where(np.arange(n) < 100, "late", "main")
+    ang = r.uniform(0, 45, n)
+    g = pd.DataFrame({"a": r.normal(size=n), "b": r.normal(size=n), "class": cl, "lot": lot, "split": np.where(np.arange(n) % 4 == 0, "val", "train"),
+                      "file_no": np.arange(n), "AREA": 1.0, "EXTENT": 0.8 - 0.005 * ang, "ang": ang})
+    sp = pd.concat([g[["class", "lot", "split"]], g[["class", "lot"]].iloc[::5].assign(split="test")])
+    return g, sp
+
+
+@pytest.mark.parametrize("late,sections", [(True, {"split_share", "column_effect", "extent_angle", "late_drift"}), (False, {"split_share", "column_effect"})])
+def test_shift_run_section_writes_the_contract_table_and_survives_a_slice_with_no_late_rows(tmp_path, late, sections):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    g, sp = _shift_frames()
+    figs = []
+    ns = _shift_ns(ALL106=["a", "b"], CLASSES=["Jasmine", "Arborio"], wrote=lambda p: None, savefig=lambda f, name: (figs.append(name), plt.close(f)),
+                   read_images=lambda s: s.ang.to_numpy(), grain_mask=_bar)
+    ns |= {"g": g if late else g[g.lot == "main"], "sp": sp, "out": tmp_path, "plt": plt}
+    exec(_block("src/02_eda.py", "# shift accounting run", "# end shift accounting"), ns)
+    d = pd.read_csv(tmp_path / "shift_accounting.csv")
+    assert list(d.columns) == C.ARTEFACTS["files"]["results/eda/shift_accounting.csv"]["columns"] and set(d.section) == sections and figs == ["eda_shift_accounting"]
+    assert "test" in set(d[d.section == "split_share"].note)                  # counts only
+    assert not d[d.section == "column_effect"].group.str.contains("test").any()
 
 
 def test_eda_shift_table_uses_counts_only_from_splits():
@@ -302,3 +346,19 @@ def test_val_by_lot_scores_each_class_and_lot_on_its_own_rows():
     d = pd.DataFrame(ns["lot_rows"](y, {("m", "fs", 0): p}, cls, lots)).set_index(["class", "lot"])
     assert d.loc[("Jasmine", "late"), "recall"] == 0.5 and d.loc[("Jasmine", "main"), "recall"] == 1.0 and d.loc[("Arborio", "main"), "errors"] == 1
     assert d.loc[("Jasmine", "late"), "n"] == 2 and len(d) == 3
+
+
+def test_val_by_lot_hook_lines_up_on_grain_id_and_runs_on_validation_only(tmp_path):
+    g = pd.DataFrame({"grain_id": ["a", "b", "c"], "class": ["Jasmine", "Jasmine", "Arborio"], "lot": ["late", "main", "main"]})
+    reads = []
+    stub = __import__("types").SimpleNamespace(load_grains=lambda: reads.append(1) or g, wrote=lambda p: None)
+    ns = {"C": stub, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path}
+    exec(_block("src/07_compare.py", "def lot_rows(", "def main():"), ns)
+    body = "if 1:\n" + _block("src/07_compare.py", '    if sp == "val":\n        vg', "    pd.DataFrame(cm)")
+    exec(body, ns | {"sp": "test"})
+    assert not reads and not (tmp_path / "val_by_lot.csv").exists()
+    exec(body, ns | {"sp": "val"})
+    d = pd.read_csv(tmp_path / "val_by_lot.csv")
+    assert list(d.columns) == C.ARTEFACTS["files"]["results/compare/val_by_lot.csv"]["columns"]
+    d = d.set_index(["class", "lot"])
+    assert d.loc[("Jasmine", "late"), "recall"] == 0.0 and d.loc[("Jasmine", "main"), "recall"] == 1.0 and d.loc[("Arborio", "main"), "recall"] == 1.0
