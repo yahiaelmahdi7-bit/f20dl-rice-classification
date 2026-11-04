@@ -161,6 +161,7 @@ ARTEFACTS = {
         "results/features/set_comparison.csv": _a(_S3, "", "featureset n_features model val_accuracy val_macro_f1 n_val"),
         "results/features/stability.csv": _a(_S3, "", "kind name value k"),
         "results/cluster/cluster_metrics.csv": _a(_S4, "", "featureset method k silhouette bic inertia ARI NMI pca_cum_var silhouette_mean silhouette_sd silhouette_draws"),
+        "results/cluster/heldout.csv": _a(_S4, "", "featureset method k n_fit n_val ARI_val NMI_val ARI_train NMI_train"),
         "results/cluster/gmm_stability.csv": _a(_S4, "", "featureset k seed ARI NMI silhouette bic"),
         "results/cluster/late_lot_check.csv": _a(_S4, "", "featureset method cluster size share_of_late purity_late passes"),
         "results/cluster/pca_variance.csv": _a(_S4, "", "featureset pca_components cumulative_explained_variance"),

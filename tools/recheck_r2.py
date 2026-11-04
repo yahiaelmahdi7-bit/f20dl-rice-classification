@@ -37,16 +37,25 @@ def check(table, key, metric, saved, got, tol):
     return dict(table=table, key=key, metric=metric, saved=float(saved), recomputed=float(got), abs_diff=diff, limit=limit, passes=bool(diff <= limit))
 
 
+def sil_streams():
+    """Stage 4's two streams: first draw per set from one, later draws from the other."""
+    return np.random.default_rng(C.SEED), np.random.default_rng(C.SEED + 1)
+
+
+def sil_samples(n, first, more):
+    s0 = first.choice(n, min(10000, n), replace=False)
+    return [s0] + [more.choice(n, len(s0), replace=False) for _ in range(N_SIL - 1)]
+
+
 def refit_clusters(g, saved):
     """Fresh fits for every row of cluster_metrics.csv: train-fitted scaling and PCA, clusters on train and validation rows."""
     tr, y, out = (g.split == "train").to_numpy(), g.y.to_numpy(), []
-    first, more = np.random.default_rng(C.SEED), np.random.default_rng(C.SEED + 1)
+    first, more = sil_streams()
     for fs in SETS:
         cols = C.features(fs)
         prep = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(), PCA(min(20, len(cols)), random_state=C.SEED)).fit(g.loc[tr, cols])
         Z, cum = prep.transform(g[cols]), float(prep[-1].explained_variance_ratio_.sum())
-        s0 = first.choice(len(Z), min(10000, len(Z)), replace=False)
-        samples = [s0] + [more.choice(len(Z), len(s0), replace=False) for _ in range(N_SIL - 1)]
+        samples = sil_samples(len(Z), first, more)
         for k in KS:
             for method in ("kmeans", "gmm"):
                 if method == "kmeans":

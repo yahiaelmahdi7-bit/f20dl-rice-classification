@@ -18,7 +18,7 @@ def _block(rel, start, end):
 def test_first_silhouette_draw_keeps_its_old_stream():
     ns = {"np": np, "C": C, "len": len}
     exec(_block("src/04_cluster.py", "rng = np.random", "SETS ="), ns)
-    body = _block("src/04_cluster.py", "    sidx = rng.choice", "    lab6 = {}")
+    body = _block("src/04_cluster.py", "    sidx = rng.choice", "    held +=")
     old = np.random.default_rng(C.SEED)
     ns["Z"] = np.zeros((20000, 1))
     for _ in range(3):                 # the second and third set are the ones extra draws would shift
@@ -105,3 +105,49 @@ def test_recheck_tolerance_is_stated_and_applied():
     assert not R.check("t", "k", "ARI", 0.5, 0.5 + 2e-6, R.TOL["ARI"])["passes"]
     assert R.check("t", "k", "bic", 1e6, 1e6 + 0.5, R.TOL["bic"])["passes"] and not R.check("t", "k", "bic", 1e6, 1e6 + 2, R.TOL["bic"])["passes"]
     assert not R.check("t", "k", "ARI", float("nan"), 0.5, R.TOL["ARI"])["passes"]
+
+
+def test_recheck_draws_the_same_silhouette_samples_as_stage_4_when_sampling_bites():
+    """The synthetic repo has fewer rows than the sample size, so every draw holds all rows. This one has more rows than the sample."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    import recheck_r2 as R
+    ns = {"np": np, "C": C, "len": len, "min": min, "range": range}
+    exec(_block("src/04_cluster.py", "rng = np.random", "SETS ="), ns)
+    ns["Z"] = np.zeros((20000, 1))
+    body = _block("src/04_cluster.py", "    sidx = rng.choice", "    held +=")
+    first, more = R.sil_streams()
+    for _ in range(3):
+        exec("if 1:\n" + body, ns)
+        got = R.sil_samples(20000, first, more)
+        assert len(got) == len(ns["draws"]) and all(np.array_equal(a, b) for a, b in zip(got, ns["draws"]))
+
+
+# ---- fix 6: held-out cluster score
+def test_heldout_fits_on_train_rows_and_predicts_validation_rows():
+    seen = {"fit": [], "predict": []}
+
+    class Stub:
+        def __init__(self, *a, **k): pass
+        def fit(self, Z):
+            seen["fit"].append(Z[:, 0].tolist()); return self
+        def predict(self, Z):
+            seen["predict"].append(Z[:, 0].tolist()); return (Z[:, 0] % 2).astype(int)
+
+    sizes = []
+    def agree(a, b):
+        sizes.append(len(a)); return 1.0
+    ns = {"KMeans": Stub, "GaussianMixture": Stub, "ARI": agree, "NMI": agree, "NINIT_GMM": 1, "C": C}
+    exec(_block("src/04_cluster.py", "def heldout_rows(", "for fs in SETS:"), ns)
+    trm = np.arange(10) < 7
+    r = ns["heldout_rows"]("x", np.arange(10.0)[:, None], np.arange(10) % 3, trm)
+    assert len(r) == 18 and {(d["k"], d["method"]) for d in r} == {(k, m) for k in range(2, 11) for m in ("kmeans", "gmm")}
+    assert all(f == list(range(7)) for f in seen["fit"]) and len(seen["fit"]) == 18
+    assert all(p in (list(range(7)), [7, 8, 9]) for p in seen["predict"]) and seen["predict"].count([7, 8, 9]) == 18
+    assert r[0]["n_fit"] == 7 and r[0]["n_val"] == 3 and sizes[:2] == [3, 3]
+
+
+def test_heldout_table_sits_beside_the_existing_rows(repo):
+    h = pd.read_csv(repo / "results/smoke/cluster/heldout.csv")
+    assert len(h) == 54 and set(h.columns) == set(C.ARTEFACTS["files"]["results/cluster/heldout.csv"]["columns"])
+    assert h.ARI_val.notna().all() and (h.n_fit + h.n_val == 320).all() and (h.n_fit == 240).all()
+    assert len(pd.read_csv(repo / "results/smoke/cluster/cluster_metrics.csv")) == 54

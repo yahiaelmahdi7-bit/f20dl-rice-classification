@@ -73,7 +73,7 @@ rng = np.random.default_rng(C.SEED)              # first draw per set: same stre
 rng_more = np.random.default_rng(C.SEED + 1)     # later draws: own stream, so they cannot move the first draw
 N_SIL = 5                                        # silhouette samples per row, the first being the original draw
 SETS = ["all106", "distinct91", "sizefree22"]
-rows, chk, prof, labs, cum, stab = [], [], [], {}, {}, []
+rows, chk, prof, labs, cum, stab, held = [], [], [], {}, {}, [], []
 NINIT_GMM = 3 if C.SMOKE else 5
 
 
@@ -81,6 +81,20 @@ def sil_draws(Z, lab, draws):
     """Silhouette on each sample: the first keeps the old number, all of them give mean and spread."""
     s = [silhouette_score(Z[d], lab[d]) for d in draws]
     return {"silhouette": s[0], "silhouette_mean": float(np.mean(s)), "silhouette_sd": float(np.std(s, ddof=1)), "silhouette_draws": len(s)}
+
+
+def heldout_rows(fs, Z, y, trm):
+    """Clusters fitted on train rows only, then predicted on validation rows, so ARI and NMI there are out of sample."""
+    r = []
+    for k in range(2, 11):
+        for name in ("kmeans", "gmm"):
+            m = KMeans(k, n_init=3 if C.SMOKE else 10, random_state=C.SEED) if name == "kmeans" else \
+                GaussianMixture(k, covariance_type="full", reg_covar=1e-4, n_init=NINIT_GMM, random_state=C.SEED)
+            m.fit(Z[trm])
+            a, b = m.predict(Z[trm]), m.predict(Z[~trm])
+            r.append({"featureset": fs, "method": name, "k": k, "n_fit": int(trm.sum()), "n_val": int((~trm).sum()), "ARI_val": ARI(y[~trm], b),
+                      "NMI_val": NMI(y[~trm], b), "ARI_train": ARI(y[trm], a), "NMI_train": NMI(y[trm], a)})
+    return r
 
 
 for fs in SETS:
@@ -93,6 +107,7 @@ for fs in SETS:
     print(f"{fs}: PCA-{pca.n_components_} cumulative explained variance {cum[fs]:.4f}", flush=True)
     sidx = rng.choice(len(Z), min(10000, len(Z)), replace=False)
     draws = [sidx] + [rng_more.choice(len(Z), len(sidx), replace=False) for _ in range(N_SIL - 1)]
+    held += heldout_rows(fs, Z, y, trm)
     lab6 = {}
     for k in range(2, 11):
         for name in ("kmeans", "gmm"):
@@ -128,6 +143,7 @@ for fs in SETS:
                              "purity": float(vc.iloc[0] / inc.sum())})
 res = pd.DataFrame(rows)
 res.to_csv(out / "cluster_metrics.csv", index=False); C.wrote(out / "cluster_metrics.csv")
+pd.DataFrame(held).to_csv(out / "heldout.csv", index=False); C.wrote(out / "heldout.csv")
 pd.DataFrame(stab).to_csv(out / "gmm_stability.csv", index=False); C.wrote(out / "gmm_stability.csv")
 pd.DataFrame(prof).to_csv(out / "profiles.csv", index=False); C.wrote(out / "profiles.csv")
 pd.DataFrame([{"featureset": k, "pca_components": 20, "cumulative_explained_variance": v} for k, v in cum.items()]).to_csv(out / "pca_variance.csv", index=False)

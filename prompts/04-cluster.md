@@ -19,3 +19,6 @@ Standardise on train before PCA, and report cumulative explained variance of PCA
 
 ## Fix 5
 - `results/cluster/cluster_metrics.csv`: silhouette is scored on 5 samples. `silhouette` stays the original first draw, so the old number stays comparable. Later draws use their own stream, so the first draw cannot move. Adds `silhouette_mean`, `silhouette_sd`, `silhouette_draws`.
+
+## Fix 6
+- New `results/cluster/heldout.csv`: for each column set, method and k from 2 to 10, clusters fitted on train rows only, then predicted on validation rows. `featureset, method, k, n_fit, n_val, ARI_val, NMI_val, ARI_train, NMI_train`. The rows in `cluster_metrics.csv` stay as they are.
