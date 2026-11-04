@@ -69,10 +69,20 @@ out = C.stage_dir("cluster")
 g = C.load_grains()
 trm = (g.split == "train").values
 y, late = g.y.values, (g.lot == "late").values
-rng = np.random.default_rng(C.SEED)
+rng = np.random.default_rng(C.SEED)              # first draw per set: same stream as before, so the old silhouette stays comparable
+rng_more = np.random.default_rng(C.SEED + 1)     # later draws: own stream, so they cannot move the first draw
+N_SIL = 5                                        # silhouette samples per row, the first being the original draw
 SETS = ["all106", "distinct91", "sizefree22"]
 rows, chk, prof, labs, cum, stab = [], [], [], {}, {}, []
 NINIT_GMM = 3 if C.SMOKE else 5
+
+
+def sil_draws(Z, lab, draws):
+    """Silhouette on each sample: the first keeps the old number, all of them give mean and spread."""
+    s = [silhouette_score(Z[d], lab[d]) for d in draws]
+    return {"silhouette": s[0], "silhouette_mean": float(np.mean(s)), "silhouette_sd": float(np.std(s, ddof=1)), "silhouette_draws": len(s)}
+
+
 for fs in SETS:
     cs = C.features(fs)
     imp = SimpleImputer(strategy="median").fit(g.loc[trm, cs])
@@ -82,6 +92,7 @@ for fs in SETS:
     cum[fs] = float(pca.explained_variance_ratio_.sum())
     print(f"{fs}: PCA-{pca.n_components_} cumulative explained variance {cum[fs]:.4f}", flush=True)
     sidx = rng.choice(len(Z), min(10000, len(Z)), replace=False)
+    draws = [sidx] + [rng_more.choice(len(Z), len(sidx), replace=False) for _ in range(N_SIL - 1)]
     lab6 = {}
     for k in range(2, 11):
         for name in ("kmeans", "gmm"):
@@ -89,8 +100,10 @@ for fs in SETS:
                 m = KMeans(k, n_init=3 if C.SMOKE else 10, random_state=C.SEED).fit(Z); lab = m.labels_; bic = np.nan; inertia = float(m.inertia_)
             else:
                 m = GaussianMixture(k, covariance_type="full", reg_covar=1e-4, n_init=NINIT_GMM, random_state=C.SEED).fit(Z); lab = m.predict(Z); bic = m.bic(Z); inertia = np.nan
-            rows.append({"featureset": fs, "method": name, "k": k, "silhouette": silhouette_score(Z[sidx], lab[sidx]), "bic": bic, "inertia": inertia,
-                         "ARI": ARI(y, lab), "NMI": NMI(y, lab), "pca_cum_var": cum[fs]})
+            s = sil_draws(Z, lab, draws)
+            rows.append({"featureset": fs, "method": name, "k": k, "silhouette": s["silhouette"], "bic": bic, "inertia": inertia,
+                         "ARI": ARI(y, lab), "NMI": NMI(y, lab), "pca_cum_var": cum[fs], "silhouette_mean": s["silhouette_mean"],
+                         "silhouette_sd": s["silhouette_sd"], "silhouette_draws": s["silhouette_draws"]})
             if k in (5, 6): labs[(fs, name, k)] = lab
             print(rows[-1], flush=True)
     for k in (5, 6):                                  # GMM seed-to-seed stability, same silhouette sample as above

@@ -16,3 +16,6 @@ Standardise on train before PCA, and report cumulative explained variance of PCA
 
 ## Fix 4
 - `cluster_overview`: every panel title states its own n. Silhouette is computed on the 10,000-grain sample, so its title gives the sample out of all grains. Inertia and BIC use all grains.
+
+## Fix 5
+- `results/cluster/cluster_metrics.csv`: silhouette is scored on 5 samples. `silhouette` stays the original first draw, so the old number stays comparable. Later draws use their own stream, so the first draw cannot move. Adds `silhouette_mean`, `silhouette_sd`, `silhouette_draws`.
