@@ -42,6 +42,8 @@
 #
 # ## Fix 2
 # `SUMMARY.csv` gains `macro_precision` and `macro_recall`, read from the stage 5 and 7 outputs.
+#
+# ## Fix 3: `SUMMARY.csv` and `MANIFEST.csv` are written to `C.RES` in every mode. In `MANIFEST.csv`, the dictionary, validity and outliers row points at `quality/`, and the two shuffled-label rows point at `baselines/control.csv` and `neural/control.csv`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import pandas as pd

@@ -51,6 +51,15 @@
 # - `cluster_heatmaps`: the colour bar covers the `sizefree22` panels. Use `plt.subplots(..., layout="constrained")` so it gets its own column.
 # - GMM has one start per fit, which made the score swing (ARI 0.86, then 0.66 on the same slice). Use `n_init=5` on full data and `n_init=3` on smoke.
 # - New `results/cluster/gmm_stability.csv`: for each column set, k = 5 and 6, 5 seeds: `featureset, k, seed, ARI, NMI, silhouette, bic`. Silhouette uses the same sampling as the main table.
+#
+# ## Fix 4
+# - `cluster_overview`: every panel title states its own n. Silhouette is computed on the 10,000-grain sample, so its title gives the sample out of all grains. Inertia and BIC use all grains.
+#
+# ## Fix 5
+# - `results/cluster/cluster_metrics.csv`: silhouette is scored on 5 samples. `silhouette` stays the original first draw, so the old number stays comparable. Later draws use their own stream, so the first draw cannot move. Adds `silhouette_mean`, `silhouette_sd`, `silhouette_draws`.
+#
+# ## Fix 6
+# - New `results/cluster/heldout.csv`: for each column set, method and k from 2 to 10, clusters fitted on train rows only, then predicted on validation rows. `featureset, method, k, n_fit, n_val, ARI_val, NMI_val, ARI_train, NMI_train`. The rows in `cluster_metrics.csv` stay as they are.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 4: k-means and Gaussian mixture on PCA-20 of all106 (train and validation only)."""
 import numpy as np, pandas as pd
