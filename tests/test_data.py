@@ -111,7 +111,7 @@ def test_eda_uses_splits_for_class_counts_only():
     src = _code("src/02_eda.py")
     lines = src.splitlines()
     used = {lines[n.lineno - 1].strip() for n in ast.walk(ast.parse(src)) if isinstance(n, ast.Name) and n.id == "sp"}
-    allowed = ("sp = pd.read_csv(C.SPLITS)", 'cnt = sp.groupby(["class", "split"]).size().unstack()', 'ax.set(title=f"Grains per variety and split (n={len(sp)})"')
+    allowed = ("sp = pd.read_csv(C.SPLITS)", 'cnt = sp.groupby(["class", "split"]).size().unstack()', 'ax.set(title=f"Grains per variety and split (n={len(sp)})"', 'share = sp.')
     assert all(u.startswith(allowed) for u in used), used
     assert src.count("SPLITS") == 1 and "load_split" not in src
 

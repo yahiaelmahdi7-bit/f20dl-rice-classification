@@ -152,6 +152,7 @@ ARTEFACTS = {
         "results/eda/insights.csv": _a(_S2, "", "id finding value n figure"),
         "results/eda/jasmine_lots.csv": _a(_S2, "", "feature early late ratio"),
         "results/eda/resize_area_check.csv": _a(_S2, "", "class n median_ratio pearson_area"),
+        "results/eda/shift_accounting.csv": _a(_S2, "", "section group reference column n n_ref value lo hi shifted note"),
         "results/eda/tint_by_class.csv": _a(_S2, "", "class mean std median count"),
         "results/features/accuracy_vs_k.csv": _a(_S3, "", "k hgb_val_accuracy logreg_val_accuracy hgb_inner_accuracy logreg_inner_accuracy val_accuracy"),
         "results/features/cluster_representatives.csv": _a(_S3, "", "feature mutual_info"),

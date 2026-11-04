@@ -220,3 +220,72 @@ def test_stage_3_saves_both_rules_and_recheck_covers_the_inner_columns(repo):
     assert p.returncode == 0, p.stdout[-1500:]
     f = pd.read_csv(repo / "results/smoke/checks/recheck_features.csv")
     assert {"hgb_inner_accuracy", "logreg_inner_accuracy"} <= set(f.metric)
+
+
+# ---- fix 8: shift accounting
+def _shift_ns(**c):
+    ns = {"np": np, "pd": pd, "C": __import__("types").SimpleNamespace(SEED=0, **c)}
+    exec(_block("src/02_eda.py", "def shift_row(", "# shift accounting run"), ns)
+    return ns
+
+
+def test_effect_is_signed_against_the_reference_with_an_interval():
+    ns, r = _shift_ns(), np.random.default_rng(0)
+    a, b = r.normal(1, 1, 2000), r.normal(0, 1, 2000)
+    v, lo, hi = ns["effect"](a, b, r)
+    assert 0.9 < v < 1.1 and lo < v < hi and lo > 0.8
+    v, lo, hi = ns["effect"](r.normal(0, 1, 2000), b, r)
+    assert lo < 0 < hi
+
+
+def test_column_effects_flag_the_late_shift_and_not_the_control():
+    r = np.random.default_rng(1)
+    n = 800
+    g = pd.DataFrame({"a": r.normal(0, 1, n), "b": r.normal(0, 1, n), "class": "J", "lot": np.where(np.arange(n) < 200, "late", "main"), "split": np.where(np.arange(n) % 4 == 0, "val", "train")})
+    g.loc[g.lot == "late", "a"] += 2
+    ns = _shift_ns(ALL106=["a", "b"], CLASSES=["J"])
+    d = pd.DataFrame(ns["column_effects"](g, r)).set_index(["group", "column"])
+    assert len(d) == 4 and d.loc[("J late", "a"), "shifted"] and d.loc[("J late", "a"), "reference"] == "J main"
+    assert not d.loc[("J late", "b"), "shifted"] and not d.loc[("J val", "b"), "shifted"] and d.loc[("J val", "a"), "reference"] == "J train"
+
+
+def test_split_shares_come_from_counts_and_sum_to_one():
+    cnt = pd.DataFrame({"train": [70, 7], "val": [15, 1]}, index=pd.MultiIndex.from_tuples([("J", "main"), ("J", "late")]))
+    d = pd.DataFrame(_shift_ns()["share_rows"](cnt))
+    assert d.groupby("note").value.sum().tolist() == pytest.approx([1, 1]) and d.value.iloc[0] == pytest.approx(70 / 77)
+
+
+def _bar(deg):
+    t = np.arange(-20, 21)
+    m = np.zeros((64, 64), bool)
+    for w in (-3, -2, -1, 0, 1, 2, 3):
+        x = 32 + t * np.cos(np.radians(deg)) - w * np.sin(np.radians(deg))
+        y = 32 + t * np.sin(np.radians(deg)) + w * np.cos(np.radians(deg))
+        m[y.round().astype(int), x.round().astype(int)] = True
+    return m
+
+
+@pytest.mark.parametrize("deg,want", [(0, 0), (90, 0), (45, 45), (135, 45), (20, 20), (110, 20), (70, 20)])
+def test_off_axis_folds_to_degrees_from_the_image_axes(deg, want):
+    assert _shift_ns()["off_axis"](_bar(deg)) == pytest.approx(want, abs=3)
+
+
+def test_extent_effect_shrinks_when_angle_explains_it():
+    r = np.random.default_rng(2)
+    late = np.arange(400) < 200
+    ang = np.where(late, r.uniform(0, 10, 400), r.uniform(0, 45, 400))
+    d = pd.DataFrame({"lot": np.where(late, "late", "main"), "ang": ang, "EXTENT": 0.8 - 0.005 * ang + r.normal(0, 0.002, 400)})
+    ns = _shift_ns(read_images=lambda s: s.ang.to_numpy(), grain_mask=_bar)
+    before, after = ns["extent_shift"](d, r)
+    assert before["note"].startswith("before") and after["note"].startswith("after") and before["n"] == 150 and before["n_ref"] == 150
+    assert before["value"] > 1 and abs(after["value"]) < 0.5
+
+
+def test_late_drift_reports_a_median_per_file_block():
+    d = pd.DataFrame({"file_no": range(60, 0, -1), "AREA": np.arange(60.0, 0, -1), "EXTENT": 1.0})
+    x = pd.DataFrame(_shift_ns()["late_drift"](d, blocks=3)).query("column == 'AREA'")
+    assert x.value.tolist() == [10.5, 30.5, 50.5] and x.n.tolist() == [20, 20, 20] and x.note.iloc[0].startswith("files 1-20")
+
+
+def test_eda_shift_table_uses_counts_only_from_splits():
+    assert "load_split" not in _block("src/02_eda.py", "def shift_row(", "# end shift accounting")

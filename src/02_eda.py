@@ -345,4 +345,87 @@ add_insight("resize_area_ratio", "median (128 px mask area scaled to 250 px) / t
 add_insight("copy_columns_identical", "ALLdaub4 columns equal to their mean column", int(pd.DataFrame(rows).identical.sum()), "")
 add_insight("corr_clusters", "correlation clusters at 0.95 on distinct91", int(len(set(cl))), "eda_correlation", n_used=len(sub))
 add_insight("jasmine_late_area_ratio", "late/early median AREA, Jasmine", float(l["AREA"] / e["AREA"]), "eda_jasmine_break", n_used=len(J))
+# shift accounting: which columns move, by how much, and whether grain angle explains EXTENT
+def shift_row(section, group, reference, column, n_a, n_ref, value, lo=np.nan, hi=np.nan, note=""):
+    return {"section": section, "group": group, "reference": reference, "column": column, "n": int(n_a), "n_ref": int(n_ref), "value": float(value), "lo": float(lo), "hi": float(hi),
+            "shifted": bool(abs(value) >= 0.2 and (lo > 0 or hi < 0)), "note": note}
+
+
+def effect(a, b, rng, reps=200):
+    """Standardised mean difference of a against reference b, pooled sd, with a bootstrap 95% interval."""
+    a, b = a[np.isfinite(a)], b[np.isfinite(b)]
+
+    def d(x, w):
+        s = np.sqrt((x.var(ddof=1) + w.var(ddof=1)) / 2)
+        return (x.mean() - w.mean()) / s if s > 0 else 0.0
+    bs = [d(rng.choice(a, len(a)), rng.choice(b, len(b))) for _ in range(reps)]
+    return (d(a, b), *np.percentile(bs, [2.5, 97.5]))
+
+
+def column_effects(g, rng):
+    """Every column: each non-main lot against its class's main lot, and each class's validation rows against its train rows as the no-shift control."""
+    r = []
+
+    def add(a, b, group, ref):
+        for c in C.ALL106:
+            r.append(shift_row("column_effect", group, ref, c, len(a), len(b), *effect(a[c].to_numpy(float), b[c].to_numpy(float), rng), note="standardised mean difference"))
+    for k in C.CLASSES:
+        d = g[g["class"] == k]
+        for l in sorted(set(d.lot) - {"main"}): add(d[d.lot == l], d[d.lot == "main"], f"{k} {l}", f"{k} main")
+        add(d[d.split == "val"], d[d.split == "train"], f"{k} val", f"{k} train")
+    return r
+
+
+def share_rows(cnt):
+    """Share of each class and lot in each split, from counts: stratification holds if a group's share matches across splits."""
+    t = cnt.sum(0)
+    return [shift_row("split_share", f"{c} {l}", "all rows in split", "", cnt.loc[(c, l), s], t[s], cnt.loc[(c, l), s] / t[s], note=s) for c, l in cnt.index for s in cnt.columns]
+
+
+def off_axis(m):
+    """Grain angle from the second moments of its image mask, folded to degrees off the image axes: 0 lies along an axis, 45 is diagonal."""
+    yy, xx = np.nonzero(m)
+    c = np.cov(xx, yy)
+    a = np.degrees(0.5 * np.arctan2(2 * c[0, 1], c[0, 0] - c[1, 1])) % 90
+    return min(a, 90 - a)
+
+
+def extent_shift(d, rng, n=300):
+    """EXTENT late against main, before and after removing what grain angle explains. Angle comes from the images, so it does not reuse EXTENT; the fit uses main rows only."""
+    s = pd.concat([d[d.lot == l].sample(min(n // 2, int((d.lot == l).sum())), random_state=C.SEED) for l in ("late", "main")])
+    masks = [C.grain_mask(im) for im in C.read_images(s)]
+    ok = np.array([m is not None and m.sum() > 2 for m in masks])
+    s, ang = s[ok], np.array([off_axis(m) for m, o in zip(masks, ok) if o])
+    main, e = (s.lot == "main").to_numpy(), s.EXTENT.to_numpy(float)
+    X = np.c_[np.ones(len(s)), ang, ang ** 2]
+    resid = e - X @ np.linalg.lstsq(X[main], e[main], rcond=None)[0]
+    return [shift_row("extent_angle", "Jasmine late", "Jasmine main", "EXTENT", (~main).sum(), main.sum(), *effect(v[~main], v[main], rng), note=t)
+            for v, t in ((e, "before adjusting for grain angle"), (resid, "after adjusting for grain angle"))]
+
+
+def late_drift(d, blocks=6):
+    """Median AREA and EXTENT per block of consecutive file numbers inside one lot."""
+    d = d.sort_values("file_no")
+    b = np.arange(len(d)) * blocks // max(len(d), 1)
+    return [shift_row("late_drift", f"block {i}", "", c, (b == i).sum(), 0, d.loc[b == i, c].median(), note=f"files {d.file_no[b == i].min()}-{d.file_no[b == i].max()}, median")
+            for i in range(blocks) if (b == i).any() for c in ("AREA", "EXTENT")]
+
+
+# shift accounting run
+share = sp.groupby(["class", "lot", "split"]).size().unstack(fill_value=0)
+rng_shift = np.random.default_rng(C.SEED)
+jas = g[g["class"] == "Jasmine"]
+sh = share_rows(share) + column_effects(g, rng_shift)
+if (jas.lot == "late").any(): sh += extent_shift(jas, rng_shift) + late_drift(jas[jas.lot == "late"])
+sh = pd.DataFrame(sh)
+sh.to_csv(out / "shift_accounting.csv", index=False); C.wrote(out / "shift_accounting.csv")
+top = sh[(sh.section == "column_effect") & (sh.group == "Jasmine late")]
+top = top.reindex(top.value.abs().sort_values().index).tail(15)
+fig, ax = plt.subplots(figsize=(7, 4.5))
+if len(top): ax.errorbar(top.value, range(len(top)), xerr=[top.value - top.lo, top.hi - top.value], fmt="o")
+ax.axvline(0, color="grey", ls="--"); ax.set_yticks(range(len(top)), top.column, fontsize=7)
+ax.set(title=f"Largest column shifts, Jasmine late against main (n={int(top.n.max()) if len(top) else 0} late)", xlabel="Standardised mean difference, 95% interval", ylabel="Column")
+C.savefig(fig, "eda_shift_accounting")
+# end shift accounting
+
 pd.DataFrame(ins).to_csv(out / "insights.csv", index=False); C.wrote(out / "insights.csv")
