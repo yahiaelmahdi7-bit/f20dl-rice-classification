@@ -185,6 +185,7 @@ ARTEFACTS = {
         "results/neural/best_config.json": _a(_S6, f"{_S6} {_S9} freeze.py", "mlp cnn"),
         "results/preds/{model}__{featureset}__seed{seed}__{split}.parquet": _a(f"common.py {_S5} {_S6} {_S7}", f"common.py {_S7} {_S8} {_S9}", "grain_id y p0 p1 p2 p3 p4"),
         "results/compare/{sp}_metrics.csv": _a(_S7, "report.py", _METRICS),
+        "results/compare/val_by_lot.csv": _a(_S7, "", "model featureset seed class lot n recall errors"),
         "results/compare/{sp}_recall.csv": _a(_S7, "", "model featureset seed split class n recall precision f1 errors"),
         "results/compare/{sp}_confusion.csv": _a(_S7, "", "model featureset seed true predicted count"),
         "results/compare/{sp}_seed_spread.csv": _a(_S7, "report.py", "model featureset seeds acc_mean acc_sd f1_mean f1_sd err_min err_max"),

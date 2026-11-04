@@ -289,3 +289,16 @@ def test_late_drift_reports_a_median_per_file_block():
 
 def test_eda_shift_table_uses_counts_only_from_splits():
     assert "load_split" not in _block("src/02_eda.py", "def shift_row(", "# end shift accounting")
+
+
+# ---- fix 8: per-lot validation score in stage 7
+def test_val_by_lot_scores_each_class_and_lot_on_its_own_rows():
+    ns = {}
+    exec(_block("src/07_compare.py", "def lot_rows(", "def main():"), ns)
+    y = np.array([3, 3, 3, 3, 0, 0])
+    cls = np.array(["Jasmine"] * 4 + ["Arborio"] * 2)
+    lots = np.array(["late", "late", "main", "main", "main", "main"])
+    p = np.array([0, 3, 3, 3, 0, 1])
+    d = pd.DataFrame(ns["lot_rows"](y, {("m", "fs", 0): p}, cls, lots)).set_index(["class", "lot"])
+    assert d.loc[("Jasmine", "late"), "recall"] == 0.5 and d.loc[("Jasmine", "main"), "recall"] == 1.0 and d.loc[("Arborio", "main"), "errors"] == 1
+    assert d.loc[("Jasmine", "late"), "n"] == 2 and len(d) == 3

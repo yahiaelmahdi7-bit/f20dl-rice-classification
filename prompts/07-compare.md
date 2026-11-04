@@ -10,3 +10,6 @@ Write `src/07_compare.py`. Option `--split val|test` (default test). With `--spl
 
 ## Fix 2
 Add macro precision and macro recall to every metrics row. Add per-class precision and F1 beside recall in `{split}_recall.csv`. File names stay, because `report.py` reads them. No new intervals.
+
+## Fix 5
+- New `results/compare/val_by_lot.csv`, validation only: recall per model, column set, seed, class and lot.
