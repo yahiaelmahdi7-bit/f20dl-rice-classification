@@ -159,7 +159,7 @@ for i, c in enumerate(C.CLASSES):
     s = g[g["class"] == c].sample(6, random_state=1)
     for ax, im, gid in zip(axs[i], C.read_images(s), s.grain_id):
         ax.imshow(im); ax.set_title(gid, fontsize=6); ax.axis("off")
-fig.suptitle("Example grains, 128 px (train+val)")
+fig.suptitle(f"Example grains, 128 px, train+val (n={len(C.CLASSES) * 6} of {n})")
 C.savefig(fig, "eda_examples")
 
 
@@ -318,7 +318,7 @@ for ax, f in zip(axs, ["AREA", "meanRR"]):
         s = g[g["class"] == k].sort_values("file_no")
         ax.plot(s.file_no, s[f].rolling(200, center=True, min_periods=20).median(), lw=1, color=col[k], label=k)
         fo.append(dict(**{"class": k}, column=f, lag1_autocorr=float(s[f].autocorr(1)), n=len(s)))
-    ax.set(title=f"{f}, rolling median 200", xlabel="Image file number", ylabel=f"{f} (table units)")
+    ax.set(title=f"{f}, rolling median 200 (n={n})", xlabel="Image file number", ylabel=f"{f} (table units)")
 axs[0].legend(fontsize=7)
 C.savefig(fig, "eda_file_order")
 fo = pd.DataFrame(fo)

@@ -409,3 +409,9 @@ def test_outlier_log_counts_rows_not_cells(tmp_path):
     r = log["outliers_robust_z6"]
     assert r["rows_affected"] == 2 and r["reason"].startswith("3 cells with |robust z| > 6")
     assert pd.read_csv(tmp_path / "outliers.csv").n_outliers.sum() == 3      # the table keeps cells
+
+
+def test_eda_titles_state_n():
+    C = types.SimpleNamespace(CLASSES=list("abcde"))
+    assert _fstrings("src/02_eda.py", "rolling median 200", f="AREA", n=7) == ["AREA, rolling median 200 (n=7)"]
+    assert _fstrings("src/02_eda.py", "Example grains", C=C, n=70) == ["Example grains, 128 px, train+val (n=30 of 70)"]
