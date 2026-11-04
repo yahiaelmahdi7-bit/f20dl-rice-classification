@@ -60,7 +60,7 @@
 # The brief's R3 names accuracy, precision, recall and F1. Add `val_macro_precision` and `val_macro_recall` to the stage 5 results beside `val_accuracy` and `val_macro_f1`. Selection stays on macro-F1.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 5: table baselines tuned on validation macro-F1; saves models and validation predictions."""
-import argparse, itertools, json
+import argparse, itertools, json, os
 import joblib, numpy as np, pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier as HGB
 from sklearn.linear_model import LogisticRegression
@@ -103,32 +103,32 @@ def merge_csv(path, new, keys):
         old = pd.read_csv(path)
         old = old[~old.set_index(keys).index.isin(new.set_index(keys).index)]
         new = pd.concat([old, new])
-    new.to_csv(path, index=False)
+    tmp = path.with_name(path.name + ".tmp")       # temp then rename: a crash mid-write keeps the last good file
+    new.to_csv(tmp, index=False)
+    os.replace(tmp, path)
     C.wrote(path)
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--only")
-    ap.add_argument("--control", action="store_true")
-    a = ap.parse_args()
-    out = C.stage_dir("baselines")
-    (C.MODELS / "baselines").mkdir(parents=True, exist_ok=True)
-    tr, va = C.load_split("train"), C.load_split("val")
-    jobs = [tuple(a.only.split(":"))] if a.only else JOBS
+def save_best(path, best):
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(best, indent=1, sort_keys=True))
+    os.replace(tmp, path)
+
+
+def clear_results(out):
+    """A full run rebuilds these three, so no row of an older grid can survive it."""
+    for name in ("best_params.json", "grid.csv", "val_results.csv"):
+        (out / name).unlink(missing_ok=True)
+
+
+def tune_jobs(jobs, tr, va, out):
+    """Tune each job on validation. Its model files, then its rows, are saved as it finishes, so a crash keeps every finished job."""
     best_path = out / "best_params.json"
     best = json.loads(best_path.read_text()) if best_path.exists() else {}
-    grid_rows, res_rows, ctl = [], [], []
     for m, fs in jobs:
         Xtr, ytr = C.xy(tr, fs)
         Xva, yva = C.xy(va, fs)
-        if a.control:
-            yshuf = np.random.default_rng(C.SEED).permutation(ytr)
-            pipe = build(m, points(m)[0]).fit(Xtr, yshuf)
-            ctl.append({"model": m, "featureset": fs, "val_accuracy": float((pipe.predict(Xva) == yva).mean())})
-            print(ctl[-1], flush=True)
-            continue
-        top = None
+        top, grid_rows = None, []
         for p in points(m):
             pipe = build(m, p).fit(Xtr, ytr)
             pr = pipe.predict(Xva)
@@ -142,15 +142,36 @@ def main():
         joblib.dump(obj, C.MODELS / "baselines" / f"{m}__{fs}.joblib")
         if (m, fs) == ("hgb", "all106"): joblib.dump(obj, C.MODELS / "hgb_all106.joblib")
         best[f"{m}:{fs}"] = p
-        res_rows.append({"model": m, "featureset": fs, "val_accuracy": float((pr == yva).mean()), "val_macro_f1": f1,
-                         "val_macro_precision": float(C.macro_precision(yva, pr)), "val_macro_recall": float(C.macro_recall(yva, pr)), "params": json.dumps(p)})
-        print(res_rows[-1], flush=True)
+        res = {"model": m, "featureset": fs, "val_accuracy": float((pr == yva).mean()), "val_macro_f1": f1,
+               "val_macro_precision": float(C.macro_precision(yva, pr)), "val_macro_recall": float(C.macro_recall(yva, pr)), "params": json.dumps(p)}
+        print(res, flush=True)
+        save_best(best_path, best)
+        merge_csv(out / "grid.csv", pd.DataFrame(grid_rows), ["model", "featureset"])
+        merge_csv(out / "val_results.csv", pd.DataFrame([res]), ["model", "featureset"])
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--only")
+    ap.add_argument("--control", action="store_true")
+    a = ap.parse_args()
+    out = C.stage_dir("baselines")
+    (C.MODELS / "baselines").mkdir(parents=True, exist_ok=True)
+    tr, va = C.load_split("train"), C.load_split("val")
+    jobs = [tuple(a.only.split(":"))] if a.only else JOBS
     if a.control:
+        ctl = []
+        for m, fs in jobs:
+            Xtr, ytr = C.xy(tr, fs)
+            Xva, yva = C.xy(va, fs)
+            yshuf = np.random.default_rng(C.SEED).permutation(ytr)
+            pipe = build(m, points(m)[0]).fit(Xtr, yshuf)
+            ctl.append({"model": m, "featureset": fs, "val_accuracy": float((pipe.predict(Xva) == yva).mean())})
+            print(ctl[-1], flush=True)
         merge_csv(out / "control.csv", pd.DataFrame(ctl), ["model", "featureset"])
         return
-    best_path.write_text(json.dumps(best, indent=1, sort_keys=True))
-    merge_csv(out / "grid.csv", pd.DataFrame(grid_rows), ["model", "featureset", "params"])
-    merge_csv(out / "val_results.csv", pd.DataFrame(res_rows), ["model", "featureset"])
+    if not a.only: clear_results(out)
+    tune_jobs(jobs, tr, va, out)
     # depth-4 tree on all106 for the practical-applications discussion
     imp = C.SimpleImputer(strategy="median").fit(tr[C.ALL106])
     t4 = DecisionTreeClassifier(max_depth=4, random_state=C.SEED).fit(imp.transform(tr[C.ALL106]), tr.y)
