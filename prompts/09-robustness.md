@@ -12,3 +12,6 @@ Write `src/09_robustness.py` with `--train` (retrains without the late lot, usin
 
 ## Fix 2
 The mean-colour model is fitted on table means and scored on image-computed means, so its raw and corrected scores are not like for like. Fit it on `mask_means` from a stratified 5,000-grain train sample, fixed seed, and score on the same measure. Write `results/robustness/mean_colour_check.csv` comparing table means with `mask_means` on that sample: `channel, n, pearson, median_abs_diff`.
+
+## Fix 3
+A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` trained on train, which holds 2,298 of the 3,283 late grains, so score them on the late test subset only and write no `late_all` row for them. Hold-out models never saw a late grain and keep both rows. The tint arms use a model fitted on train and the frozen CNNs, so score them on the late test subset only. In smoke mode the late test subset is the validation stand-in, so pick it by `grain_id`, not by the split label. Stop if a scored grain is in train. Sample per class without `groupby().apply`, because pandas 3 drops the `y` column there and `samp.y` fails.

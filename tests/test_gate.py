@@ -107,10 +107,11 @@
 # In your final report, list every command you executed since this resume, so the reviewer can confirm nothing outside the limit ran. Give the new stage 4 ARI at k=5 for all106 and distinct91, and the seed-to-seed range from gmm_stability.csv.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 import json
+import numpy as np
 import pandas as pd
 import pytest
 import common as C
-from conftest import run_as
+from conftest import load_stage, run_as
 
 
 def test_unlisted_caller_refused(gate_env):
@@ -152,3 +153,32 @@ def test_routing_only_reads_test_when_scoring(gate_env, monkeypatch):
 def test_train_and_val_loads_need_no_gate(gate_env):
     assert len(C.load_split("train")) == 1 and len(C.load_split("val")) == 1
     assert "test" not in set(C.load_grains().split)
+
+
+def test_only_holdout_models_score_every_late_grain():
+    s9 = load_stage("09_robustness.py")
+    P, y, is_te = np.eye(5)[[0, 1, 2, 3]], np.arange(4), np.array([True, False, True, False])
+    assert [(r["subset"], r["n"]) for r in s9.late_rows("full_cnn:seed0", P, y, is_te)] == [("late_test", 2)]
+    assert [(r["subset"], r["n"]) for r in s9.late_rows("full_hgb:all106", P, y, is_te)] == [("late_test", 2)]
+    assert [(r["subset"], r["n"]) for r in s9.late_rows("holdout_hgb:all106", P, y, is_te)] == [("late_all", 4), ("late_test", 2)]
+
+
+def test_tint_arms_score_late_test_grains_only(tmp_path, monkeypatch):
+    s9 = load_stage("09_robustness.py")
+    rng = np.random.default_rng(0)
+
+    def grains(n, tag):
+        return pd.DataFrame({"grain_id": [f"{tag}-{i}" for i in range(n)], "y": np.arange(n) % 5, "path": "x", "AREA": 100.0 + rng.random(n),
+                             "meanRR": rng.random(n), "meanRG": rng.random(n), "meanRB": rng.random(n)})
+
+    def photo(_):
+        a = np.zeros((250, 250, 3), np.uint8)
+        a[80:170, 60:190] = rng.integers(120, 255, 3)
+        return a
+
+    monkeypatch.setattr(s9, "read250", photo)
+    monkeypatch.setattr(C, "load_cnn", lambda p: (None, None, None))
+    monkeypatch.setattr(C, "run_cnn", lambda m, mean, std, f, n: (np.eye(5)[np.zeros(n, int)], None))
+    monkeypatch.setattr(C, "load_preds", lambda *a: None)
+    s9.grey_world(grains(7, "te"), grains(20, "tr"), grains(10, "va"), tmp_path)
+    assert set(pd.read_csv(tmp_path / "greyworld_results.csv").n) == {7}

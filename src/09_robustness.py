@@ -50,6 +50,9 @@
 #
 # ## Fix 2
 # The mean-colour model is fitted on table means and scored on image-computed means, so its raw and corrected scores are not like for like. Fit it on `mask_means` from a stratified 5,000-grain train sample, fixed seed, and score on the same measure. Write `results/robustness/mean_colour_check.csv` comparing table means with `mask_means` on that sample: `channel, n, pearson, median_abs_diff`.
+#
+# ## Fix 3
+# A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` trained on train, which holds 2,298 of the 3,283 late grains, so score them on the late test subset only and write no `late_all` row for them. Hold-out models never saw a late grain and keep both rows. The tint arms use a model fitted on train and the frozen CNNs, so score them on the late test subset only. In smoke mode the late test subset is the validation stand-in, so pick it by `grain_id`, not by the split label. Stop if a scored grain is in train. Sample per class without `groupby().apply`, because pandas 3 drops the `y` column there and `samp.y` fails.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 9: late-lot robustness. --train fits hold-out models without the late lot; --score reads the test split once."""
 import argparse, importlib.util, json
@@ -162,6 +165,18 @@ def recall_row(name, tag, P, y):
                 confidently_wrong=int(((cf >= CONF) & ~ok).sum()))
 
 
+def per_class_sample(df, n):
+    return pd.concat([d.sample(min(len(d), n), random_state=C.SEED) for _, d in df.groupby("y")]).reset_index(drop=True)
+
+
+def late_rows(name, P, y, is_te):
+    """Only hold-out models never saw a late grain; every other model is scored on the test subset alone."""
+    rows = [recall_row(name, "late_test", P[is_te], y[is_te])]
+    if name.startswith("holdout_"):
+        rows.insert(0, recall_row(name, "late_all", P, y))
+    return rows
+
+
 def score():
     N = _load("08_routing.py")
     hd = hold_dir()
@@ -169,18 +184,18 @@ def score():
     tr, va = C.load_split("train"), C.load_split("val")
     te = C.load_split("test")                         # the single gated test read of this stage
     print(f"test read: {len(te)} grains", flush=True)
-    allsplit = pd.concat([tr, va, te], ignore_index=True)
+    allsplit = pd.concat([tr, va, te], ignore_index=True).drop_duplicates("grain_id")   # smoke: te is validation again
     late = allsplit[allsplit.lot == "late"].reset_index(drop=True)
-    late_te = late[late.split == "test"].reset_index(drop=True)
+    is_te = late.grain_id.isin(te.grain_id).to_numpy()
+    late_te = late[is_te].reset_index(drop=True)
+    assert not set(late_te.grain_id) & set(tr.grain_id), "a scored grain is in train"
     print(f"late grains: all {len(late)}, test {len(late_te)}", flush=True)
     y = late.y.to_numpy()
-    is_te = (late.split == "test").to_numpy()
     rows, P_ref = [], {}
 
     def add(name, P):
         P_ref[name] = P
-        rows.append(recall_row(name, "late_all", P, y))
-        rows.append(recall_row(name, "late_test", P[is_te], y[is_te]))
+        rows.extend(late_rows(name, P, y, is_te))
 
     for fs in HOLD_FS:
         add(f"holdout_hgb:{fs}", joblib.load(hd / f"hgb__{fs}.joblib")["pipe"].predict_proba(late[C.features(fs)]))
@@ -214,13 +229,13 @@ def score():
         ch.append(dict(subset=subset, route="answered_total", grains=int(a.sum()), share=float(a.sum() / max(m.sum(), 1)), errors=int((ans[a] != y[a]).sum())))
     pd.DataFrame(ch).to_csv(out / "late_chain.csv", index=False); C.wrote(out / "late_chain.csv")
 
-    grey_world(late, late_te, tr, va, out)
+    grey_world(late_te, tr, va, out)
 
 
-def grey_world(late, late_te, tr, va, out):
+def grey_world(late_te, tr, va, out):
     from sklearn.ensemble import HistGradientBoostingClassifier as HGB
     # 1. is the gain independent of grain size? r(gain, log AREA) per class, on a train+val sample
-    samp = pd.concat([tr, va]).groupby("y", group_keys=False).apply(lambda d: d.sample(min(len(d), 1000), random_state=C.SEED)).reset_index(drop=True)
+    samp = per_class_sample(pd.concat([tr, va]), 1000)
     G = np.array([grey_world_gains(im, C.grain_mask(im)) for im in (read250(p) for p in samp.path)])
     cr = []
     for k in range(5):
@@ -231,7 +246,7 @@ def grey_world(late, late_te, tr, va, out):
     pd.DataFrame(cr).to_csv(out / "greyworld_gain_vs_area.csv", index=False); C.wrote(out / "greyworld_gain_vs_area.csv")
 
     # 1b. table means vs mask means on a stratified 5000-grain train sample
-    ms = tr.groupby("y", group_keys=False).apply(lambda d: d.sample(min(len(d), 1000), random_state=C.SEED)).reset_index(drop=True)
+    ms = per_class_sample(tr, 1000)
     MM = np.array([mask_means(read250(p)) for p in ms.path])
     mcr = []
     for c, col in enumerate(["meanRR", "meanRG", "meanRB"]):
@@ -239,10 +254,10 @@ def grey_world(late, late_te, tr, va, out):
         mcr.append(dict(channel="RGB"[c], n=len(ms), pearson=float(np.corrcoef(t, MM[:, c])[0, 1]), median_abs_diff=float(np.median(np.abs(t - MM[:, c])))))
     pd.DataFrame(mcr).to_csv(out / "mean_colour_check.csv", index=False); C.wrote(out / "mean_colour_check.csv")
 
-    # 2. mean-colour model, raw vs corrected image means on the late grains
+    # 2. mean-colour model, raw vs corrected image means on the late test grains (it was fitted on train)
     mcm = HGB(random_state=C.SEED, early_stopping=False, max_iter=150).fit(MM, ms.y.to_numpy())   # fitted on mask_means, same measure as scoring
-    y = late.y.to_numpy()
-    imgs = [read250(p) for p in late.path]
+    y = late_te.y.to_numpy()
+    imgs = [read250(p) for p in late_te.path]
     gains = [grey_world_gains(im, C.grain_mask(im)) for im in imgs]
     raw_m = np.array([mask_means(im) for im in imgs])
     cor = [apply_gains(im, g) for im, g in zip(imgs, gains)]
@@ -250,9 +265,7 @@ def grey_world(late, late_te, tr, va, out):
     res = [dict(arm="mean_colour_model", variant="raw", n=len(y), accuracy=float((mcm.predict(raw_m) == y).mean())),
            dict(arm="mean_colour_model", variant="grey_world", n=len(y), accuracy=float((mcm.predict(cor_m) == y).mean()))]
 
-    # 3. frozen CNN seeds on raw (gain 1, control) and corrected images, same 250px -> 128px path
-    te_ids = set(late_te.grain_id)
-    te_idx = np.array([i for i, g in enumerate(late.grain_id) if g in te_ids], dtype=int)
+    # 3. frozen CNN seeds on raw (gain 1, control) and corrected late test images, same 250px -> 128px path
     ctl = []
     for k in C.SEEDS:
         m, mean, std = C.load_cnn(C.MODELS / f"cnn_seed{k}.pt")
@@ -262,10 +275,10 @@ def grey_world(late, late_te, tr, va, out):
             res.append(dict(arm=f"cnn_seed{k}", variant=variant, n=len(y), accuracy=float((P.argmax(1) == y).mean())))
             if variant == "raw_same_path":
                 ref = C.load_preds("cnn", "image", k, "test")
-                if ref is not None and len(te_idx):
-                    ref = ref.set_index("grain_id").loc[late.grain_id.iloc[te_idx]]
+                if ref is not None:
+                    ref = ref.set_index("grain_id").loc[late_te.grain_id]
                     Pr = C.probs(ref.reset_index())
-                    ctl.append(dict(seed=k, n=len(te_idx), max_abs_diff=float(np.abs(P[te_idx] - Pr).max()), argmax_equal=bool((P[te_idx].argmax(1) == Pr.argmax(1)).all())))
+                    ctl.append(dict(seed=k, n=len(y), max_abs_diff=float(np.abs(P - Pr).max()), argmax_equal=bool((P.argmax(1) == Pr.argmax(1)).all())))
     pd.DataFrame(res).to_csv(out / "greyworld_results.csv", index=False); C.wrote(out / "greyworld_results.csv")
     pd.DataFrame(ctl).to_csv(out / "greyworld_control.csv", index=False); C.wrote(out / "greyworld_control.csv")
     print(pd.DataFrame(res).round(4).to_string(index=False)); print(pd.DataFrame(ctl).to_string(index=False))
