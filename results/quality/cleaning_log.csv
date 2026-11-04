@@ -1,0 +1,9 @@
+check,scope,rows_affected,action,reason
+image_decode,75000 images,0,none,files that fail to open as RGB
+image_size,75000 images,0,none,images not 250x250 pixels
+missing_cells,table 75000 rows,8,median imputation inside each model pipeline,rows with a ? cell (22 cells)
+exact_duplicate_pairs,75000 linked grains,297,drop later file of each pair,identical on all 106 columns to 6 decimals
+extra_specks,75000 images,0,none; grain mask keeps the largest component only,images with other bright components of 5+ px (median 0 px)
+link_distance,75000 links,750,none; links kept (one-to-one),median true 0.001 vs shuffled 1.326; rows beyond 99th percentile
+validity_out_of_range,63497 grains x 106 columns,573266,none; reported,"10 columns flagged: entropyRR entropyRG entropyRB entropyL entropyA entropyB entropyY entropyCb; entropy columns are negative because the published form is -sum(s^2*ln(s^2)) over non-zero pixel values of the whole 250px image; RGB on 0-255, HSV on 0-1; recomputation in entropy_check.csv"
+outliers_robust_z6,63497 grains x 106 columns,71634,keep,"cells with |robust z| > 6 (median, MAD) per class; counts in outliers.csv"

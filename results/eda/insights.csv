@@ -1,0 +1,9 @@
+id,finding,value,n,figure
+dict_families,column families,7.0,63497,
+validity_flags,columns with any validity flag,10.0,63497,
+outlier_cells,cells with robust z above 6,71634.0,63497,eda_outlier_montage
+max_lag1_autocorr,largest lag-1 autocorrelation by file number,0.937255270535088,63497,eda_file_order
+resize_area_ratio,median (128 px mask area scaled to 250 px) / table AREA,0.9941312657535697,63497,
+copy_columns_identical,ALLdaub4 columns equal to their mean column,0.0,63497,
+corr_clusters,correlation clusters at 0.95 on distinct91,44.0,63497,eda_correlation
+jasmine_late_area_ratio,"late/early median AREA, Jasmine",1.807030807030807,63497,eda_jasmine_break

@@ -1,0 +1,26 @@
+{
+ "selected": [
+  "ROUNDNESS",
+  "SHAPEFACTOR_1",
+  "PERIMETER",
+  "MAJOR_AXIS",
+  "CONVEX_AREA",
+  "meanB",
+  "entropyL",
+  "meanA",
+  "StdDevV",
+  "StdDevL",
+  "entropyXX",
+  "meanS",
+  "meanH",
+  "StdDevCb",
+  "kurtosisYY",
+  "entropyH"
+ ],
+ "k": 16,
+ "k_by_model": {
+  "hgb": 16,
+  "logreg": 16
+ },
+ "best_val_accuracy": 0.9985720660419456
+}
