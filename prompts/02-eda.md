@@ -21,3 +21,6 @@ Add these outputs. Train and validation only for anything using labels beyond cl
 
 ## Fix 3
 - `results/eda/jasmine_lots.csv` names its first column `feature`.
+
+## Fix 4
+- `results/eda/insights.csv`: `n` is the number of rows behind the value on that row, not always all grains. `add_insight` takes `n_used`. `max_lag1_autocorr` uses the `n` of the `file_order.csv` row holding the largest absolute value, `resize_area_ratio` the size of its sample, `corr_clusters` the size of its sample, `jasmine_late_area_ratio` the Jasmine rows. Rows without `n_used` keep all grains.

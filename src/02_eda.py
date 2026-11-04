@@ -169,8 +169,8 @@ q = C.stage_dir("quality")
 ins = []   # id, finding, value, n, figure
 
 
-def add_insight(i, finding, value, figure=""):
-    ins.append(dict(id=i, finding=finding, value=value, n=n, figure=figure))
+def add_insight(i, finding, value, figure="", n_used=None):
+    ins.append(dict(id=i, finding=finding, value=value, n=n if n_used is None else n_used, figure=figure))
 
 
 def append_log(rows, checks):
@@ -312,7 +312,7 @@ axs[0].legend(fontsize=7)
 C.savefig(fig, "eda_file_order")
 fo = pd.DataFrame(fo)
 fo.to_csv(out / "file_order.csv", index=False); C.wrote(out / "file_order.csv")
-add_insight("max_lag1_autocorr", "largest lag-1 autocorrelation by file number", float(fo.lag1_autocorr.abs().max()), "eda_file_order")
+add_insight("max_lag1_autocorr", "largest lag-1 autocorrelation by file number", float(fo.lag1_autocorr.abs().max()), "eda_file_order", n_used=int(fo.n[fo.lag1_autocorr.abs().idxmax()]))
 
 # image side
 mean_im = {k: C.read_images(g[g["class"] == k].sample(min(300, (g["class"] == k).sum()), random_state=0)).astype(np.float32).mean(0) for k in C.CLASSES}
@@ -330,8 +330,8 @@ rs = rs.assign(ratio=fr)
 rc = rs.groupby("class").agg(n=("ratio", "size"), median_ratio=("ratio", "median"))
 rc["pearson_area"] = [float(np.corrcoef(np.log(rs.AREA[rs["class"] == k]), np.log(rs.ratio[rs["class"] == k] * rs.AREA[rs["class"] == k]))[0, 1]) for k in rc.index]
 rc.to_csv(out / "resize_area_check.csv"); C.wrote(out / "resize_area_check.csv")
-add_insight("resize_area_ratio", "median (128 px mask area scaled to 250 px) / table AREA", float(rs.ratio.median()), "")
+add_insight("resize_area_ratio", "median (128 px mask area scaled to 250 px) / table AREA", float(rs.ratio.median()), "", n_used=len(rs))
 add_insight("copy_columns_identical", "ALLdaub4 columns equal to their mean column", int(pd.DataFrame(rows).identical.sum()), "")
-add_insight("corr_clusters", "correlation clusters at 0.95 on distinct91", int(len(set(cl))), "eda_correlation")
-add_insight("jasmine_late_area_ratio", "late/early median AREA, Jasmine", float(l["AREA"] / e["AREA"]), "eda_jasmine_break")
+add_insight("corr_clusters", "correlation clusters at 0.95 on distinct91", int(len(set(cl))), "eda_correlation", n_used=len(sub))
+add_insight("jasmine_late_area_ratio", "late/early median AREA, Jasmine", float(l["AREA"] / e["AREA"]), "eda_jasmine_break", n_used=len(J))
 pd.DataFrame(ins).to_csv(out / "insights.csv", index=False); C.wrote(out / "insights.csv")

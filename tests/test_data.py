@@ -5,6 +5,7 @@ import io
 import os
 import pathlib
 import subprocess
+import types
 
 import numpy as np
 import pandas as pd
@@ -339,3 +340,49 @@ def test_leak_audit_crash_mid_write_keeps_old_csv(tmp_path, monkeypatch):
     with pytest.raises(OSError):
         L.write_rows([("a", 1)], out)
     assert out.read_text() == "old\n" and [p.name for p in tmp_path.iterdir()] == ["leak_audit.csv"]
+
+
+# ---- R2 review, Fix 4: the real lines of stages 2 and 4 run on made-up frames; importing either would run the stage
+def _block(rel, start, end):
+    """Source text from one marker up to the next."""
+    src = _code(rel)
+    i = src.index(start)
+    return src[i:src.index(end, i)]
+
+
+def _fstrings(rel, marker, **names):
+    """Every f-string in a stage whose text holds marker, evaluated with names."""
+    found = [n for n in ast.walk(ast.parse(_code(rel))) if isinstance(n, ast.JoinedStr) and marker in ast.unparse(n)]
+    return [eval(compile(ast.Expression(n), rel, "eval"), dict(names)) for n in found]
+
+
+def _eda_ns(tmp_path, g, classes=()):
+    """Names a stage 2 block needs, with C reduced to the columns of g and a log that collects its rows."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    log = {}
+    C = types.SimpleNamespace(ALL106=[c for c in g.columns if c not in ("class", "grain_id")], CLASSES=list(classes), wrote=lambda p: None,
+                              read_images=lambda s: [np.zeros((4, 4, 3), np.uint8)] * len(s), savefig=lambda fig, name: plt.close(fig))
+    ns = dict(np=np, pd=pd, plt=plt, C=C, g=g, q=tmp_path, n=len(g), ENT_FORMULA="formula", add_insight=lambda *a, **k: None,
+              append_log=lambda rows, checks: log.update({r["check"]: r for r in rows}))
+    exec(_block("src/02_eda.py", "def flagged_rows(", "# validity"), ns)
+    return ns, log
+
+
+def test_insight_n_defaults_to_all_grains_and_takes_the_rows_used():
+    ns = {"ins": [], "n": 999}
+    exec(_block("src/02_eda.py", "def add_insight(", "def append_log("), ns)
+    ns["add_insight"]("a", "all grains", 1)
+    ns["add_insight"]("b", "a sample", 2, "fig", n_used=600)
+    assert [(r["id"], r["n"], r["figure"]) for r in ns["ins"]] == [("a", 999, ""), ("b", 600, "fig")]
+
+
+def test_each_insight_on_a_subset_states_its_own_rows():
+    calls = {n.args[0].value: next((k.value for k in n.keywords if k.arg == "n_used"), None)
+             for n in ast.walk(ast.parse(_code("src/02_eda.py")))
+             if isinstance(n, ast.Call) and getattr(n.func, "id", "") == "add_insight"}
+    fo = pd.DataFrame({"lag1_autocorr": [0.2, -0.9, 0.5], "n": [10, 20, 30]})    # largest by size is negative, on the n=20 row
+    names = dict(fo=fo, rs=range(6), sub=range(5), J=range(4))
+    got = {i: eval(compile(ast.Expression(e), "n_used", "eval"), dict(names)) for i, e in calls.items() if e is not None}
+    assert got == {"max_lag1_autocorr": 20, "resize_area_ratio": 6, "corr_clusters": 5, "jasmine_late_area_ratio": 4}
