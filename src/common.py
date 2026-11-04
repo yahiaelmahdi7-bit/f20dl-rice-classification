@@ -405,7 +405,8 @@ def floor_for(conf, correct, target):
     o = np.argsort(conf)
     c, k = conf[o], correct[o].astype(float)
     tail = np.cumsum(k[::-1])[::-1] / np.arange(len(k), 0, -1)   # accuracy of everything from i upward
-    ok = np.where(tail >= target)[0]
+    first = np.r_[True, c[1:] != c[:-1]]        # a floor keeps every tied answer, so only the start of a tied run counts
+    ok = np.where((tail >= target) & first)[0]
     return float(c[ok[0]]) if len(ok) else 1.01
 
 
