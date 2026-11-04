@@ -15,3 +15,10 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 ## Fix 2
 - `common.py`: add `macro_precision(y, pred)` and `macro_recall(y, pred)` beside `macro_f1`, same labels, `zero_division=0`. Add a model-free test on a hand-worked example.
 - `common.savefig`: skip `fig.tight_layout()` when the figure already uses a constrained layout, so colour bars keep their own space.
+
+## Fix 3
+- `common.py`: add one `ARTEFACTS` dict with `names` (the one name for each class, split, feature set and metric, plus the column names that must not be used) and `files` (each artefact with its writers, readers and columns, or top-level keys for a JSON or joblib dict).
+- `common.floor_for`: a floor keeps every answer tied with it, so only the start of a run of equal confidences may be returned. `conf=[0.9, 0.9, 0.95]`, `correct=[0, 1, 1]`, target 1.0 gives 0.95, not 0.9.
+- `Makefile`: `smoke` depends on `get-data`, so a clean clone with `RICE_ZIP_DIR` set can run it. The smoke predict step calls `predict.py` once per path, quoted, and fails if the path tool or any prediction fails.
+- `tools/smoke_images.py`: print one path per line, because image paths contain spaces.
+- `tools/stamp_prompts.py`: `prompt_for` must not take `00-context.md` as the prompt of `src/00_get_data.py`; it maps to `00-get-data.md`.
