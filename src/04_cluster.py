@@ -66,7 +66,8 @@ trm = (g.split == "train").values
 y, late = g.y.values, (g.lot == "late").values
 rng = np.random.default_rng(C.SEED)
 SETS = ["all106", "distinct91", "sizefree22"]
-rows, chk, prof, labs, cum = [], [], [], {}, {}
+rows, chk, prof, labs, cum, stab = [], [], [], {}, {}, []
+NINIT_GMM = 3 if C.SMOKE else 5
 for fs in SETS:
     cs = C.features(fs)
     imp = SimpleImputer(strategy="median").fit(g.loc[trm, cs])
@@ -82,11 +83,15 @@ for fs in SETS:
             if name == "kmeans":
                 m = KMeans(k, n_init=3 if C.SMOKE else 10, random_state=C.SEED).fit(Z); lab = m.labels_; bic = np.nan; inertia = float(m.inertia_)
             else:
-                m = GaussianMixture(k, covariance_type="full", reg_covar=1e-4, random_state=C.SEED).fit(Z); lab = m.predict(Z); bic = m.bic(Z); inertia = np.nan
+                m = GaussianMixture(k, covariance_type="full", reg_covar=1e-4, n_init=NINIT_GMM, random_state=C.SEED).fit(Z); lab = m.predict(Z); bic = m.bic(Z); inertia = np.nan
             rows.append({"featureset": fs, "method": name, "k": k, "silhouette": silhouette_score(Z[sidx], lab[sidx]), "bic": bic, "inertia": inertia,
                          "ARI": ARI(y, lab), "NMI": NMI(y, lab), "pca_cum_var": cum[fs]})
             if k in (5, 6): labs[(fs, name, k)] = lab
             print(rows[-1], flush=True)
+    for k in (5, 6):                                  # GMM seed-to-seed stability, same silhouette sample as above
+        for sd in range(5):
+            m = GaussianMixture(k, covariance_type="full", reg_covar=1e-4, n_init=NINIT_GMM, random_state=sd).fit(Z); lab = m.predict(Z)
+            stab.append({"featureset": fs, "k": k, "seed": sd, "ARI": ARI(y, lab), "NMI": NMI(y, lab), "silhouette": silhouette_score(Z[sidx], lab[sidx]), "bic": m.bic(Z)})
     for name in ("kmeans", "gmm"):
         for c in sorted(set(labs[(fs, name, 6)])):
             inc = labs[(fs, name, 6)] == c
@@ -105,6 +110,7 @@ for fs in SETS:
                              "purity": float(vc.iloc[0] / inc.sum())})
 res = pd.DataFrame(rows)
 res.to_csv(out / "cluster_metrics.csv", index=False); C.wrote(out / "cluster_metrics.csv")
+pd.DataFrame(stab).to_csv(out / "gmm_stability.csv", index=False); C.wrote(out / "gmm_stability.csv")
 pd.DataFrame(prof).to_csv(out / "profiles.csv", index=False); C.wrote(out / "profiles.csv")
 pd.DataFrame([{"featureset": k, "pca_components": 20, "cumulative_explained_variance": v} for k, v in cum.items()]).to_csv(out / "pca_variance.csv", index=False)
 
@@ -115,7 +121,7 @@ chk.to_csv(out / "late_lot_check.csv", index=False); C.wrote(out / "late_lot_che
 print(chk.groupby(["featureset", "method"]).passes.any().to_dict(), "late-lot cluster found (>=80% share at >=80% purity)")
 
 # cluster-by-variety heatmaps, k-means at k=5 and k=6
-fig, axs = plt.subplots(2, len(SETS), figsize=(4.5 * len(SETS), 7))
+fig, axs = plt.subplots(2, len(SETS), figsize=(4.5 * len(SETS), 7), layout="constrained")
 for r, k in enumerate((5, 6)):
     for c_, fs in enumerate(SETS):
         ct = pd.crosstab(labs[(fs, "kmeans", k)], g["class"]).reindex(columns=C.CLASSES)

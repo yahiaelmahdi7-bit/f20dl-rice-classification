@@ -201,6 +201,33 @@ dd = pd.DataFrame(dd)
 dd.to_csv(q / "data_dictionary.csv", index=False); C.wrote(q / "data_dictionary.csv")
 add_insight("dict_families", "column families", dd.family.nunique())
 
+# entropy check: recompute the published entropy columns from the 250px image (Shannon form -sum(s^2 ln s^2), non-zero values)
+from matplotlib.colors import rgb_to_hsv
+from PIL import Image
+ENT_FORMULA = "-sum(s^2*ln(s^2)) over non-zero pixel values of the whole 250px image; RGB on 0-255, HSV on 0-1"
+
+
+def ent_of(a):
+    a = a[a > 0].astype(np.float64)
+    return float(-(a ** 2 * np.log(a ** 2)).sum())
+
+
+es = g[g.split == "train"].sample(min(200, int((g.split == "train").sum())), random_state=C.SEED)
+mine = {c: [] for c in ["RR", "RG", "RB", "H", "S", "V"]}
+for pth in es.path:
+    im = np.asarray(Image.open(pth).convert("RGB"))
+    for j, c in enumerate(["RR", "RG", "RB"]): mine[c].append(ent_of(im[..., j]))
+    hsv = rgb_to_hsv(im / 255.0)
+    for j, c in enumerate(["H", "S", "V"]): mine[c].append(ent_of(hsv[..., j]))
+ecr = []
+for c, v in mine.items():
+    v, t = np.array(v), es[f"entropy{c}"].to_numpy(np.float64)
+    r = v / t
+    ecr.append(dict(column=f"entropy{c}", scale="0-255" if c.startswith("R") else "0-1", n=len(v), pearson=float(np.corrcoef(v, t)[0, 1]),
+                    median_ratio=float(np.nanmedian(r)), min_ratio=float(np.nanmin(r)), max_ratio=float(np.nanmax(r))))
+pd.DataFrame(ecr).to_csv(q / "entropy_check.csv", index=False); C.wrote(q / "entropy_check.csv")
+print(pd.DataFrame(ecr).to_string(index=False), flush=True)
+
 # validity
 SIZE = ["AREA", "PERIMETER", "MAJOR_AXIS", "MINOR_AXIS", "EQDIASQ", "CONVEX_AREA"]
 UNIT = ["ECCENTRICITY", "SOLIDITY", "EXTENT", "ROUNDNESS", "COMPACTNESS"]
@@ -222,7 +249,8 @@ val = pd.DataFrame(val)
 val.to_csv(q / "validity.csv", index=False); C.wrote(q / "validity.csv")
 vf = val[val["count"] > 0]
 append_log([dict(check=f"validity_{k}", scope=f"{n} grains x 106 columns", rows_affected=int(d["count"].sum()), action="none; reported",
-                 reason=f"{len(d)} columns flagged: " + " ".join(d.column.head(8))) for k, d in vf.groupby("check")] or
+                 reason=f"{len(d)} columns flagged: " + " ".join(d.column.head(8)) +
+                 (f"; entropy columns are negative because the published form is {ENT_FORMULA}; recomputation in entropy_check.csv" if k == "out_of_range" else "")) for k, d in vf.groupby("check")] or
            [dict(check="validity_none", scope=f"{n} grains x 106 columns", rows_affected=0, action="none", reason="no infinite, out-of-range or near-constant columns")],
            ["validity_infinite", "validity_out_of_range", "validity_near_constant", "validity_none"])
 add_insight("validity_flags", "columns with any validity flag", int(vf.column.nunique()), "")
@@ -238,22 +266,28 @@ for k in C.CLASSES:
     for c in C.ALL106:
         orow.append(dict(**{"class": k}, column=c, n_outliers=int((z[c].abs() > 6).sum()), n=len(s)))
     zz = z.abs().stack()
-    zz = zz[zz > 6]
-    worst += [(v, i, c) for (i, c), v in zz.nlargest(20).items()]
+    zz = zz[zz > 6].sort_values(ascending=False)
+    percol, got = {}, []
+    for (i, c), v in zz.items():                 # strongest first: at most 2 per column, 8 per class
+        if percol.get(c, 0) >= 2 or i in {x[1] for x in got}: continue
+        percol[c] = percol.get(c, 0) + 1
+        got.append((v, i, c))
+        if len(got) == 8: break
+    worst += [(v, i, c, k, float(med[c])) for v, i, c in got]
 od = pd.DataFrame(orow)
 od.to_csv(q / "outliers.csv", index=False); C.wrote(q / "outliers.csv")
-worst = sorted(worst, reverse=True)
-seen, pick = set(), []
-for v, i, c in worst:
-    if i not in seen: seen.add(i); pick.append((v, i, c))
-    if len(pick) == 20: break
+pick = sorted(worst, reverse=True)
 if pick:
-    ims = C.read_images(g.loc[[i for _, i, _ in pick]])
-    fig, axs = plt.subplots(4, 5, figsize=(10, 9))
-    for ax, im, (v, i, c) in zip(axs.ravel(), ims, pick):
-        ax.imshow(im); ax.set_title(f"{g.grain_id[i]}\n{c} z={v:.0f}", fontsize=6); ax.axis("off")
+    pd.DataFrame([dict(grain_id=g.grain_id[i], **{"class": k}, column=c, value=float(g.loc[i, c]), class_median=m, robust_z=float(v), action="keep")
+                  for v, i, c, k, m in pick]).to_csv(q / "outlier_picks.csv", index=False)
+    C.wrote(q / "outlier_picks.csv")
+    ims = C.read_images(g.loc[[p[1] for p in pick]])
+    nr = int(np.ceil(len(pick) / 8))
+    fig, axs = plt.subplots(nr, 8, figsize=(16, 2.6 * nr))
+    for ax, im, (v, i, c, k, m) in zip(axs.ravel(), ims, pick):
+        ax.imshow(im); ax.set_title(f"{k} {g.grain_id[i]}\n{c}={g.loc[i, c]:.4g}\nclass median {m:.4g}", fontsize=6); ax.axis("off")
     for ax in axs.ravel()[len(pick):]: ax.axis("off")
-    fig.suptitle(f"Most extreme grains by robust z (n={len(pick)} of {n}); action: keep")
+    fig.suptitle(f"Most extreme grains by robust z, at most 2 per column and 8 per class (n={len(pick)} of {n} grains); action: keep")
     C.savefig(fig, "eda_outlier_montage")
 append_log([dict(check="outliers_robust_z6", scope=f"{n} grains x 106 columns", rows_affected=int(od.n_outliers.sum()), action="keep",
                  reason="cells with |robust z| > 6 (median, MAD) per class; counts in outliers.csv")], ["outliers_robust_z6"])

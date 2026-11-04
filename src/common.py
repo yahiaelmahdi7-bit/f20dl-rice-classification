@@ -115,7 +115,8 @@ def savefig(fig, name):
     import matplotlib.pyplot as plt
     FIG.mkdir(parents=True, exist_ok=True)
     p = FIG / f"{name}.png"
-    fig.tight_layout()
+    if fig.get_layout_engine() is None:      # constrained layouts keep their own space for colour bars
+        fig.tight_layout()
     fig.savefig(p, dpi=130)
     plt.close(fig)
     print("wrote", p, flush=True)
@@ -248,6 +249,16 @@ def probs(d):
 def macro_f1(y, pred):
     from sklearn.metrics import f1_score
     return f1_score(y, pred, average="macro", labels=range(5))
+
+
+def macro_precision(y, pred):
+    from sklearn.metrics import precision_score
+    return precision_score(y, pred, average="macro", labels=range(5), zero_division=0)
+
+
+def macro_recall(y, pred):
+    from sklearn.metrics import recall_score
+    return recall_score(y, pred, average="macro", labels=range(5), zero_division=0)
 
 
 def wilson(k, n, z=1.96):
