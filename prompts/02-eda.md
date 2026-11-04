@@ -14,3 +14,7 @@ Add these outputs. Train and validation only for anything using labels beyond cl
 - Trends: area and mean colour against file number per class as a rolling median in one figure, with lag-1 autocorrelation in `results/eda/file_order.csv`.
 - Image side: mean grain image per class at 128 px, and a check that grain area ratios survive the resize to 128 px.
 - `results/eda/insights.csv`: `id, finding, value, n, figure`. Short labels and computed values only, no sentences.
+
+## Fix 2
+- Outlier figure: all 20 picks came from one column, kurtosisCr, because its tiny spread inflates robust z. Pick at most 2 grains per column and at most 8 per class, strongest first, and skip columns with zero MAD. Label each picture with class, column, value and class median. Write the picks to `results/quality/outlier_picks.csv`: `grain_id, class, column, value, class_median, robust_z, action`, with action `keep`.
+- Entropy check: the entropy columns are flagged out of range. A manual check on 40 photos matched `entropyRR` and `entropyRG` within 0.07% with `-sum(s^2 * ln(s^2))` over non-zero pixel values of the whole 250px image, RGB on the 0-255 scale. H and S matched less closely. Write `results/quality/entropy_check.csv` on 200 train grains, for channels RR RG RB (0-255) and H S V (0-1, matplotlib `rgb_to_hsv`): `column, scale, n, pearson, median_ratio, min_ratio, max_ratio`. Report what comes out. Do not tune the formula to force a match, and add no packages. Add the formula and file name to the `validity_out_of_range` reason in the cleaning log.

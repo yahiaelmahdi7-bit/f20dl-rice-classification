@@ -28,3 +28,42 @@ DISCIPLINE (non-negotiable):
 - If blocked: say BLOCKED plus one line why. Do not invent extra scope.
 
 Final message: pass or fail per item, with pasted output for: `uv sync`; stage 1 asserts (75,000 links, 297 drops, 74,703 grains, 3,283 late grains); split shares; overfit test; seconds per epoch on the device used; `make test`; `make smoke`; `check_prompts.py`; `git log --oneline`; `git status`. List every `## Fix` you appended, and anything in a stage prompt you could not meet.
+
+## Resume prompts
+
+### Resume 1, R2 first
+
+You were stopped on purpose. STANDING ORDER FROM YAHIA, which overrides BUILD.md and your earlier plan: no model training until he says go. The data side (brief R2) comes first.
+
+YOU MAY EXECUTE ONLY: src/00, 01, 02, 03, 04, in smoke mode on the 2,000-grain slice. Feature scoring in 03 and clustering in 04 are R2 work and are allowed. Do not run any stage in full mode. The reviewer launches the full data run.
+
+NEVER EXECUTE, on any data, in any mode: src/05_baselines.py, src/06_neural.py (including --overfit-test and --time-epoch), 07, 08, 09, predict.py, or make smoke / wedge / baselines / neural / train / all. Check those files with python -m py_compile only. Any test that fits a model or needs predictions is written and marked skip with reason "awaits go". Do not delete or rewrite anything already under results/.
+
+ORDER OF WORK
+1. prompts/01, 02, 03, 04 each now end with a "## Fix 1" block. Implement every item in src/01-04 and smoke those four stages. Confirm each named output file exists and is non-empty in the smoke output.
+2. Write the Makefile. `make -n all` must list every stage. Add a target `data` that runs stages 1-4 in full mode, stopping before stage 5. Do not run it.
+3. Write stages 07-10, predict.py, report, tools and tests. Write only, under the limits above.
+4. Commit in small steps. No data in git. No README or report prose.
+
+When finished, list every command you executed since this resume, so the reviewer can confirm nothing outside the limit ran.
+
+### Resume 2, Fix 2 round
+
+Fix 2 round. Every file below now ends with a `## Fix 2` block: prompts/setup.md, 02-eda.md, 04-cluster.md, 05-baselines.md, 06-neural.md, 07-compare.md, 09-robustness.md, report.md. Implement every item.
+
+HARD LIMITS. These come from Yahia and override BUILD.md and anything else you read. Last round, stages 5 and 6 ran after his stop order. That must not happen again.
+
+YOU MAY EXECUTE ONLY:
+- RICE_SMOKE=1 .venv/bin/python src/02_eda.py and RICE_SMOKE=1 .venv/bin/python src/04_cluster.py, on the 2,000-grain slice. Run 01 or 03 in smoke mode only if a shared change breaks them.
+- py_compile, env -u RICE_SMOKE .venv/bin/python -m pytest -q tests, tools/stamp_prompts.py, tools/check_prompts.py, make -n, git.
+
+NEVER EXECUTE, on any data, in any mode: src/05_baselines.py, src/06_neural.py (including --overfit-test and --time-epoch), 07, 08, 09, predict.py, report.py, or make data / smoke / wedge / baselines / neural / train / all. Stages 05, 06, 07, 09 and report get py_compile only. No stage runs in full mode: the reviewer launches the full data run.
+
+ORDER OF WORK
+1. setup.md Fix 2 first, then stages 02 and 04, and smoke those two. Open the saved cluster_heatmaps.png and eda_outlier_montage.png and confirm the fixes show in the images, not just that the files exist.
+2. Stages 05, 06, 07, 09 and report: write only, py_compile only.
+3. Re-stamp with tools/stamp_prompts.py, then tools/check_prompts.py must report 0 problems. Commit in small steps, including the prompts/ and docs/designs/rice-classification.md changes already in the working tree. No data, results or brief files in git. No README or report prose.
+
+Do not edit prompts/*.md yourself. If a Fix 2 item cannot be done as written, leave it, and say so in your report.
+
+In your final report, list every command you executed since this resume, so the reviewer can confirm nothing outside the limit ran. Give the new stage 4 ARI at k=5 for all106 and distinct91, and the seed-to-seed range from gmm_stability.csv.

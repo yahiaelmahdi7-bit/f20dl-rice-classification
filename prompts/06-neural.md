@@ -32,3 +32,6 @@ Table models and the MLP add under an hour. Training runs on one machine. Predic
 Checks: A system that knows its limits: confidence routing handles doubt between known varieties; a generative familiarity check handles grains unlike anything seen. Stage 6. Check: shuffled-label control between 18% and 22%; 3 seeds complete.
 
 Write `src/06_neural.py`. Options: `--only mlp|cnn`, `--seeds 0 1 2`, `--overfit-test`, `--control`, `--time-epoch`. Print and log seconds per epoch to `results/neural/epoch_times.csv`. Save tuning results, per-epoch curves, final weights to `models/`, validation predictions, and the final-layer embedding for train and validation (for stage 8). Log progress to stdout with flush, so a detached run can be watched.
+
+## Fix 2
+`--overfit-test` must match the plan: 200 grains, up to 30 epochs, pass at 99% train accuracy or above. Stop at the first epoch that reaches it and print that epoch. Smoke mode keeps its short run but prints `smoke path, no verdict` instead of PASS or FAIL.
