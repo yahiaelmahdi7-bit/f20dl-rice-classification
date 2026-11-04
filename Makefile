@@ -67,7 +67,7 @@ PY ?= .venv/bin/python
 IMG ?= data/raw/Rice_Image_Dataset/Arborio/Arborio (18).jpg
 SM = RICE_SMOKE=1
 .DEFAULT_GOAL := help
-.PHONY: help get-data data grains eda features cluster baselines neural wedge fit freeze compare score holdout-train robustness report predict train all smoke test stamp check
+.PHONY: help get-data data grains eda features cluster baselines neural controls wedge fit freeze compare score holdout-train robustness report predict train all smoke test stamp check
 
 help:  ## list targets (this is the usage text)
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/\t/'
@@ -88,6 +88,11 @@ baselines:  ## stage 5: table models
 neural:  ## stage 6: MLP and SmallCNN
 	$(PY) src/06_neural.py
 train: baselines neural  ## stages 5 and 6
+controls:  ## after train, never before: overfit test, then shuffled-label controls, which read the chosen configs
+	@test -f results/neural/best_config.json || { echo "run make train first: --control reads results/neural/best_config.json" >&2; exit 1; }
+	$(PY) src/06_neural.py --overfit-test
+	$(PY) src/05_baselines.py --control
+	$(PY) src/06_neural.py --control
 wedge:  ## HistGB all106, one SmallCNN seed, validation comparison
 	$(PY) src/05_baselines.py --only hgb:all106
 	$(PY) src/06_neural.py --only cnn --seeds 0
@@ -108,7 +113,7 @@ predict:  ## stage 10: predict one image, IMG=path
 	$(PY) src/predict.py "$(IMG)"
 report:  ## summary tables, manifest and figures from saved outputs
 	$(PY) src/report.py
-all: get-data data train fit freeze compare score holdout-train robustness predict report  ## every stage in order
+all: get-data data train controls fit freeze compare score holdout-train robustness predict report  ## every stage in order
 stamp:  ## copy prompts into file headers
 	$(PY) tools/stamp_prompts.py
 check:  ## fail if a prompt record differs

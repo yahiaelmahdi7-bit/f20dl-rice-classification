@@ -24,3 +24,6 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 - `tools/stamp_prompts.py`: `prompt_for` must not take `00-context.md` as the prompt of `src/00_get_data.py`; it maps to `00-get-data.md`.
 - `tools/leak_audit.py`: moved from docs/designs; takes no argument; reads `data/splits.csv` without its class column and `grains.parquet` without class or y; checks id, table, jpg-byte, pixel and nearest-neighbour overlap between splits; writes `results/quality/leak_audit.csv` with columns `check,value`, one row per flattened key; refuses to run in smoke mode.
 - `Makefile`: `data` and `smoke` run stage 3 before stage 2, so the data dictionary carries its `selected` tags on a clean run. Stages 3 and 4 read no stage 2 output.
+
+## Fix 4
+- `Makefile`: add `controls`, which runs `06_neural.py --overfit-test`, `05_baselines.py --control`, `06_neural.py --control`. It has no prerequisites, so it never retrains. It stops with a message if `results/neural/best_config.json` is missing, because control reads the chosen configs and so runs after `train`. `all` runs it straight after `train`.
