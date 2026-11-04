@@ -85,6 +85,11 @@ def test_manifest_points_at_real_artefacts():
     assert [r[2] for r in manifest() if "dictionary" in r[0]] == ["quality/"]
 
 
+def test_manifest_control_rows_point_at_the_control_files():
+    rows = {r[1]: r[2] for r in manifest() if "shuffled-label control" in r[0]}
+    assert rows == {5: "baselines/control.csv", 6: "neural/control.csv"}
+
+
 # ---- lines the slice cannot reach -----------------------------------------------------
 def test_read_images_gates_test_rows_in_full_mode(gate_env):
     with pytest.raises(PermissionError):

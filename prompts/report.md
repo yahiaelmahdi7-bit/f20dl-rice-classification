@@ -4,3 +4,5 @@ Write `src/report.py`, run by `make report`, reading only saved CSVs and predict
 
 ## Fix 2
 `SUMMARY.csv` gains `macro_precision` and `macro_recall`, read from the stage 5 and 7 outputs.
+
+## Fix 3: `SUMMARY.csv` and `MANIFEST.csv` are written to `C.RES` in every mode. In `MANIFEST.csv`, the dictionary, validity and outliers row points at `quality/`, and the two shuffled-label rows point at `baselines/control.csv` and `neural/control.csv`.
