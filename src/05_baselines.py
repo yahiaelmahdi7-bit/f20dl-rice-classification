@@ -55,6 +55,9 @@
 # Image damage, SmallCNN only, on test images, with this grid:
 #
 # Write `src/05_baselines.py`. Options: `--only <model>:<featureset>` and `--control` (shuffled training labels). Each pipeline fits median imputation and scaling on train only. Select each model's grid point by validation macro-F1. Save final models to `models/baselines/`, with HistGB `all106` also at `models/hgb_all106.joblib`. Save validation predictions.
+#
+# ## Fix 2
+# The brief's R3 names accuracy, precision, recall and F1. Add `val_macro_precision` and `val_macro_recall` to the stage 5 results beside `val_accuracy` and `val_macro_f1`. Selection stays on macro-F1.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 5: table baselines tuned on validation macro-F1; saves models and validation predictions."""
 import argparse, itertools, json
@@ -139,7 +142,8 @@ def main():
         joblib.dump(obj, C.MODELS / "baselines" / f"{m}__{fs}.joblib")
         if (m, fs) == ("hgb", "all106"): joblib.dump(obj, C.MODELS / "hgb_all106.joblib")
         best[f"{m}:{fs}"] = p
-        res_rows.append({"model": m, "featureset": fs, "val_accuracy": float((pr == yva).mean()), "val_macro_f1": f1, "params": json.dumps(p)})
+        res_rows.append({"model": m, "featureset": fs, "val_accuracy": float((pr == yva).mean()), "val_macro_f1": f1,
+                         "val_macro_precision": float(C.macro_precision(yva, pr)), "val_macro_recall": float(C.macro_recall(yva, pr)), "params": json.dumps(p)})
         print(res_rows[-1], flush=True)
     if a.control:
         merge_csv(out / "control.csv", pd.DataFrame(ctl), ["model", "featureset"])

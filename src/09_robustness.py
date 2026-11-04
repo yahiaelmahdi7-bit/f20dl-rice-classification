@@ -47,6 +47,9 @@
 # - Tint arm A: grey-world correction per image with gains computed from grain-mask pixels only, so grain size cannot enter. Check that gains do not track area inside a class (absolute r under 0.1), and report mean-colour accuracy after correction. Frozen SmallCNN scored on corrected test images. `shape16` and `sizefree7` are the reference, since they use no colour. Correction also removes real grain colour, so this measures reliance on colour, not cause.
 #
 # Write `src/09_robustness.py` with `--train` (retrains without the late lot, using frozen configurations, no test read) and `--score` (the single test read). Also score an unchanged-image control, which must match stage 7 predictions exactly. Each table model on the late lot also reports mean confidence and count of confidently wrong grains.
+#
+# ## Fix 2
+# The mean-colour model is fitted on table means and scored on image-computed means, so its raw and corrected scores are not like for like. Fit it on `mask_means` from a stratified 5,000-grain train sample, fixed seed, and score on the same measure. Write `results/robustness/mean_colour_check.csv` comparing table means with `mask_means` on that sample: `channel, n, pearson, median_abs_diff`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 9: late-lot robustness. --train fits hold-out models without the late lot; --score reads the test split once."""
 import argparse, importlib.util, json
@@ -227,9 +230,17 @@ def grey_world(late, late_te, tr, va, out):
         cr.append(dict(cls=C.CLASSES[k], n=int(m.sum()), r_R=r[0], r_G=r[1], r_B=r[2], max_abs_r=max(abs(x) for x in r), passes_abs_lt_0_1=max(abs(x) for x in r) < 0.1))
     pd.DataFrame(cr).to_csv(out / "greyworld_gain_vs_area.csv", index=False); C.wrote(out / "greyworld_gain_vs_area.csv")
 
+    # 1b. table means vs mask means on a stratified 5000-grain train sample
+    ms = tr.groupby("y", group_keys=False).apply(lambda d: d.sample(min(len(d), 1000), random_state=C.SEED)).reset_index(drop=True)
+    MM = np.array([mask_means(read250(p)) for p in ms.path])
+    mcr = []
+    for c, col in enumerate(["meanRR", "meanRG", "meanRB"]):
+        t = ms[col].to_numpy(np.float64)
+        mcr.append(dict(channel="RGB"[c], n=len(ms), pearson=float(np.corrcoef(t, MM[:, c])[0, 1]), median_abs_diff=float(np.median(np.abs(t - MM[:, c])))))
+    pd.DataFrame(mcr).to_csv(out / "mean_colour_check.csv", index=False); C.wrote(out / "mean_colour_check.csv")
+
     # 2. mean-colour model, raw vs corrected image means on the late grains
-    mc = ["meanRR", "meanRG", "meanRB"]
-    mcm = HGB(random_state=C.SEED, early_stopping=False, max_iter=150).fit(tr[mc].to_numpy(np.float64), tr.y.to_numpy())
+    mcm = HGB(random_state=C.SEED, early_stopping=False, max_iter=150).fit(MM, ms.y.to_numpy())   # fitted on mask_means, same measure as scoring
     y = late.y.to_numpy()
     imgs = [read250(p) for p in late.path]
     gains = [grey_world_gains(im, C.grain_mask(im)) for im in imgs]

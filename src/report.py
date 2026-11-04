@@ -39,6 +39,9 @@
 # # Report outputs
 #
 # Write `src/report.py`, run by `make report`, reading only saved CSVs and predictions, with no GPU and no test gate. It writes `results/SUMMARY.csv` (every model and feature set: accuracy, macro-F1, interval, seed spread), `results/MANIFEST.csv` (requirement, stage, output file, covering R2, R3, R4, generative task, discriminative task), and rebuilds comparison figures. Numbers only, no prose conclusions.
+#
+# ## Fix 2
+# `SUMMARY.csv` gains `macro_precision` and `macro_recall`, read from the stage 5 and 7 outputs.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import pandas as pd
@@ -83,16 +86,16 @@ def summary():
         S = read(cmp / f"{sp}_seed_spread.csv")
         if M is None: continue
         g = M.groupby(["model", "featureset"]).agg(n=("n", "first"), seeds=("seed", "size"), accuracy=("accuracy", "mean"), acc_lo=("acc_lo", "mean"),
-                                                   acc_hi=("acc_hi", "mean"), macro_f1=("macro_f1", "mean"), f1_lo=("f1_lo", "mean"), f1_hi=("f1_hi", "mean")).reset_index()
+                                                   acc_hi=("acc_hi", "mean"), macro_f1=("macro_f1", "mean"), macro_precision=("macro_precision", "mean"), macro_recall=("macro_recall", "mean"), f1_lo=("f1_lo", "mean"), f1_hi=("f1_hi", "mean")).reset_index()
         g.insert(0, "split", sp)
         if S is not None:
             g = g.merge(S[["model", "featureset", "acc_sd", "f1_sd"]], on=["model", "featureset"], how="left")
         rows.append(g)
     vr = read(C.RES / "baselines" / "val_results.csv")
     if not rows and vr is not None:           # no comparison yet: fall back to tuning-time validation results
-        rows.append(vr.assign(split="val_tuning")[["split", "model", "featureset", "val_accuracy", "val_macro_f1"]].rename(
-            columns={"val_accuracy": "accuracy", "val_macro_f1": "macro_f1"}))
-    return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(columns=["split", "model", "featureset", "accuracy", "macro_f1"])
+        rows.append(vr.assign(split="val_tuning")[["split", "model", "featureset", "val_accuracy", "val_macro_f1", "val_macro_precision", "val_macro_recall"]].rename(
+            columns={"val_accuracy": "accuracy", "val_macro_f1": "macro_f1", "val_macro_precision": "macro_precision", "val_macro_recall": "macro_recall"}))
+    return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(columns=["split", "model", "featureset", "accuracy", "macro_f1", "macro_precision", "macro_recall"])
 
 
 def figure(S):

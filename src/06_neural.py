@@ -70,6 +70,9 @@
 # Checks: A system that knows its limits: confidence routing handles doubt between known varieties; a generative familiarity check handles grains unlike anything seen. Stage 6. Check: shuffled-label control between 18% and 22%; 3 seeds complete.
 #
 # Write `src/06_neural.py`. Options: `--only mlp|cnn`, `--seeds 0 1 2`, `--overfit-test`, `--control`, `--time-epoch`. Print and log seconds per epoch to `results/neural/epoch_times.csv`. Save tuning results, per-epoch curves, final weights to `models/`, validation predictions, and the final-layer embedding for train and validation (for stage 8). Log progress to stdout with flush, so a detached run can be watched.
+#
+# ## Fix 2
+# `--overfit-test` must match the plan: 200 grains, up to 30 epochs, pass at 99% train accuracy or above. Stop at the first epoch that reaches it and print that epoch. Smoke mode keeps its short run but prints `smoke path, no verdict` instead of PASS or FAIL.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 6: MLP on all106 and SmallCNN on 128 px images; tuning, seeds, curves, embeddings."""
 import argparse, itertools, json, time
@@ -107,7 +110,7 @@ def chan_stats(tr):
     return x.mean((0, 1, 2)).tolist(), x.std((0, 1, 2)).tolist()
 
 
-def train_cnn(cfg, seed, tr, va, epochs, patience, tag, shuffle=False, aug=True, stats=None):
+def train_cnn(cfg, seed, tr, va, epochs, patience, tag, shuffle=False, aug=True, stats=None, stop_train_acc=None):
     """Returns model (best-val-loss weights), history, mean, std."""
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
@@ -149,7 +152,11 @@ def train_cnn(cfg, seed, tr, va, epochs, patience, tag, shuffle=False, aug=True,
             else:
                 bad += 1
         hist.append(row)
+        if stop_train_acc is not None:
+            P, _ = C.run_cnn(model.eval(), mean, std, lambda a, b: C.read_images(tr.iloc[a:b]), len(tr))
+            row["train_acc"] = float((P.argmax(1) == tr.y.to_numpy()).mean())
         log_epoch(tag, ep, secs, cfg, len(tr), f"train_loss {row['train_loss']:.4f} val_acc {row.get('val_acc', float('nan')):.4f}")
+        if stop_train_acc is not None and row["train_acc"] >= stop_train_acc: break
         if va is not None and bad >= patience: break
     if state is not None: model.load_state_dict(state)
     return model.eval(), hist, mean, std
@@ -222,13 +229,17 @@ def main():
     cfgs = json.loads(bpath.read_text()) if bpath.exists() else {}
 
     if a.overfit_test:
-        sub = tr.sample(256, random_state=C.SEED).reset_index(drop=True)
+        sub = tr.sample(200, random_state=C.SEED).reset_index(drop=True)
         cfg = {**DEFAULT_CNN, "dropout": 0.0}
-        model, hist, mean, std = train_cnn(cfg, 0, sub, None, 60 if not C.SMOKE else 2, 99, "overfit", aug=False)
+        model, hist, mean, std = train_cnn(cfg, 0, sub, None, 30 if not C.SMOKE else 2, 99, "overfit", aug=False, stop_train_acc=0.99)
         P, _ = cnn_eval(model, mean, std, sub)
         acc = float((P.argmax(1) == sub.y.to_numpy()).mean())
-        print(f"overfit test: train accuracy on 256 grains = {acc:.4f} -> {'PASS' if acc >= 0.99 else 'FAIL'}")
-        raise SystemExit(0 if acc >= 0.99 or C.SMOKE else 1)
+        reached = [h["epoch"] for h in hist if h.get("train_acc", 0) >= 0.99]
+        if C.SMOKE:
+            print(f"overfit test: train accuracy on 200 grains = {acc:.4f} after {len(hist)} epochs; smoke path, no verdict")
+            raise SystemExit(0)
+        print(f"overfit test: train accuracy on 200 grains = {acc:.4f}; first epoch at >= 0.99: {reached[0] if reached else 'never'} of up to 30 -> {'PASS' if reached else 'FAIL'}")
+        raise SystemExit(0 if reached else 1)
     if a.time_epoch:
         cfg = DEFAULT_CNN
         train_cnn(cfg, 0, tr, None, 1, 1, "time_epoch")

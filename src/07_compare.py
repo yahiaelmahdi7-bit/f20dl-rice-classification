@@ -45,6 +45,9 @@
 # **Stage 7 statistics, fixed in advance.** McNemar's test only looks at grains where two models disagree. Family of three pairs: HistGB `all106` against SmallCNN (primary), HistGB `all106` against MLP, MLP against SmallCNN. Exact binomial form, seed 0 of each model, with disagreement counts b and c always shown. Holm correction, which adjusts for running several tests, across those three. Seeds 1 and 2 reported as a check. Intervals: 2,000 paired bootstrap resamples, percentile, fixed seed. Near the ceiling we report error counts, because 0.05 points is about 6 grains here.
 #
 # Write `src/07_compare.py`. Option `--split val|test` (default test). With `--split val` it scores saved validation predictions for the wedge and makes no test read. With test, it loads the saved models, creates test predictions for every model, and computes the same outputs.
+#
+# ## Fix 2
+# Add macro precision and macro recall to every metrics row. Add per-class precision and F1 beside recall in `{split}_recall.csv`. File names stay, because `report.py` reads them. No new intervals.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 7: compare every model on one split with intervals and paired tests. --split test is one gated test read."""
 import argparse, json
@@ -137,10 +140,15 @@ def main():
         f1_b = boot_f1(y, p, idx)
         rows.append(dict(model=m, featureset=fs, seed=s, split=sp, n=n, accuracy=ok[k].mean(), errors=int((~ok[k]).sum()),
                          acc_lo=np.percentile(acc_b, 2.5), acc_hi=np.percentile(acc_b, 97.5), macro_f1=C.macro_f1(y, p),
+                         macro_precision=C.macro_precision(y, p), macro_recall=C.macro_recall(y, p),
                          f1_lo=np.percentile(f1_b, 2.5), f1_hi=np.percentile(f1_b, 97.5)))
         for c in range(5):
+            tp, fp, fn = int(((y == c) & (p == c)).sum()), int(((y != c) & (p == c)).sum()), int(((y == c) & (p != c)).sum())
+            prec = tp / (tp + fp) if tp + fp else 0.0
+            rc = tp / (tp + fn) if tp + fn else 0.0
             rec.append(dict(model=m, featureset=fs, seed=s, split=sp, **{"class": C.CLASSES[c]}, n=int((y == c).sum()),
-                            recall=float((p[y == c] == c).mean()), errors=int((p[y == c] != c).sum())))
+                            recall=float(rc), precision=float(prec), f1=float(2 * prec * rc / (prec + rc)) if prec + rc else 0.0,
+                            errors=int((p[y == c] != c).sum())))
         for t in range(5):
             for q in range(5):
                 cm.append(dict(model=m, featureset=fs, seed=s, true=C.CLASSES[t], predicted=C.CLASSES[q], count=int(((y == t) & (p == q)).sum())))
