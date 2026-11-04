@@ -22,5 +22,31 @@
   "hgb": 16,
   "logreg": 16
  },
- "best_val_accuracy": 0.9985720660419456
+ "best_val_accuracy": 0.9985720660419456,
+ "k_old_rule": 16,
+ "k_by_model_old_rule": {
+  "hgb": 16,
+  "logreg": 16
+ },
+ "selected_old_rule": [
+  "ROUNDNESS",
+  "SHAPEFACTOR_1",
+  "PERIMETER",
+  "MAJOR_AXIS",
+  "CONVEX_AREA",
+  "meanB",
+  "entropyL",
+  "meanA",
+  "StdDevV",
+  "StdDevL",
+  "entropyXX",
+  "meanS",
+  "meanH",
+  "StdDevCb",
+  "kurtosisYY",
+  "entropyH"
+ ],
+ "best_inner_accuracy": 0.9988526627784683,
+ "n_inner_fit": 41833,
+ "n_inner_score": 10459
 }
