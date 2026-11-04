@@ -54,13 +54,13 @@ import common as C
 MANIFEST = [
     ("data audit and quality logs", 1, "quality/", 1, 0, 0, 0, 0),
     ("class and lot balance, distributions", 2, "eda/", 1, 0, 0, 0, 0),
-    ("feature dictionary, validity, outliers", 2, "eda/", 1, 0, 0, 0, 0),
+    ("feature dictionary, validity, outliers", 2, "quality/", 1, 0, 0, 0, 0),
     ("feature ranking and stability", 3, "features/", 1, 1, 0, 0, 1),
     ("clustering: k-means and Gaussian mixture", 4, "cluster/", 1, 0, 0, 1, 0),
     ("table baselines: NB, GMM, tree, logreg, HGB", 5, "baselines/val_results.csv", 0, 1, 0, 1, 1),
-    ("baseline tuning grid and shuffled-label control", 5, "baselines/grid.csv", 0, 1, 0, 0, 1),
+    ("baseline tuning grid and shuffled-label control", 5, "baselines/control.csv", 0, 1, 0, 0, 1),
     ("MLP and SmallCNN, three seeds", 6, "neural/curves.csv", 0, 0, 1, 0, 1),
-    ("neural tuning and shuffled-label control", 6, "neural/tuning_cnn.csv", 0, 0, 1, 0, 1),
+    ("neural tuning and shuffled-label control", 6, "neural/control.csv", 0, 0, 1, 0, 1),
     ("model comparison with intervals", 7, "compare/test_metrics.csv", 0, 1, 1, 0, 1),
     ("paired tests between models", 7, "compare/test_mcnemar.csv", 0, 1, 1, 0, 1),
     ("per-class recall and confusion", 7, "compare/test_recall.csv", 0, 1, 1, 0, 1),
@@ -114,7 +114,7 @@ def figure(S):
 
 def main():
     S = summary()
-    p = C.RES.parent / "SUMMARY.csv" if not C.SMOKE else C.RES / "SUMMARY.csv"
+    p = C.RES / "SUMMARY.csv"
     p.parent.mkdir(parents=True, exist_ok=True)
     S.to_csv(p, index=False); C.wrote(p)
     M = pd.DataFrame(MANIFEST, columns=COLS)
