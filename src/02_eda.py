@@ -79,6 +79,7 @@ cnt.to_csv(out / "class_balance.csv"); C.wrote(out / "class_balance.csv")
 fig, ax = plt.subplots(figsize=(6, 3.5))
 cnt.plot.bar(stacked=True, ax=ax)
 ax.set(title=f"Grains per variety and split (n={len(sp)})", xlabel="Variety", ylabel="Grains (count)")
+ax.legend(title="Split", loc="upper left", bbox_to_anchor=(1.01, 1))
 C.savefig(fig, "eda_class_balance")
 
 # distributions by class
@@ -137,7 +138,7 @@ for ax, c in zip(axs, C.CLASSES):
     s = g[g["class"] == c].sample(min(3000, (g["class"] == c).sum()), random_state=0)
     ax.scatter(np.log(s.AREA), s.entropyRR, s=2, alpha=0.4, color=col[c])
     ax.set(title=f"{c} (n={len(s)})", xlabel="log AREA (log pixels)")
-axs[0].set_ylabel("entropyRR (bits)")
+axs[0].set_ylabel("entropyRR (table units, not bits)")
 C.savefig(fig, "eda_entropy_vs_area")
 
 # copy columns against their mean column
@@ -290,7 +291,7 @@ if pick:
     nr = int(np.ceil(len(pick) / 8))
     fig, axs = plt.subplots(nr, 8, figsize=(16, 2.6 * nr))
     for ax, im, (v, i, c, k, m) in zip(axs.ravel(), ims, pick):
-        ax.imshow(im); ax.set_title(f"{k} {g.grain_id[i]}\n{c}={g.loc[i, c]:.4g}\nclass median {m:.4g}", fontsize=6); ax.axis("off")
+        ax.imshow(im); ax.set_title(f"{g.grain_id[i]}\n{c}={g.loc[i, c]:.4g}\nclass median {m:.4g}", fontsize=6); ax.axis("off")
     for ax in axs.ravel()[len(pick):]: ax.axis("off")
     fig.suptitle(f"Most extreme grains by robust z, at most 2 per column and 8 per class (n={len(pick)} of {n} grains); action: keep")
     C.savefig(fig, "eda_outlier_montage")
