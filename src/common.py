@@ -153,10 +153,11 @@ ARTEFACTS = {
         "results/eda/jasmine_lots.csv": _a(_S2, "", "feature early late ratio"),
         "results/eda/resize_area_check.csv": _a(_S2, "", "class n median_ratio pearson_area"),
         "results/eda/tint_by_class.csv": _a(_S2, "", "class mean std median count"),
-        "results/features/accuracy_vs_k.csv": _a(_S3, "", "k hgb_val_accuracy logreg_val_accuracy val_accuracy"),
+        "results/features/accuracy_vs_k.csv": _a(_S3, "", "k hgb_val_accuracy logreg_val_accuracy hgb_inner_accuracy logreg_inner_accuracy val_accuracy"),
         "results/features/cluster_representatives.csv": _a(_S3, "", "feature mutual_info"),
         "results/features/ranking.csv": _a(_S3, "", "feature mutual_info anova_F"),
-        "results/features/selected.json": _a(_S3, "common.py", "selected k k_by_model best_val_accuracy"),
+        "results/features/selected.json": _a(_S3, "common.py", "selected k k_by_model best_val_accuracy k_old_rule k_by_model_old_rule selected_old_rule "
+                                                                  "best_inner_accuracy n_inner_fit n_inner_score"),
         "results/features/selected_info.csv": _a(_S3, "", "feature family median_within_class_corr_logarea"),
         "results/features/set_comparison.csv": _a(_S3, "", "featureset n_features model val_accuracy val_macro_f1 n_val"),
         "results/features/stability.csv": _a(_S3, "", "kind name value k"),
@@ -280,6 +281,13 @@ def load_split(name):
         if new: w.writerow(["caller", "time", "frozen_hash"])
         w.writerow([caller, time.strftime("%Y-%m-%dT%H:%M:%S"), h])
     return g[g["split"] == "test"].reset_index(drop=True)
+
+
+def inner_split(tr):
+    """Train rows only, split 80/20 by class and lot: choices validation must not make are fitted on the first frame and scored on the second."""
+    from sklearn.model_selection import train_test_split
+    a, b = train_test_split(np.arange(len(tr)), test_size=0.2, stratify=tr["class"] + "|" + tr["lot"], random_state=SEED)
+    return tr.iloc[a].reset_index(drop=True), tr.iloc[b].reset_index(drop=True)
 
 
 def xy(df, fs):

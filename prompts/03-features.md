@@ -8,3 +8,6 @@ Write `src/03_features.py`. It writes the `selected` list to `results/features/s
 
 ## Fix 1
 Fit mutual information, ANOVA and clustering of columns on train only; score on validation only, and assert it. Repeat the k sweep with Logistic Regression beside HistGB, so `selected` does not rest on one model. Re-rank on 5 bootstrap resamples of train and write top-k overlap and how often each selected column appears to `results/features/stability.csv`. For each selected column, write its family and within-class correlation with log area. Write `results/features/set_comparison.csv`: accuracy and macro-F1 on validation for `all106`, `distinct91`, `shape16`, `colour90`, `sizefree7`, `sizefree22`, `selected` and the authors' top 5, with HistGB and Logistic Regression.
+
+## Fix 5
+- k is chosen on an inner split of train (80/20, stratified by class and lot, seed `C.SEED`), not on validation. `accuracy_vs_k.csv` adds `hgb_inner_accuracy` and `logreg_inner_accuracy`; validation columns stay as reporting only. `selected.json` keeps the old-rule k and list beside the new one.

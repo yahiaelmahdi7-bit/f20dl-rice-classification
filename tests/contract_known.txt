@@ -5,3 +5,4 @@ alias results/robustness/greyworld_gain_vs_area.csv cls class # src/09_robustnes
 header results/eda/jasmine_lots.csv ,early,late,ratio # src/02_eda.py:123, Data: index_label="feature"
 rows results/neural/epoch_times.csv # src/06_neural.py:99, Models: unescaped quotes in the config column
 header results/cluster/cluster_metrics.csv featureset,method,k,silhouette,bic,inertia,ARI,NMI,pca_cum_var # committed file predates the silhouette spread columns: delete with line 5 after the stage 4 rerun
+header results/features/accuracy_vs_k.csv k,hgb_val_accuracy,logreg_val_accuracy,val_accuracy # committed file predates the inner columns: delete with line 5 after the stage 3 rerun

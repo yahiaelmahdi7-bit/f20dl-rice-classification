@@ -151,3 +151,72 @@ def test_heldout_table_sits_beside_the_existing_rows(repo):
     assert len(h) == 54 and set(h.columns) == set(C.ARTEFACTS["files"]["results/cluster/heldout.csv"]["columns"])
     assert h.ARI_val.notna().all() and (h.n_fit + h.n_val == 320).all() and (h.n_fit == 240).all()
     assert len(pd.read_csv(repo / "results/smoke/cluster/cluster_metrics.csv")) == 54
+
+
+# ---- fix 7: k chosen on an inner split of train
+def _rule_ns():
+    ns = {}
+    exec(_block("src/03_features.py", "def rule_k(", "ks = ["), ns)
+    return ns
+
+
+def _curves():
+    return pd.DataFrame({"k": [1, 3, 8, 32], "hgb_val_accuracy": [.5, .7, .9, .9], "logreg_val_accuracy": [.5, .6, .7, .8],
+                         "hgb_inner_accuracy": [.5, .9, .9, .8], "logreg_inner_accuracy": [.8, .8, .7, .7]})
+
+
+def test_rule_k_is_the_smallest_near_best_k_then_the_larger_model():
+    k, each = _rule_ns()["rule_k"](_curves(), "{}_val_accuracy")
+    assert k == 32 and each == {"hgb": 8, "logreg": 32}
+
+
+def test_selection_follows_the_inner_curve_and_keeps_the_old_rule_beside_it():
+    ns = _rule_ns() | {"res": _curves(), "order": list("abcdefghijklmnopqrstuvwxyz") * 2}
+    exec(_block("src/03_features.py", "k_old, k_each_old =", "best = float"), ns)
+    assert ns["k_sel"] == 3 and ns["k_each"] == {"hgb": 3, "logreg": 1} and ns["selected"] == list("abc")
+    assert ns["k_old"] == 32 and ns["k_each_old"]["logreg"] == 32
+
+
+def test_sweep_inner_columns_fit_and_score_on_train_rows_only():
+    cols = [f"c{i}" for i in range(91)]
+    def frame(ids):
+        d = pd.DataFrame(0.0, index=range(len(ids)), columns=cols)
+        d["c0"], d["y"], d["class"], d["lot"] = ids, 0, np.array(C.CLASSES)[np.arange(len(ids)) % 5], "main"
+        return d
+    calls = []
+
+    class Stub:
+        def fit(self, X, y):
+            self.f = set(X.c0); return self
+        def predict(self, X):
+            calls.append((self.f, set(X.c0))); return np.zeros(len(X), dtype=int)
+
+    ns = {"tr": frame(list(range(100))), "va": frame(list(range(1000, 1020))), "order": cols, "C": C, "pd": pd, "hgb": Stub, "lr": Stub, "print": lambda *a, **k: None}
+    exec(_block("src/03_features.py", "def score(", "res = pd.DataFrame(rows)"), ns)
+    a, b = set(ns["inner_fit"].c0), set(ns["inner_score"].c0)
+    assert a | b == set(range(100)) and not a & b
+    n = 2 * len(ns["ks"])
+    assert calls.count((set(range(100)), set(range(1000, 1020)))) == n and calls.count((a, b)) == n and len(calls) == 2 * n
+    assert all(k in ns["rows"][0] for k in ("hgb_inner_accuracy", "logreg_inner_accuracy", "hgb_val_accuracy", "logreg_val_accuracy"))
+
+
+def test_inner_split_is_stratified_seeded_and_covers_train_once():
+    lots = np.array(["late"] * 10 + ["main"] * 490 + ["main"] * 500)
+    tr = pd.DataFrame({"class": ["Jasmine"] * 500 + ["Ipsala"] * 500, "lot": lots, "grain_id": range(1000)})
+    a, b = C.inner_split(tr)
+    a2, b2 = C.inner_split(tr)
+    assert a.grain_id.tolist() == a2.grain_id.tolist() and b.grain_id.tolist() == b2.grain_id.tolist()
+    assert len(b) == 200 and set(a.grain_id) | set(b.grain_id) == set(range(1000)) and not set(a.grain_id) & set(b.grain_id)
+    assert (b["class"] + b["lot"]).value_counts().to_dict() == {"Ipsalamain": 100, "Jasminemain": 98, "Jasminelate": 2}
+
+
+def test_stage_3_saves_both_rules_and_recheck_covers_the_inner_columns(repo):
+    s = json.loads((repo / "results/smoke/features/selected.json").read_text())
+    assert set(s) == set(C.ARTEFACTS["files"]["results/features/selected.json"]["columns"])
+    assert s["n_inner_fit"] + s["n_inner_score"] == 240 and len(s["selected_old_rule"]) == s["k_old_rule"] and len(s["selected"]) == s["k"]
+    a = pd.read_csv(repo / "results/smoke/features/accuracy_vs_k.csv")
+    assert a.loc[a.k == "authors_top5", "hgb_inner_accuracy"].isna().all() and a.loc[a.k != "authors_top5", "hgb_inner_accuracy"].notna().all()
+    p = _run(repo, "tools/recheck_r2.py", "--only", "features")
+    assert p.returncode == 0, p.stdout[-1500:]
+    f = pd.read_csv(repo / "results/smoke/checks/recheck_features.csv")
+    assert {"hgb_inner_accuracy", "logreg_inner_accuracy"} <= set(f.metric)

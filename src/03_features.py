@@ -100,34 +100,46 @@ def lr():
     return make_pipeline(SimpleImputer(strategy="median"), StandardScaler(), LogisticRegression(max_iter=300))
 
 
-def score(mk, cs):
-    m = mk().fit(tr[cs], tr.y)
-    pr = m.predict(va[cs])
-    return float((pr == va.y).mean()), C.macro_f1(va.y.to_numpy(), pr)
+def score(mk, cs, a=tr, b=va):
+    m = mk().fit(a[cs], a.y)
+    pr = m.predict(b[cs])
+    return float((pr == b.y).mean()), C.macro_f1(b.y.to_numpy(), pr)
+
+
+def rule_k(res, fmt):
+    """Smallest k within 0.001 of the best per model, then the larger of the two, so neither model is short of features."""
+    each = {nm: int(res[res[fmt.format(nm)] >= res[fmt.format(nm)].max() - 0.001].k.min()) for nm in ("hgb", "logreg")}
+    return max(each.values()), each
 
 
 ks = [1, 3, 8, 32, 91] if C.SMOKE else [1, 2, 3, 5, 8, 12, 16, 24, 32, 48, 64, 91]
 it = 20 if C.SMOKE else 200
+inner_fit, inner_score = C.inner_split(tr)      # k is chosen here; validation columns are reporting only
 rows = []
 for k in ks:
     r = {"k": k}
     for nm, mk in (("hgb", hgb), ("logreg", lr)):
         r[f"{nm}_val_accuracy"] = score(mk, order[:k])[0]
+    for nm, mk in (("hgb", hgb), ("logreg", lr)):
+        r[f"{nm}_inner_accuracy"] = score(mk, order[:k], inner_fit, inner_score)[0]
     rows.append(r)
     print(r, flush=True)
 res = pd.DataFrame(rows)
 top5 = "ROUNDNESS COMPACTNESS SHAPEFACTOR_3 ASPECT_RATIO ECCENTRICITY".split()   # authors' top 5
-k_each = {nm: int(res[res[f"{nm}_val_accuracy"] >= res[f"{nm}_val_accuracy"].max() - 0.001].k.min()) for nm in ("hgb", "logreg")}
-k_sel = max(k_each.values())     # the larger k, so neither model is short of features
+k_old, k_each_old = rule_k(res, "{}_val_accuracy")     # the old rule, kept so the move is visible
+k_sel, k_each = rule_k(res, "{}_inner_accuracy")
 selected = order[:k_sel]
 best = float(res.hgb_val_accuracy.max())
+best_inner = float(res.hgb_inner_accuracy.max())
 res["val_accuracy"] = res.hgb_val_accuracy
 a5 = {nm: score(mk, top5)[0] for nm, mk in (("hgb", hgb), ("logreg", lr))}
-res = pd.concat([res, pd.DataFrame([{"k": "authors_top5", "hgb_val_accuracy": a5["hgb"], "logreg_val_accuracy": a5["logreg"], "val_accuracy": a5["hgb"]}])])
+res = pd.concat([res, pd.DataFrame([{"k": "authors_top5", "hgb_val_accuracy": a5["hgb"], "logreg_val_accuracy": a5["logreg"], "hgb_inner_accuracy": np.nan, "logreg_inner_accuracy": np.nan, "val_accuracy": a5["hgb"]}])])
 res.to_csv(out / "accuracy_vs_k.csv", index=False); C.wrote(out / "accuracy_vs_k.csv")
-(out / "selected.json").write_text(json.dumps({"selected": selected, "k": k_sel, "k_by_model": k_each, "best_val_accuracy": best}, indent=1))
+(out / "selected.json").write_text(json.dumps({"selected": selected, "k": k_sel, "k_by_model": k_each, "best_val_accuracy": best, "k_old_rule": k_old, "k_by_model_old_rule": k_each_old,
+                                                  "selected_old_rule": order[:k_old], "best_inner_accuracy": best_inner, "n_inner_fit": len(inner_fit),
+                                                  "n_inner_score": len(inner_score)}, indent=1))
 C.wrote(out / "selected.json")
-print(f"selected k={k_sel} (by model {k_each}): {selected}")
+print(f"selected k={k_sel} (by model {k_each}), old rule k={k_old}: {selected}")
 
 # selected columns: family and within-class correlation with log area
 FAMS = ["ALLdaub4", "StdDev", "kurtosis", "entropy", "skew", "mean"]

@@ -91,14 +91,19 @@ def recompute_features(tr, va, F):
     one = ("abs", 1.0 / len(va))
     out = [check("selected.json", "selected", "is_first_k_of_saved_order", 1, float(sel["selected"] == order[:sel["k"]]), ("abs", 0))]
 
-    def fit(name, cs):
-        pred = model(name).fit(tr[cs], tr.y).predict(va[cs])
-        return float((pred == va.y).mean()), float(f1_score(va.y, pred, average="macro", labels=range(len(C.CLASSES)), zero_division=0))
+    inner_fit, inner_score = C.inner_split(tr)
+
+    def fit(name, cs, a=tr, b=va):
+        pred = model(name).fit(a[cs], a.y).predict(b[cs])
+        return float((pred == b.y).mean()), float(f1_score(b.y, pred, average="macro", labels=range(len(C.CLASSES)), zero_division=0))
 
     for _, r in acc.iterrows():
         cs = top5 if r.k == "authors_top5" else order[:int(r.k)]
         for name in ("hgb", "logreg"):
             out.append(check("accuracy_vs_k.csv", f"k={r.k}", f"{name}_val_accuracy", r[f"{name}_val_accuracy"], fit(name, cs)[0], one))
+            c = f"{name}_inner_accuracy"
+            if c in acc.columns and pd.notna(r[c]):     # older files have no such column; authors_top5 has none by design
+                out.append(check("accuracy_vs_k.csv", f"k={r.k}", c, r[c], fit(name, cs, inner_fit, inner_score)[0], ("abs", 1.0 / len(inner_score))))
         print(f"k={r.k} checked", flush=True)
     cmp = pd.read_csv(F / "set_comparison.csv")
     named = {"selected": sel["selected"], "authors_top5": top5}
