@@ -170,7 +170,7 @@ def write_quality(msc, imgs, g_pre, dup_pairs, dropped, full):
     log.append(dict(check="extra_specks", scope=f"{len(imgs)} images", rows_affected=sp, action="none; grain mask keeps the largest component only",
                     reason=f"images with other bright components of 5+ px (median {int(imgs.speck_px[imgs.specks > 0].median()) if sp else 0} px)"))
     cm = g_pre[g_pre[C.ALL106].isna().any(axis=1)]
-    mc = [dict(grain_id=r.grain_id, **{"class": r["class"]}, column=c, file_no=int(r.file_no)) for _, r in cm.iterrows() for c in C.ALL106 if pd.isna(r[c])]
+    mc = [dict(grain_id=r.grain_id, **{"class": r.cls}, column=c, file_no=int(r.file_no)) for _, r in cm.iterrows() for c in C.ALL106 if pd.isna(r[c])]
     pd.DataFrame(mc, columns=["grain_id", "class", "column", "file_no"]).to_csv(q / "missing_cells.csv", index=False); C.wrote(q / "missing_cells.csv")
     d_true = link_dist(msc, imgs, imgs.msc_row.values)
     rng = np.random.default_rng(C.SEED)
