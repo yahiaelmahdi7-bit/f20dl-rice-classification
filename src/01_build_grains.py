@@ -125,8 +125,54 @@ def measure_all(paths, cache):
             rows.append(r)
             if i % 10000 == 0: print(f"  measured {i}/{len(paths)}", flush=True)
     m = pd.DataFrame(rows)
-    if cache: m.to_parquet(cache, index=False)
+    if cache: atomic_parquet(m, cache)
     return m
+
+
+def require_smoke_for_subset(full, smoke):
+    """--subset outside smoke mode would overwrite data/splits.csv and the full-size derived files."""
+    if not full and not smoke:
+        raise SystemExit("--subset needs RICE_SMOKE=1: otherwise it would overwrite data/splits.csv and the full derived files")
+
+
+def atomic_parquet(df, path):
+    """Write beside the target and rename, so a crash never leaves a half-written parquet."""
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        df.to_parquet(tmp, index=False)
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
+def write_cache(paths, dest, imap=None):
+    """Fill a uint8 memmap at dest with the 128px image of each path, in order. imap(small, paths) defaults to a Pool."""
+    mm = np.memmap(dest, dtype=np.uint8, mode="w+", shape=(len(paths), C.IMG, C.IMG, 3))
+    def fill(it):
+        for i, arr in enumerate(it):
+            mm[i] = arr
+            if i % 10000 == 0: print(f"  cached {i}/{len(paths)}", flush=True)
+    if imap is None:
+        with Pool(os.cpu_count()) as pool: fill(pool.imap(small, paths, chunksize=64))
+    else:
+        fill(imap(small, paths))
+    mm.flush()
+    del mm
+
+
+def write_derived(table, paths, pq, mmap_path, imap=None):
+    """Write parquet and image memmap to temp names, then rename the memmap first and the parquet second.
+    A crash before the renames leaves both old files untouched; a new parquet is never beside an old memmap."""
+    tmp_pq, tmp_mm = pq.with_name(pq.name + ".tmp"), mmap_path.with_name(mmap_path.name + ".tmp")
+    try:
+        table.to_parquet(tmp_pq, index=False)
+        write_cache(paths, tmp_mm, imap)
+        os.replace(tmp_mm, mmap_path)
+        os.replace(tmp_pq, pq)
+    finally:
+        tmp_pq.unlink(missing_ok=True)
+        tmp_mm.unlink(missing_ok=True)
 
 
 def link(msc, im):
@@ -213,6 +259,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--subset", type=int, default=2000 if C.SMOKE else 0)
     a = ap.parse_args()
+    require_smoke_for_subset(a.subset == 0, C.SMOKE)
     C.DERIVED.mkdir(parents=True, exist_ok=True)
     full = a.subset == 0
     msc = read_arff(C.RAW / "Rice_MSC_Dataset" / "Rice_MSC_Dataset.arff")
@@ -261,14 +308,8 @@ def main():
     else:
         sp.to_csv(C.SPLITS, index=False); C.wrote(C.SPLITS)
     cols = ["grain_id", "class", "y", "lot", "file_no", "msc_row", "path", "row", "split"] + C.ALL106
-    g[cols].to_parquet(C.DERIVED / "grains.parquet", index=False); C.wrote(C.DERIVED / "grains.parquet")
-    mm = np.memmap(C.cache_path(), dtype=np.uint8, mode="w+", shape=(len(g), C.IMG, C.IMG, 3))
-    with Pool(os.cpu_count()) as pool:
-        for i, arr in enumerate(pool.imap(small, g.path.tolist(), chunksize=64)):
-            mm[i] = arr
-            if i % 10000 == 0: print(f"  cached {i}/{len(g)}", flush=True)
-    mm.flush()
-    C.wrote(C.cache_path())
+    write_derived(g[cols], g.path.tolist(), C.DERIVED / "grains.parquet", C.cache_path())
+    C.wrote(C.DERIVED / "grains.parquet"); C.wrote(C.cache_path())
     t = g.groupby("split").agg(n=("y", "size"), late=("lot", lambda s: (s == "late").mean()))
     print(t.assign(share=t.n / t.n.sum()).round(4).to_string())
     print(pd.crosstab(g["class"], g["split"], normalize="columns").round(4).to_string())

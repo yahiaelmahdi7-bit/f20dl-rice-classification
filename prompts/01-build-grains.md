@@ -16,3 +16,7 @@ Write `src/01_build_grains.py`. It writes `data/derived/grains.parquet`, `splits
 
 ## Fix 1
 Write `results/quality/cleaning_log.csv`, one row per check: `check, scope, rows_affected, action, reason`. Cover image decode and size, `?` cells, exact duplicate pairs, extra specks beside the grain, and link distance. List the 8 rows with `?` in `results/quality/missing_cells.csv` with class, column and file number. Write `results/quality/link_check.csv` and a figure showing table `AREA` against image-measured area per class, and median link distance for the true match against a shuffled control. All values computed in this run.
+
+## Fix 3
+- Safe writes. `data/derived/grains.parquet` and the image memmap are written to `.tmp` names in the same folder. Only when both are complete is the memmap renamed into place, then the parquet. A crash before that leaves both old files untouched, and a new parquet is never beside an old memmap. The measures cache (`measures.parquet`) is written the same way. File contents are unchanged.
+- `--subset N` without `RICE_SMOKE=1` exits before writing anything. Outside smoke mode it would overwrite the committed `data/splits.csv` and the full-size derived files with a subset.

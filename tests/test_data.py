@@ -5,6 +5,7 @@ import io
 import os
 import pathlib
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -119,3 +120,94 @@ def test_class_balance_expression_on_train_val_frame():
     assert cnt.loc["B", "train"] == 2
     src = _code("src/02_eda.py")
     assert 'cnt = g.groupby(["class", "split"]).size().unstack()' in src
+
+
+# ---- stage 1: safe writes and the subset guard
+def _g1():
+    return _mod("01_build_grains")
+
+
+def _fake_imap(fail_at=None):
+    def imap(f, paths):
+        for i, p in enumerate(paths):
+            if fail_at is not None and i == fail_at:
+                raise RuntimeError("crash mid-cache")
+            yield np.full((128, 128, 3), i + 1, dtype=np.uint8)
+    return imap
+
+
+def _table(v):
+    return pd.DataFrame({"grain_id": ["a-1", "a-2", "a-3"], "v": [v] * 3})
+
+
+def test_write_derived_success_publishes_both_and_leaves_no_tmp(tmp_path):
+    m = _g1()
+    pq, mm = tmp_path / "grains.parquet", tmp_path / "images128.u8"
+    m.write_derived(_table(1), ["x", "y", "z"], pq, mm, imap=_fake_imap())
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["grains.parquet", "images128.u8"]
+    assert pd.read_parquet(pq).equals(_table(1))
+    arr = np.fromfile(mm, dtype=np.uint8).reshape(3, 128, 128, 3)
+    assert [int(arr[i, 0, 0, 0]) for i in range(3)] == [1, 2, 3]
+
+
+def test_write_derived_crash_in_cache_keeps_old_files_byte_identical(tmp_path):
+    m = _g1()
+    pq, mm = tmp_path / "grains.parquet", tmp_path / "images128.u8"
+    m.write_derived(_table(1), ["x", "y", "z"], pq, mm, imap=_fake_imap())
+    old_pq, old_mm = pq.read_bytes(), mm.read_bytes()
+    with pytest.raises(RuntimeError):
+        m.write_derived(_table(2), ["x", "y", "z"], pq, mm, imap=_fake_imap(fail_at=1))
+    assert pq.read_bytes() == old_pq and mm.read_bytes() == old_mm
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["grains.parquet", "images128.u8"]
+
+
+def test_write_derived_crash_in_parquet_keeps_old_files(tmp_path):
+    m = _g1()
+    pq, mm = tmp_path / "grains.parquet", tmp_path / "images128.u8"
+    m.write_derived(_table(1), ["x", "y", "z"], pq, mm, imap=_fake_imap())
+    old_pq, old_mm = pq.read_bytes(), mm.read_bytes()
+
+    class Bad:
+        def to_parquet(self, *a, **k):
+            raise OSError("disk full")
+    with pytest.raises(OSError):
+        m.write_derived(Bad(), ["x", "y", "z"], pq, mm, imap=_fake_imap())
+    assert pq.read_bytes() == old_pq and mm.read_bytes() == old_mm
+    assert len(list(tmp_path.iterdir())) == 2
+
+
+def test_atomic_parquet_crash_keeps_old_file(tmp_path, monkeypatch):
+    m = _g1()
+    p = tmp_path / "measures.parquet"
+    m.atomic_parquet(_table(1), p)
+    old = p.read_bytes()
+
+    def boom(self, path, *a, **k):
+        open(path, "wb").write(b"half")
+        raise OSError("crash")
+    monkeypatch.setattr(pd.DataFrame, "to_parquet", boom)
+    with pytest.raises(OSError):
+        m.atomic_parquet(_table(2), p)
+    assert p.read_bytes() == old
+    assert [q.name for q in tmp_path.iterdir()] == ["measures.parquet"]
+
+
+def test_main_publishes_through_the_safe_helpers():
+    src = _code("src/01_build_grains.py")
+    main = next(n for n in ast.parse(src).body if isinstance(n, ast.FunctionDef) and n.name == "main")
+    called = {ast.unparse(n.func) for n in ast.walk(main) if isinstance(n, ast.Call)}
+    assert {"write_derived", "require_smoke_for_subset"} <= called
+    assert not any(c.endswith(".to_parquet") or c == "np.memmap" for c in called)
+    assert "atomic_parquet(m, cache)" in src
+
+
+def test_subset_outside_smoke_is_refused_before_any_write():
+    m = _g1()
+    with pytest.raises(SystemExit):
+        m.require_smoke_for_subset(False, False)
+    m.require_smoke_for_subset(False, True)
+    m.require_smoke_for_subset(True, False)
+    main = next(n for n in ast.parse(_code("src/01_build_grains.py")).body if isinstance(n, ast.FunctionDef) and n.name == "main")
+    first_write = min(n.lineno for n in ast.walk(main) if isinstance(n, ast.Call) and ast.unparse(n.func).endswith(("mkdir", "to_csv")))
+    guard = min(n.lineno for n in ast.walk(main) if isinstance(n, ast.Call) and ast.unparse(n.func) == "require_smoke_for_subset")
+    assert guard < first_write
