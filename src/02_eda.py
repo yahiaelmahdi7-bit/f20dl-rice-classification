@@ -120,7 +120,7 @@ C.savefig(fig, "eda_tint")
 J = g[g["class"] == "Jasmine"].sort_values("file_no")
 cols = ["AREA", "MAJOR_AXIS", "MINOR_AXIS", "EXTENT", "meanRR", "meanRB", "tint"]
 e, l = J[J.lot == "main"][cols].median(), J[J.lot == "late"][cols].median()
-pd.DataFrame({"early": e, "late": l, "ratio": l / e}).to_csv(out / "jasmine_lots.csv"); C.wrote(out / "jasmine_lots.csv")
+pd.DataFrame({"early": e, "late": l, "ratio": l / e}).to_csv(out / "jasmine_lots.csv", index_label="feature"); C.wrote(out / "jasmine_lots.csv")
 fig, axs = plt.subplots(1, 2, figsize=(10, 3.8))
 for ax, f in zip(axs, ["AREA", "tint"]):
     ax.plot(J.file_no, J[f].rolling(100, center=True, min_periods=10).median(), lw=1)
