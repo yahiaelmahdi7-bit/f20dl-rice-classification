@@ -75,7 +75,7 @@
 # `--overfit-test` must match the plan: 200 grains, up to 30 epochs, pass at 99% train accuracy or above. Stop at the first epoch that reaches it and print that epoch. Smoke mode keeps its short run but prints `smoke path, no verdict` instead of PASS or FAIL.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 6: MLP on all106 and SmallCNN on 128 px images; tuning, seeds, curves, embeddings."""
-import argparse, itertools, json, time
+import argparse, csv, itertools, json, os, time
 import joblib, numpy as np, pandas as pd
 import torch, torch.nn as nn
 import common as C
@@ -89,15 +89,18 @@ if C.SMOKE:
 EP_MLP, PAT_MLP = (1, 10) if C.SMOKE else (100, 10)
 EP_CNN, PAT_CNN = (1, 4) if C.SMOKE else (20, 4)
 EP_TUNE = 1 if C.SMOKE else 8
+CURVES = C.ARTEFACTS["files"]["results/neural/curves.csv"]["columns"]
 
 
-def log_epoch(tag, ep, secs, cfg, n, extra=""):
+def log_epoch(tag, ep, secs, cfg, n, extra="", dev=None):
     p = C.stage_dir("neural") / "epoch_times.csv"
+    dev = dev or C.device()
     new = not p.exists()
-    with open(p, "a") as f:
-        if new: f.write("time,tag,epoch,seconds,device,n_train,config\n")
-        f.write(f"{time.strftime('%Y-%m-%dT%H:%M:%S')},{tag},{ep},{secs:.2f},{C.device()},{n},\"{json.dumps(cfg)}\"\n")
-    print(f"[{tag}] epoch {ep}: {secs:.1f} s/epoch on {C.device()} {extra}", flush=True)
+    with open(p, "a", newline="") as f:
+        w = csv.writer(f, lineterminator="\n")
+        if new: w.writerow(["time", "tag", "epoch", "seconds", "device", "n_train", "config"])
+        w.writerow([time.strftime('%Y-%m-%dT%H:%M:%S'), tag, ep, f"{secs:.2f}", dev, n, json.dumps(cfg)])
+    print(f"[{tag}] epoch {ep}: {secs:.1f} s/epoch on {dev} {extra}", flush=True)
 
 
 def sync():
@@ -107,7 +110,7 @@ def sync():
 def chan_stats(tr):
     s = tr.sample(min(len(tr), 5000), random_state=C.SEED)
     x = C.read_images(s).astype(np.float32) / 255
-    return x.mean((0, 1, 2)).tolist(), x.std((0, 1, 2)).tolist()
+    return x.mean((0, 1, 2), dtype=np.float64).tolist(), x.std((0, 1, 2), dtype=np.float64).tolist()     # float32 sums drift at this size
 
 
 def train_cnn(cfg, seed, tr, va, epochs, patience, tag, shuffle=False, aug=True, stats=None, stop_train_acc=None):
@@ -191,7 +194,9 @@ def train_mlp(cfg, seed, Xtr, ytr, Xva, yva, epochs, patience, tag):
             lo = model(Xv)
             vl = nn.functional.cross_entropy(lo, yv).item()
             va_acc = (lo.argmax(1) == yv).float().mean().item()
-        hist.append({"tag": tag, "epoch": ep, "train_loss": tl / len(Xt), "val_loss": vl, "val_acc": va_acc, "seconds": time.time() - t0})
+        secs = time.time() - t0
+        hist.append({"tag": tag, "epoch": ep, "train_loss": tl / len(Xt), "val_loss": vl, "val_acc": va_acc, "seconds": secs})
+        log_epoch(tag, ep, secs, cfg, len(Xt), f"train_loss {tl / len(Xt):.4f} val_acc {va_acc:.4f}", dev="cpu")
         if vl < best - 1e-6: best, bad, state = vl, 0, {k: v.clone() for k, v in model.state_dict().items()}
         else: bad += 1
         if bad >= patience: break
@@ -205,13 +210,38 @@ def mlp_proba(model, X):
         return torch.softmax(model(torch.tensor(X, dtype=torch.float32)), 1).numpy()
 
 
+def merge_rows(path, new, key):
+    """Replace the rows of this key in a CSV and keep the rest, in new's column order. Temp then rename: a crash mid-write keeps the last good file."""
+    if path.exists():
+        old = pd.read_csv(path)
+        new = pd.concat([old[~old[key].isin(new[key])], new])[list(new.columns)]
+    tmp = path.with_name(path.name + ".tmp")
+    new.to_csv(tmp, index=False)
+    os.replace(tmp, path)
+    C.wrote(path)
+
+
 def save_curves(rows):
-    p = C.stage_dir("neural") / "curves.csv"
-    d = pd.DataFrame(rows)
-    if p.exists():
-        old = pd.read_csv(p)
-        d = pd.concat([old[~old.tag.isin(d.tag.unique())], d])
-    d.to_csv(p, index=False)
+    merge_rows(C.stage_dir("neural") / "curves.csv", pd.DataFrame(rows)[CURVES], "tag")
+
+
+def save_config(path, cfgs):
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(cfgs, indent=1))
+    os.replace(tmp, path)
+
+
+def must_tune(cfgs, name, grid, table, seeds):
+    """False only for a run of fewer seeds than the study whose saved config is this grid's winner in the tuning table beside it.
+    Such a run finishes that study, so its seeds share one config. Any other config (another grid or mode) is never reused."""
+    if set(C.SEEDS) <= set(seeds) or name not in cfgs or not table.exists():
+        return True
+    t = pd.read_csv(table)
+    same_grid = t.drop(columns="val_macro_f1").astype(str).values.tolist() == [[str(v) for v in g.values()] for g in grid]
+    if not same_grid or grid[int(t.val_macro_f1.to_numpy().argmax())] != cfgs[name]:
+        return True
+    print(f"{name}: reusing the tuned config {cfgs[name]} for seeds {seeds}", flush=True)
+    return False
 
 
 def main():
@@ -258,7 +288,7 @@ def main():
             rows.append({"model": "mlp", "val_accuracy": float((P.argmax(1) == va.y.to_numpy()).mean()), "train_n": len(tr)})
         d = pd.DataFrame(rows)
         d["in_18_22_band"] = d.val_accuracy.between(0.18, 0.22)
-        d.to_csv(out / "control.csv", index=False); C.wrote(out / "control.csv"); print(d.to_string())
+        merge_rows(out / "control.csv", d, "model"); print(d.to_string())
         return
 
     if a.only in (None, "mlp"):
@@ -266,44 +296,43 @@ def main():
         Xtr, Xva = prep.transform(tr[C.ALL106]), prep.transform(va[C.ALL106])
         ytr, yva = tr.y.to_numpy(), va.y.to_numpy()
         joblib.dump(prep, C.MODELS / "mlp_prep.joblib")
-        rows, curves = [], []
-        for cfg in MLP_GRID:
-            m, h = train_mlp(cfg, 0, Xtr, ytr, Xva, yva, EP_MLP, PAT_MLP, "mlp_tune")
-            rows.append({**cfg, "hidden": str(cfg["hidden"]), "val_macro_f1": C.macro_f1(yva, mlp_proba(m, Xva).argmax(1))})
-        pd.DataFrame(rows).to_csv(out / "tuning_mlp.csv", index=False); C.wrote(out / "tuning_mlp.csv")
-        cfgs["mlp"] = MLP_GRID[int(np.argmax([r["val_macro_f1"] for r in rows]))]
+        if must_tune(cfgs, "mlp", MLP_GRID, out / "tuning_mlp.csv", a.seeds):
+            rows = []
+            for cfg in MLP_GRID:
+                m, h = train_mlp(cfg, 0, Xtr, ytr, Xva, yva, EP_MLP, PAT_MLP, "mlp_tune")
+                rows.append({**cfg, "hidden": str(cfg["hidden"]), "val_macro_f1": C.macro_f1(yva, mlp_proba(m, Xva).argmax(1))})
+            pd.DataFrame(rows).to_csv(out / "tuning_mlp.csv", index=False); C.wrote(out / "tuning_mlp.csv")
+            cfgs["mlp"] = MLP_GRID[int(np.argmax([r["val_macro_f1"] for r in rows]))]
+            save_config(bpath, cfgs)
         for s in a.seeds:
             m, h = train_mlp(cfgs["mlp"], s, Xtr, ytr, Xva, yva, EP_MLP, PAT_MLP, f"mlp_seed{s}")
-            curves += h
+            save_curves(h)
             torch.save({"state": m.state_dict(), "hidden": cfgs["mlp"]["hidden"], "dropout": cfgs["mlp"]["dropout"]}, C.MODELS / f"mlp_seed{s}.pt")
             C.save_preds("mlp", "all106", s, "val", va.grain_id, yva, mlp_proba(m, Xva))
-        save_curves(curves)
-        bpath.write_text(json.dumps(cfgs, indent=1))
 
     if a.only in (None, "cnn"):
-        sub = tr.sample(min(len(tr), 10000), random_state=C.SEED).reset_index(drop=True)
         stats = chan_stats(tr)
-        rows = []
-        for cfg in CNN_GRID:
-            m, h, mean, std = train_cnn(cfg, 0, sub, va, EP_TUNE, 99, "cnn_tune", stats=stats)
-            P, _ = cnn_eval(m, mean, std, va)
-            rows.append({**cfg, "val_macro_f1": C.macro_f1(va.y.to_numpy(), P.argmax(1))})
-        pd.DataFrame(rows).to_csv(out / "tuning_cnn.csv", index=False); C.wrote(out / "tuning_cnn.csv")
-        cfgs["cnn"] = CNN_GRID[int(np.argmax([r["val_macro_f1"] for r in rows]))]
-        bpath.write_text(json.dumps(cfgs, indent=1))
-        curves = []
+        if must_tune(cfgs, "cnn", CNN_GRID, out / "tuning_cnn.csv", a.seeds):
+            sub = tr.sample(min(len(tr), 10000), random_state=C.SEED).reset_index(drop=True)
+            rows = []
+            for cfg in CNN_GRID:
+                m, h, mean, std = train_cnn(cfg, 0, sub, va, EP_TUNE, 99, "cnn_tune", stats=stats)
+                P, _ = cnn_eval(m, mean, std, va)
+                rows.append({**cfg, "val_macro_f1": C.macro_f1(va.y.to_numpy(), P.argmax(1))})
+            pd.DataFrame(rows).to_csv(out / "tuning_cnn.csv", index=False); C.wrote(out / "tuning_cnn.csv")
+            cfgs["cnn"] = CNN_GRID[int(np.argmax([r["val_macro_f1"] for r in rows]))]
+            save_config(bpath, cfgs)
         emb = C.DERIVED / "embeddings"
         emb.mkdir(parents=True, exist_ok=True)
         for s in a.seeds:
             m, h, mean, std = train_cnn(cfgs["cnn"], s, tr, va, EP_CNN, PAT_CNN, f"cnn_seed{s}", stats=stats)
-            curves += h
+            save_curves(h)
             torch.save({"state": {k: v.cpu() for k, v in m.state_dict().items()}, "cfg": {"width": cfgs["cnn"]["width"], "dropout": cfgs["cnn"]["dropout"]},
                         "mean": mean, "std": std}, C.MODELS / f"cnn_seed{s}.pt")
             Pv, Ev = cnn_eval(m, mean, std, va)
             C.save_preds("cnn", "image", s, "val", va.grain_id, va.y, Pv)
             _, Et = cnn_eval(m, mean, std, tr)
             np.save(emb / f"cnn_seed{s}_train.npy", Et.astype(np.float32)); np.save(emb / f"cnn_seed{s}_val.npy", Ev.astype(np.float32))
-        save_curves(curves)
 
 
 if __name__ == "__main__":
