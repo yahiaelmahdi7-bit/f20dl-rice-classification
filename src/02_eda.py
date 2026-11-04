@@ -270,17 +270,18 @@ for k in C.CLASSES:
     for c in C.ALL106:
         orow.append(dict(**{"class": k}, column=c, n_outliers=int((z[c].abs() > 6).sum()), n=len(s)))
     zz = z.abs().stack()
-    zz = zz[zz > 6].sort_values(ascending=False)
-    percol, got = {}, []
-    for (i, c), v in zz.items():                 # strongest first: at most 2 per column, 8 per class
-        if percol.get(c, 0) >= 2 or i in {x[1] for x in got}: continue
-        percol[c] = percol.get(c, 0) + 1
-        got.append((v, i, c))
-        if len(got) == 8: break
-    worst += [(v, i, c, k, float(med[c])) for v, i, c in got]
+    zz = zz[zz > 6]
+    worst += [(float(v), i, c, k, float(med[c])) for (i, c), v in zz.items()]
 od = pd.DataFrame(orow)
 od.to_csv(q / "outliers.csv", index=False); C.wrote(q / "outliers.csv")
-pick = sorted(worst, reverse=True)
+percol, perclass, seen, pick = {}, {}, set(), []
+for v, i, c, k, m in sorted(worst, key=lambda t: -t[0]):   # strongest first across classes: at most 2 per column, 8 per class
+    if percol.get(c, 0) >= 2 or perclass.get(k, 0) >= 8 or i in seen: continue
+    percol[c] = percol.get(c, 0) + 1
+    perclass[k] = perclass.get(k, 0) + 1
+    seen.add(i)
+    pick.append((v, i, c, k, m))
+    if len(pick) == 8 * len(C.CLASSES): break
 if pick:
     pd.DataFrame([dict(grain_id=g.grain_id[i], **{"class": k}, column=c, value=float(g.loc[i, c]), class_median=m, robust_z=float(v), action="keep")
                   for v, i, c, k, m in pick]).to_csv(q / "outlier_picks.csv", index=False)
