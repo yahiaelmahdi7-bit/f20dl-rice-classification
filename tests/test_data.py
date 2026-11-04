@@ -43,3 +43,56 @@ def test_manual_text_names_get_data_target():
     m = _mod("00_get_data").MANUAL
     assert "make get-data" in m
     assert "make data" not in m
+
+
+# ---- stage 0: download and read-only helpers
+class _FakeResp:
+    headers = {"Content-Length": "0"}
+
+    def __init__(self, chunks, fail_after=None):
+        self.chunks, self.fail_after, self.i = list(chunks), fail_after, 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+    def read(self, n):
+        if self.fail_after is not None and self.i >= self.fail_after:
+            raise ConnectionResetError("dropped")
+        if self.i >= len(self.chunks):
+            return b""
+        b = self.chunks[self.i]
+        self.i += 1
+        return b
+
+
+def test_download_dropped_connection_leaves_no_partial_file(tmp_path, monkeypatch):
+    g = _mod("00_get_data")
+    monkeypatch.setattr(g.urllib.request, "urlopen", lambda req: _FakeResp([b"aa", b"bb"], fail_after=1))
+    dest = tmp_path / "rice-msc.zip"
+    with pytest.raises(ConnectionResetError):
+        g.download("rice-msc.zip", dest)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_download_success_publishes_complete_file(tmp_path, monkeypatch):
+    g = _mod("00_get_data")
+    monkeypatch.setattr(g.urllib.request, "urlopen", lambda req: _FakeResp([b"aa", b"bb"]))
+    dest = tmp_path / "rice-msc.zip"
+    g.download("rice-msc.zip", dest)
+    assert dest.read_bytes() == b"aabb"
+    assert [p.name for p in tmp_path.iterdir()] == ["rice-msc.zip"]
+
+
+def test_make_read_only_handles_apostrophe_in_path(tmp_path):
+    g = _mod("00_get_data")
+    d = tmp_path / "o'brien"
+    d.mkdir()
+    (d / "f.txt").write_text("x")
+    try:
+        g.make_read_only(d)
+        assert not os.access(d / "f.txt", os.W_OK) or os.geteuid() == 0
+    finally:
+        os.system(f"chmod -R u+w {str(tmp_path)!r}")

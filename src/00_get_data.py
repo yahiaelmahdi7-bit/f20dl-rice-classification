@@ -72,7 +72,7 @@
 # - Keep comments short and factual, stating what a block does. No invented numbers: every value in an output comes from a computation in this run.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 0: find or fetch the two Kaggle zips, verify checksums, unpack, make raw read-only."""
-import hashlib, os, sys, urllib.request, zipfile
+import hashlib, os, subprocess, sys, urllib.request, zipfile
 from pathlib import Path
 from common import RAW, ROOT
 
@@ -99,14 +99,24 @@ def expected():
 def download(name, dest):
     url = URL.format(SLUGS[name])
     print(f"downloading {url}", flush=True)
-    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "rice-study"})) as r, open(dest, "wb") as f:
-        total, got = int(r.headers.get("Content-Length") or 0), 0
-        while True:
-            b = r.read(1 << 20)
-            if not b: break
-            f.write(b); got += len(b)
-            print(f"\r  {name}: {got/1e6:.0f} MB" + (f" / {total/1e6:.0f} MB" if total else ""), end="", flush=True)
+    part = dest.with_name(dest.name + ".part")    # a dropped connection must not leave a partial zip at dest
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "rice-study"})) as r, open(part, "wb") as f:
+            total, got = int(r.headers.get("Content-Length") or 0), 0
+            while True:
+                b = r.read(1 << 20)
+                if not b: break
+                f.write(b); got += len(b)
+                print(f"\r  {name}: {got/1e6:.0f} MB" + (f" / {total/1e6:.0f} MB" if total else ""), end="", flush=True)
+        os.replace(part, dest)
+    except BaseException:
+        part.unlink(missing_ok=True)
+        raise
     print()
+
+
+def make_read_only(path):
+    subprocess.run(["chmod", "-R", "a-w", str(path)], check=True)
 
 
 def main():
@@ -132,7 +142,7 @@ def main():
             with zipfile.ZipFile(z) as zf: zf.extractall(RAW)
             print(f"unpacked {d}")
     for name in DIRS.values():                    # read-only: remove write bits only
-        os.system(f"chmod -R a-w '{RAW / name}'")
+        make_read_only(RAW / name)
     print("raw data verified and read-only")
     return 0
 
