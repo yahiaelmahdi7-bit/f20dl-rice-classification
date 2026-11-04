@@ -2,4 +2,3 @@
 # The contract test passes on these, and fails on anything new or on a line that has stopped being true.
 # header and rows lines need results/, so only a run on main checks them. The list must be empty at the end.
 alias results/robustness/greyworld_gain_vs_area.csv cls class # src/09_robustness.py:245, Evaluation: name the column class
-rows results/neural/epoch_times.csv # src/06_neural.py:99, Models: unescaped quotes in the config column

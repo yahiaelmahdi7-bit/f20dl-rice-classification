@@ -62,12 +62,23 @@
 # - `tools/stamp_prompts.py`: `prompt_for` must not take `00-context.md` as the prompt of `src/00_get_data.py`; it maps to `00-get-data.md`.
 # - `tools/leak_audit.py`: moved from docs/designs; takes no argument; reads `data/splits.csv` without its class column and `grains.parquet` without class or y; checks id, table, jpg-byte, pixel and nearest-neighbour overlap between splits; writes `results/quality/leak_audit.csv` with columns `check,value`, one row per flattened key; refuses to run in smoke mode.
 # - `Makefile`: `data` and `smoke` run stage 3 before stage 2, so the data dictionary carries its `selected` tags on a clean run. Stages 3 and 4 read no stage 2 output.
+#
+# ## Fix 4
+# - `Makefile`: add `overfit`, which runs `06_neural.py --overfit-test`. It uses a fixed config and needs nothing trained, so `all` runs it before `train`. Add `controls`, which runs `05_baselines.py --control`, `06_neural.py --control`. It has no prerequisites, so it never retrains. It stops with a message if `results/neural/best_config.json` is missing, because control reads the chosen configs and so runs after `train`. `all` runs it straight after `train`.
+#
+# ## Fix 5
+# - `common.py`: add `CHANCE_BAND = (0.18, 0.22)` and `CONTROL_CEILING = 0.90`. Add `shuffled_labels(y, rng)`, which shuffles the labels and stops the run if the share left in place falls outside the band; a smoke slice only prints. Add `control_gate(path)`, which stops the run if any row of a `control.csv` is at or above the ceiling or has no score, reading the whole file. The stop is not the 18-22% band on the score: on made-up tight clusters, a clean shuffled-label control left that band in 25 of 30 runs for naive Bayes, because a simple model can give a whole class one shuffled label.
+# - `tests/test_control_gate.py`: planted faults for both stops, on made-up grains.
+#
+# ## Fix 6
+# - `common.py`: list `06_neural.py` as a reader of `results/neural/tuning_mlp.csv`, `tuning_cnn.csv` and `control.csv`, because it reads them back.
+# - `Makefile`: add `val-compare`, which runs `07_compare.py --split val` and reads no test grains. `all` runs it straight after `controls`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 PY ?= .venv/bin/python
 IMG ?= data/raw/Rice_Image_Dataset/Arborio/Arborio (18).jpg
 SM = RICE_SMOKE=1
 .DEFAULT_GOAL := help
-.PHONY: help get-data data grains eda features cluster baselines neural overfit controls wedge fit freeze compare score holdout-train robustness report predict train all smoke test stamp check
+.PHONY: help get-data data grains eda features cluster baselines neural overfit controls val-compare wedge fit freeze compare score holdout-train robustness report predict train all smoke test stamp check
 
 help:  ## list targets (this is the usage text)
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/\t/'
@@ -94,6 +105,8 @@ controls:  ## after train, never before: shuffled-label controls, which read the
 	@test -f results/neural/best_config.json || { echo "run make train first: --control reads results/neural/best_config.json" >&2; exit 1; }
 	$(PY) src/05_baselines.py --control
 	$(PY) src/06_neural.py --control
+val-compare:  ## stage 7 on validation, no test read
+	$(PY) src/07_compare.py --split val
 wedge:  ## HistGB all106, one SmallCNN seed, validation comparison
 	$(PY) src/05_baselines.py --only hgb:all106
 	$(PY) src/06_neural.py --only cnn --seeds 0
@@ -114,7 +127,7 @@ predict:  ## stage 10: predict one image, IMG=path
 	$(PY) src/predict.py "$(IMG)"
 report:  ## summary tables, manifest and figures from saved outputs
 	$(PY) src/report.py
-all: get-data data overfit train controls fit freeze compare score holdout-train robustness predict report  ## every stage in order
+all: get-data data overfit train controls val-compare fit freeze compare score holdout-train robustness predict report  ## every stage in order
 stamp:  ## copy prompts into file headers
 	$(PY) tools/stamp_prompts.py
 check:  ## fail if a prompt record differs

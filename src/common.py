@@ -62,6 +62,17 @@
 # - `tools/stamp_prompts.py`: `prompt_for` must not take `00-context.md` as the prompt of `src/00_get_data.py`; it maps to `00-get-data.md`.
 # - `tools/leak_audit.py`: moved from docs/designs; takes no argument; reads `data/splits.csv` without its class column and `grains.parquet` without class or y; checks id, table, jpg-byte, pixel and nearest-neighbour overlap between splits; writes `results/quality/leak_audit.csv` with columns `check,value`, one row per flattened key; refuses to run in smoke mode.
 # - `Makefile`: `data` and `smoke` run stage 3 before stage 2, so the data dictionary carries its `selected` tags on a clean run. Stages 3 and 4 read no stage 2 output.
+#
+# ## Fix 4
+# - `Makefile`: add `overfit`, which runs `06_neural.py --overfit-test`. It uses a fixed config and needs nothing trained, so `all` runs it before `train`. Add `controls`, which runs `05_baselines.py --control`, `06_neural.py --control`. It has no prerequisites, so it never retrains. It stops with a message if `results/neural/best_config.json` is missing, because control reads the chosen configs and so runs after `train`. `all` runs it straight after `train`.
+#
+# ## Fix 5
+# - `common.py`: add `CHANCE_BAND = (0.18, 0.22)` and `CONTROL_CEILING = 0.90`. Add `shuffled_labels(y, rng)`, which shuffles the labels and stops the run if the share left in place falls outside the band; a smoke slice only prints. Add `control_gate(path)`, which stops the run if any row of a `control.csv` is at or above the ceiling or has no score, reading the whole file. The stop is not the 18-22% band on the score: on made-up tight clusters, a clean shuffled-label control left that band in 25 of 30 runs for naive Bayes, because a simple model can give a whole class one shuffled label.
+# - `tests/test_control_gate.py`: planted faults for both stops, on made-up grains.
+#
+# ## Fix 6
+# - `common.py`: list `06_neural.py` as a reader of `results/neural/tuning_mlp.csv`, `tuning_cnn.csv` and `control.csv`, because it reads them back.
+# - `Makefile`: add `val-compare`, which runs `07_compare.py --split val` and reads no test grains. `all` runs it straight after `controls`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Shared paths, seeds, feature sets, split gate, image cache, nets and helpers."""
 import csv, hashlib, json, os, re, sys, time
@@ -188,9 +199,9 @@ ARTEFACTS = {
         "results/baselines/tree_depth4.txt": _a(_S5),
         "results/neural/epoch_times.csv": _a(_S6, "", "time tag epoch seconds device n_train config"),
         "results/neural/curves.csv": _a(_S6, _S6, "tag epoch train_loss val_loss val_acc seconds"),
-        "results/neural/tuning_mlp.csv": _a(_S6, "", "hidden lr dropout val_macro_f1"),
-        "results/neural/tuning_cnn.csv": _a(_S6, "", "width lr dropout val_macro_f1"),
-        "results/neural/control.csv": _a(_S6, "", "model val_accuracy train_n in_18_22_band"),
+        "results/neural/tuning_mlp.csv": _a(_S6, _S6, "hidden lr dropout val_macro_f1"),
+        "results/neural/tuning_cnn.csv": _a(_S6, _S6, "width lr dropout val_macro_f1"),
+        "results/neural/control.csv": _a(_S6, _S6, "model val_accuracy train_n in_18_22_band"),
         "results/neural/best_config.json": _a(_S6, f"{_S6} {_S9} freeze.py", "mlp cnn"),
         "results/preds/{model}__{featureset}__seed{seed}__{split}.parquet": _a(f"common.py {_S5} {_S6} {_S7}", f"common.py {_S7} {_S8} {_S9}", "grain_id y p0 p1 p2 p3 p4"),
         "results/compare/{sp}_metrics.csv": _a(_S7, "report.py", _METRICS),

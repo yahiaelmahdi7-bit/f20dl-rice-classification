@@ -43,6 +43,9 @@
 # Checks: `predict.py` and `make smoke`. Check: three known test grains predicted live; 250x250 non-rice image prints `unfamiliar`; wrong-size image exits 2; clean clone passes smoke.
 #
 # Write `src/predict.py`. The familiarity check on the image side uses `models/gate_image.joblib`; the table side uses `models/gate_table.joblib` when a table row exists.
+#
+# ## Fix 1
+# The table read takes `grain_id` and `all106` only, so no label is loaded. If `data/derived/grains.parquet` is absent, the table side prints "no table row" as for any unknown file. The missing-file message names `make train`, then `make fit`, because the routing and gate files come from `make fit`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Classify one grain image. Usage: python src/predict.py path/to/"Basmati (12).jpg"
 Exit 2: image unreadable or not 250x250 RGB. Exit 3: a trained-model file is missing."""

@@ -31,3 +31,7 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 ## Fix 5
 - `common.py`: add `CHANCE_BAND = (0.18, 0.22)` and `CONTROL_CEILING = 0.90`. Add `shuffled_labels(y, rng)`, which shuffles the labels and stops the run if the share left in place falls outside the band; a smoke slice only prints. Add `control_gate(path)`, which stops the run if any row of a `control.csv` is at or above the ceiling or has no score, reading the whole file. The stop is not the 18-22% band on the score: on made-up tight clusters, a clean shuffled-label control left that band in 25 of 30 runs for naive Bayes, because a simple model can give a whole class one shuffled label.
 - `tests/test_control_gate.py`: planted faults for both stops, on made-up grains.
+
+## Fix 6
+- `common.py`: list `06_neural.py` as a reader of `results/neural/tuning_mlp.csv`, `tuning_cnn.csv` and `control.csv`, because it reads them back.
+- `Makefile`: add `val-compare`, which runs `07_compare.py --split val` and reads no test grains. `all` runs it straight after `controls`.

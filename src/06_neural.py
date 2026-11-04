@@ -73,6 +73,16 @@
 #
 # ## Fix 2
 # `--overfit-test` must match the plan: 200 grains, up to 30 epochs, pass at 99% train accuracy or above. Stop at the first epoch that reaches it and print that epoch. Smoke mode keeps its short run but prints `smoke path, no verdict` instead of PASS or FAIL.
+#
+# ## Fix 3
+# - `epoch_times.csv` is written with `csv.writer`, so every row parses to the contract's columns. MLP epochs are logged too, with device `cpu`.
+# - `curves.csv` always has the contract's column order, and each finished seed's curves are saved as it finishes.
+# - `control.csv` is merged by `model`, and `curves.csv` by `tag`. CSV and JSON writes go to a temp file and then rename.
+# - `best_config.json` is written straight after tuning. A run of fewer seeds than `C.SEEDS` keeps the saved config and skips tuning, but only if the tuning table beside it holds this exact grid and names that config as its winner. Any other run tunes as before.
+# - `chan_stats` sums in float64, because float32 sums drift on a 5,000-image sample.
+#
+# ## Fix 4
+# `--control` takes its labels from `C.shuffled_labels`, in `train_cnn` and on the MLP path, and calls `C.control_gate` on `control.csv` once the rows are merged. `in_18_22_band` stays in the file as a reported fact, read from `C.CHANCE_BAND`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 6: MLP on all106 and SmallCNN on 128 px images; tuning, seeds, curves, embeddings."""
 import argparse, csv, itertools, json, os, time
