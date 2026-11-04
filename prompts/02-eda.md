@@ -24,3 +24,4 @@ Add these outputs. Train and validation only for anything using labels beyond cl
 
 ## Fix 4
 - `results/eda/insights.csv`: `n` is the number of rows behind the value on that row, not always all grains. `add_insight` takes `n_used`. `max_lag1_autocorr` uses the `n` of the `file_order.csv` row holding the largest absolute value, `resize_area_ratio` the size of its sample, `corr_clusters` the size of its sample, `jasmine_late_area_ratio` the Jasmine rows. Rows without `n_used` keep all grains.
+- `results/quality/cleaning_log.csv`: `rows_affected` counts distinct rows. For `validity_infinite`, `validity_out_of_range` and `outliers_robust_z6` count rows with at least one flagged cell, and put the cell total in `reason`. `outliers_robust_z6` adds the per-class counts. `validity_near_constant` flags columns, not rows, so its `rows_affected` is 0 and `reason` gives the column count. The `outlier_cells` insight stays a cell count.

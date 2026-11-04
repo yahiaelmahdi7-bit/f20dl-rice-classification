@@ -233,35 +233,45 @@ for c, v in mine.items():
 pd.DataFrame(ecr).to_csv(q / "entropy_check.csv", index=False); C.wrote(q / "entropy_check.csv")
 print(pd.DataFrame(ecr).to_string(index=False), flush=True)
 
+def flagged_rows(flags):
+    """Distinct rows with at least one flagged cell, from a frame of booleans with one column per checked column."""
+    return int(flags.any(axis=1).sum())
+
+
 # validity
 SIZE = ["AREA", "PERIMETER", "MAJOR_AXIS", "MINOR_AXIS", "EQDIASQ", "CONVEX_AREA"]
 UNIT = ["ECCENTRICITY", "SOLIDITY", "EXTENT", "ROUNDNESS", "COMPACTNESS"]
-val = []
+val, flags = [], {"infinite": {}, "out_of_range": {}}
 for c in C.ALL106:
     x = g[c]
-    inf = int(np.isinf(x).sum())
-    if inf: val.append(dict(check="infinite", column=c, count=inf))
-    bad = 0
-    if c in SIZE: bad = int((x <= 0).sum())
-    elif c in UNIT: bad = int(((x < 0) | (x > 1)).sum())
-    elif c == "ASPECT_RATIO": bad = int((x < 1).sum())
-    elif c.startswith(("StdDev", "entropy")): bad = int((x < 0).sum())
-    elif c in ("meanRR", "meanRG", "meanRB"): bad = int(((x < 0) | (x > 255)).sum())
+    fi = np.isinf(x)
+    inf = int(fi.sum())
+    if inf:
+        val.append(dict(check="infinite", column=c, count=inf))
+        flags["infinite"][c] = fi
+    fb = pd.Series(False, index=x.index)
+    if c in SIZE: fb = x <= 0
+    elif c in UNIT: fb = (x < 0) | (x > 1)
+    elif c == "ASPECT_RATIO": fb = x < 1
+    elif c.startswith(("StdDev", "entropy")): fb = x < 0
+    elif c in ("meanRR", "meanRG", "meanRB"): fb = (x < 0) | (x > 255)
+    bad = int(fb.sum())
     val.append(dict(check="out_of_range", column=c, count=bad))
+    if bad: flags["out_of_range"][c] = fb
     top = x.round(9).value_counts(normalize=True, dropna=True)
     val.append(dict(check="near_constant", column=c, count=int(len(top) == 1 or (len(top) and top.iloc[0] >= 0.99))))
 val = pd.DataFrame(val)
 val.to_csv(q / "validity.csv", index=False); C.wrote(q / "validity.csv")
 vf = val[val["count"] > 0]
-append_log([dict(check=f"validity_{k}", scope=f"{n} grains x 106 columns", rows_affected=int(d["count"].sum()), action="none; reported",
-                 reason=f"{len(d)} columns flagged: " + " ".join(d.column.head(8)) +
+append_log([dict(check=f"validity_{k}", scope=f"{n} grains x 106 columns", rows_affected=flagged_rows(pd.DataFrame(flags[k])) if k in flags else 0, action="none; reported",
+                 reason=f"{len(d)} columns flagged" + (f" ({int(d['count'].sum())} cells)" if k in flags else "") + ": " + " ".join(d.column.head(8)) +
                  (f"; entropy columns are negative because the published form is {ENT_FORMULA}; recomputation in entropy_check.csv" if k == "out_of_range" else "")) for k, d in vf.groupby("check")] or
            [dict(check="validity_none", scope=f"{n} grains x 106 columns", rows_affected=0, action="none", reason="no infinite, out-of-range or near-constant columns")],
            ["validity_infinite", "validity_out_of_range", "validity_near_constant", "validity_none"])
 add_insight("validity_flags", "columns with any validity flag", int(vf.column.nunique()), "")
 
 # outliers: robust z > 6 per class and column
-orow, worst = [], []
+orow, worst, out_rows = [], [], 0
 for k in C.CLASSES:
     s = g[g["class"] == k]
     X = s[C.ALL106]
@@ -270,6 +280,7 @@ for k in C.CLASSES:
     z = 0.6745 * (X - med) / mad.replace(0, np.nan)
     for c in C.ALL106:
         orow.append(dict(**{"class": k}, column=c, n_outliers=int((z[c].abs() > 6).sum()), n=len(s)))
+    out_rows += flagged_rows(z.abs() > 6)
     zz = z.abs().stack()
     zz = zz[zz > 6]
     worst += [(float(v), i, c, k, float(med[c])) for (i, c), v in zz.items()]
@@ -295,8 +306,8 @@ if pick:
     for ax in axs.ravel()[len(pick):]: ax.axis("off")
     fig.suptitle(f"Most extreme grains by robust z, at most 2 per column and 8 per class (n={len(pick)} of {n} grains); action: keep")
     C.savefig(fig, "eda_outlier_montage")
-append_log([dict(check="outliers_robust_z6", scope=f"{n} grains x 106 columns", rows_affected=int(od.n_outliers.sum()), action="keep",
-                 reason="cells with |robust z| > 6 (median, MAD) per class; counts in outliers.csv")], ["outliers_robust_z6"])
+append_log([dict(check="outliers_robust_z6", scope=f"{n} grains x 106 columns", rows_affected=out_rows, action="keep",
+                 reason=f"{int(od.n_outliers.sum())} cells with |robust z| > 6 (median, MAD) per class; counts in outliers.csv")], ["outliers_robust_z6"])
 add_insight("outlier_cells", "cells with robust z above 6", int(od.n_outliers.sum()), "eda_outlier_montage")
 
 # trends against file number

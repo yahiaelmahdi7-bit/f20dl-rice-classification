@@ -386,3 +386,26 @@ def test_each_insight_on_a_subset_states_its_own_rows():
     names = dict(fo=fo, rs=range(6), sub=range(5), J=range(4))
     got = {i: eval(compile(ast.Expression(e), "n_used", "eval"), dict(names)) for i, e in calls.items() if e is not None}
     assert got == {"max_lag1_autocorr": 20, "resize_area_ratio": 6, "corr_clusters": 5, "jasmine_late_area_ratio": 4}
+
+
+def test_validity_log_counts_rows_not_cells(tmp_path):
+    g = pd.DataFrame({"AREA": [-1.0, -2.0, 3.0, 4.0], "PERIMETER": [-1.0, 2.0, 3.0, 4.0], "EXTENT": [0.5, 0.25, 1.5, 0.75],
+                      "MAJOR_AXIS": [np.inf, 1.0, 2.0, 3.0], "MINOR_AXIS": [np.inf, np.inf, 2.0, 3.0], "ECCENTRICITY": [0.7] * 4})
+    ns, log = _eda_ns(tmp_path, g)
+    exec(_block("src/02_eda.py", "# validity", "# outliers: robust z"), ns)
+    rng, inf, flat = log["validity_out_of_range"], log["validity_infinite"], log["validity_near_constant"]
+    assert (rng["rows_affected"], inf["rows_affected"], flat["rows_affected"]) == (3, 2, 0)    # 4 and 3 cells; a column is no row
+    assert "(4 cells)" in rng["reason"] and "(3 cells)" in inf["reason"] and "cells" not in flat["reason"]
+    assert "formula" in rng["reason"] and flat["reason"].startswith("1 columns flagged: ECCENTRICITY")
+
+
+def test_outlier_log_counts_rows_not_cells(tmp_path):
+    t = np.tile(np.linspace(-1, 1, 20), 2)
+    g = pd.DataFrame({"a": t, "b": t, "c": t, "class": ["X"] * 20 + ["Y"] * 20, "grain_id": [f"g{i}" for i in range(40)]})
+    g.loc[0, ["a", "b"]] = 100.0     # one row, two cells
+    g.loc[25, "a"] = 100.0           # second class, one cell
+    ns, log = _eda_ns(tmp_path, g, classes=("X", "Y"))
+    exec(_block("src/02_eda.py", "# outliers: robust z", "# trends against file number"), ns)
+    r = log["outliers_robust_z6"]
+    assert r["rows_affected"] == 2 and r["reason"].startswith("3 cells with |robust z| > 6")
+    assert pd.read_csv(tmp_path / "outliers.csv").n_outliers.sum() == 3      # the table keeps cells
