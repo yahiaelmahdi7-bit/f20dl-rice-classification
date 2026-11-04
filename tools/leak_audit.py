@@ -21,6 +21,7 @@ def audit(sp, g, mm, n_probe=8000):
     S = {k: set(v) for k, v in sp.groupby("split").grain_id}
     R["id_overlap"] = {f"{a}&{b}": len(S[a] & S[b]) for a, b in [("train", "val"), ("train", "test"), ("val", "test")]}
     m = g.merge(sp, on="grain_id", suffixes=("", "_csv"))
+    R["parquet_rows_not_in_csv"] = len(g) - len(m)     # the inner merge drops these from the mismatch count
     R["parquet_vs_csv_split_mismatch"], R["parquet_rows"] = int((m.split != m.split_csv).sum()), len(g)
 
     def cross(key, name):

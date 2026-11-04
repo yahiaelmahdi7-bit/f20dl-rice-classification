@@ -467,3 +467,12 @@ def test_full_folder_is_left_alone(tmp_path, monkeypatch, capsys):
     os.utime(raw / "D/a.txt", (1, 1))
     assert m.main() == 0 and "already unpacked" in capsys.readouterr().out
     assert (raw / "D/a.txt").stat().st_mtime == 1
+
+
+# ---- leak audit: parquet rows the inner merge would drop are counted
+def test_leak_audit_counts_parquet_rows_not_in_csv(tmp_path):
+    L = _audit_mod()
+    sp, g, mm = _tiny(tmp_path)
+    assert L.audit(sp, g, mm)["parquet_rows_not_in_csv"] == 0
+    R = L.audit(sp.iloc[2:], g, mm)
+    assert R["parquet_rows_not_in_csv"] == 2 and R["parquet_vs_csv_split_mismatch"] == 0
