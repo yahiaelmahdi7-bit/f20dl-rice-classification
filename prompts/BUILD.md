@@ -72,3 +72,4 @@ In your final report, list every command you executed since this resume, so the 
 - `tests/test_contract.py`: read the code and CSV headers, fit no model. Check that a reader never asks for a column its writer does not produce, that a CSV header matches its `ARTEFACTS` entry, and that no stage defines a function with the same name as one in `common.py`. Without `results/` the header check reports xfail with that reason, never a silent skip.
 - `tests/contract_known.txt`: one line per real mismatch in a file Foundation does not own. The test passes on a listed mismatch and fails on anything new or on a line that has stopped being true.
 - `tests/test_foundation.py`: small model-free tests for the Foundation fixes and for the shared lines the 2,000-grain slice cannot reach.
+- `tests/test_data.py`: small model-free tests for stages 0 to 2 and `tools/leak_audit.py`. Stage 2 is read as source and never imported, because importing it runs it.

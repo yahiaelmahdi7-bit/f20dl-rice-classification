@@ -4,6 +4,7 @@ import importlib
 import io
 import os
 import pathlib
+import subprocess
 
 import numpy as np
 import pandas as pd
@@ -99,27 +100,28 @@ def test_make_read_only_handles_apostrophe_in_path(tmp_path):
         os.system(f"chmod -R u+w {str(tmp_path)!r}")
 
 
-# ---- job 3: stage 2 must not load test labels (read from source; stage 2 is never imported)
+# ---- job 3: stage 2 reads splits.csv for per-split class counts only, the one use its prompt allows
 def _code(rel):
     """Source after the prompt-record header, whose comments quote the rules."""
     return (ROOT / rel).read_text().split("PROMPT RECORD END ===", 1)[1]
 
 
-def test_eda_never_reads_splits_csv():
+def test_eda_uses_splits_for_class_counts_only():
     src = _code("src/02_eda.py")
-    assert "SPLITS" not in src and "splits.csv" not in src
-    assert "load_split" not in src
-    calls = [ast.unparse(n.func) for n in ast.walk(ast.parse(src)) if isinstance(n, ast.Call)]
-    assert "pd.read_csv" not in calls or all("SPLITS" not in c for c in calls)
+    lines = src.splitlines()
+    used = {lines[n.lineno - 1].strip() for n in ast.walk(ast.parse(src)) if isinstance(n, ast.Name) and n.id == "sp"}
+    allowed = ("sp = pd.read_csv(C.SPLITS)", 'cnt = sp.groupby(["class", "split"]).size().unstack()', 'ax.set(title=f"Grains per variety and split (n={len(sp)})"')
+    assert all(u.startswith(allowed) for u in used), used
+    assert src.count("SPLITS") == 1 and "load_split" not in src
 
 
-def test_class_balance_expression_on_train_val_frame():
-    g = pd.DataFrame({"class": ["A", "A", "B", "B", "B"], "split": ["train", "val", "train", "train", "val"]})
-    cnt = g.groupby(["class", "split"]).size().unstack()
-    assert list(cnt.columns) == ["train", "val"]
-    assert cnt.loc["B", "train"] == 2
-    src = _code("src/02_eda.py")
-    assert 'cnt = g.groupby(["class", "split"]).size().unstack()' in src
+# ---- job 4: stage 3 runs before stage 2, so the dictionary's selected tags are right on a clean run
+def test_make_runs_features_before_eda():
+    mk = (ROOT / "Makefile").read_text()
+    data = next(l for l in mk.splitlines() if l.startswith("data:")).split("##")[0].split()
+    assert data.index("features") < data.index("eda")
+    recipe = mk[mk.index("\nsmoke:"):]
+    assert recipe.index("src/03_features.py") < recipe.index("src/02_eda.py")
 
 
 # ---- stage 1: safe writes and the subset guard
@@ -311,3 +313,29 @@ def test_leak_audit_source_rules():
     assert "usecols=['grain_id', 'msc_row', 'split']" in reads[0]
     assert "'path', 'row', *C.ALL106" in reads[1]
     assert "quality" in ast.unparse(main) and "leak_audit.csv" in ast.unparse(main)
+
+
+# ---- claims the first tests left unguarded: each of these passed when its behaviour was broken
+def test_make_read_only_raises_when_chmod_fails(tmp_path):
+    with pytest.raises(subprocess.CalledProcessError):
+        _mod("00_get_data").make_read_only(tmp_path / "missing")
+
+
+def test_write_derived_renames_memmap_before_parquet(tmp_path, monkeypatch):
+    m, order, real = _g1(), [], os.replace
+    monkeypatch.setattr(os, "replace", lambda a, b: (order.append(pathlib.Path(b).name), real(a, b))[1])
+    m.write_derived(_table(1), ["x", "y", "z"], tmp_path / "grains.parquet", tmp_path / "images128.u8", imap=_fake_imap())
+    assert order == ["images128.u8", "grains.parquet"]
+
+
+def test_leak_audit_crash_mid_write_keeps_old_csv(tmp_path, monkeypatch):
+    L, out = _audit_mod(), tmp_path / "leak_audit.csv"
+    out.write_text("old\n")
+
+    def boom(self, target, **k):
+        pathlib.Path(target).write_text("half")
+        raise OSError("disk full")
+    monkeypatch.setattr(pd.DataFrame, "to_csv", boom)
+    with pytest.raises(OSError):
+        L.write_rows([("a", 1)], out)
+    assert out.read_text() == "old\n" and [p.name for p in tmp_path.iterdir()] == ["leak_audit.csv"]

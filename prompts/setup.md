@@ -22,3 +22,5 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 - `Makefile`: `smoke` depends on `get-data`, so a clean clone with `RICE_ZIP_DIR` set can run it. The smoke predict step calls `predict.py` once per path, quoted, and fails if the path tool or any prediction fails.
 - `tools/smoke_images.py`: print one path per line, because image paths contain spaces.
 - `tools/stamp_prompts.py`: `prompt_for` must not take `00-context.md` as the prompt of `src/00_get_data.py`; it maps to `00-get-data.md`.
+- `tools/leak_audit.py`: moved from docs/designs; takes no argument; reads `data/splits.csv` without its class column and `grains.parquet` without class or y; checks id, table, jpg-byte, pixel and nearest-neighbour overlap between splits; writes `results/quality/leak_audit.csv` with columns `check,value`, one row per flattened key; refuses to run in smoke mode.
+- `Makefile`: `data` and `smoke` run stage 3 before stage 2, so the data dictionary carries its `selected` tags on a clean run. Stages 3 and 4 read no stage 2 output.

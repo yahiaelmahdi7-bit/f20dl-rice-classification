@@ -128,8 +128,8 @@ ARTEFACTS = {
         "columns": {"class": ["cls"], "featureset": ["fs", "feature_set"]},      # one name, then the names it must not go by
     },
     "files": {
-        "data/splits.csv": _a(_S1, f"{_S1} {_S2} freeze.py", "grain_id class lot file_no msc_row split"),
-        "data/derived/grains.parquet": _a(_S1, f"common.py {_S2} {_S3} {_S4} {_S5} {_S6} {_S7} {_S8} {_S9} predict.py",
+        "data/splits.csv": _a(_S1, f"{_S1} {_S2} freeze.py leak_audit.py", "grain_id class lot file_no msc_row split"),
+        "data/derived/grains.parquet": _a(_S1, f"common.py {_S2} {_S3} {_S4} {_S5} {_S6} {_S7} {_S8} {_S9} predict.py leak_audit.py",
                                           "grain_id class y lot file_no msc_row path row split " + " ".join(ALL106)),
         "data/derived/images128.u8": _a(_S1, "common.py"),
         "data/derived/measures.parquet": _a(_S1, _S1),
@@ -141,6 +141,7 @@ ARTEFACTS = {
         "results/quality/entropy_check.csv": _a(_S2, "", "column scale n pearson median_ratio min_ratio max_ratio"),
         "results/quality/validity.csv": _a(_S2, "", "check column count"),
         "results/quality/outliers.csv": _a(_S2, "", "class column n_outliers n"),
+        "results/quality/leak_audit.csv": _a("leak_audit.py", "", "check value"),
         "results/quality/outlier_picks.csv": _a(_S2, "", "grain_id class column value class_median robust_z action"),
         "results/eda/class_balance.csv": _a(_S2, "", "class test train val"),
         "results/eda/copy_columns.csv": _a(_S2, "", "copy mean_column max_abs_diff pearson identical"),

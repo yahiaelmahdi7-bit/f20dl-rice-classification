@@ -73,7 +73,7 @@ features:  ## stage 3: feature ranking and selected list
 	$(PY) src/03_features.py
 cluster:  ## stage 4: k-means and Gaussian mixture
 	$(PY) src/04_cluster.py
-data: grains eda features cluster  ## stages 1-4 on the full data, stops before any model
+data: grains features eda cluster  ## stages 1-4 on the full data, stops before any model
 baselines:  ## stage 5: table models
 	$(PY) src/05_baselines.py
 neural:  ## stage 6: MLP and SmallCNN
@@ -108,8 +108,8 @@ test:  ## pytest
 	env -u RICE_SMOKE $(PY) -m pytest -q tests
 smoke: get-data  ## every stage 0-10 and report on a 2,000-grain slice
 	$(SM) $(PY) src/01_build_grains.py
-	$(SM) $(PY) src/02_eda.py
 	$(SM) $(PY) src/03_features.py
+	$(SM) $(PY) src/02_eda.py
 	$(SM) $(PY) src/04_cluster.py
 	$(SM) $(PY) src/05_baselines.py
 	$(SM) $(PY) src/06_neural.py
