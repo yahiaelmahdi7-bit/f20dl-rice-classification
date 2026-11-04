@@ -101,3 +101,142 @@ for i, c in enumerate(C.CLASSES):
         ax.imshow(im); ax.set_title(gid, fontsize=6); ax.axis("off")
 fig.suptitle("Example grains, 128 px (train+val)")
 C.savefig(fig, "eda_examples")
+
+
+# ---- Fix 1: quality, dictionary, outliers, file order, image side, insights -----------------------------
+import json
+q = C.stage_dir("quality")
+ins = []   # id, finding, value, n, figure
+
+
+def add_insight(i, finding, value, figure=""):
+    ins.append(dict(id=i, finding=finding, value=value, n=n, figure=figure))
+
+
+def append_log(rows, checks):
+    p = q / "cleaning_log.csv"
+    old = pd.read_csv(p) if p.exists() else pd.DataFrame(columns=["check", "scope", "rows_affected", "action", "reason"])
+    old = old[~old.check.isin(checks)]
+    pd.concat([old, pd.DataFrame(rows)]).to_csv(p, index=False)
+    C.wrote(p)
+
+
+# data dictionary
+FAMS = ["ALLdaub4", "StdDev", "kurtosis", "entropy", "skew", "mean"]
+
+
+def family(c):
+    if c in C.ALL106[:16]: return "shape", ""
+    for f in FAMS:
+        if c.startswith(f): return f, c[len(f):]
+    return "other", ""
+
+
+sets = {s: set(C.features(s)) for s in ["all106", "distinct91", "shape16", "colour90", "sizefree7", "sizefree22"]}
+try: sets["selected"] = set(C.features("selected"))
+except Exception: pass
+la = np.log(g.AREA)
+dd = []
+for c in C.ALL106:
+    fam, ch = family(c)
+    cc = [g.loc[g["class"] == k, c].corr(la[g["class"] == k]) for k in C.CLASSES]
+    dd.append(dict(column=c, family=fam, channel=ch, missing=int(g[c].isna().sum()), min=g[c].min(), median=g[c].median(), max=g[c].max(),
+                   feature_sets=" ".join(s for s, v in sets.items() if c in v), median_within_class_corr_logarea=float(np.nanmedian(cc))))
+dd = pd.DataFrame(dd)
+dd.to_csv(q / "data_dictionary.csv", index=False); C.wrote(q / "data_dictionary.csv")
+add_insight("dict_families", "column families", dd.family.nunique())
+
+# validity
+SIZE = ["AREA", "PERIMETER", "MAJOR_AXIS", "MINOR_AXIS", "EQDIASQ", "CONVEX_AREA"]
+UNIT = ["ECCENTRICITY", "SOLIDITY", "EXTENT", "ROUNDNESS", "COMPACTNESS"]
+val = []
+for c in C.ALL106:
+    x = g[c]
+    inf = int(np.isinf(x).sum())
+    if inf: val.append(dict(check="infinite", column=c, count=inf))
+    bad = 0
+    if c in SIZE: bad = int((x <= 0).sum())
+    elif c in UNIT: bad = int(((x < 0) | (x > 1)).sum())
+    elif c == "ASPECT_RATIO": bad = int((x < 1).sum())
+    elif c.startswith(("StdDev", "entropy")): bad = int((x < 0).sum())
+    elif c in ("meanRR", "meanRG", "meanRB"): bad = int(((x < 0) | (x > 255)).sum())
+    val.append(dict(check="out_of_range", column=c, count=bad))
+    top = x.round(9).value_counts(normalize=True, dropna=True)
+    val.append(dict(check="near_constant", column=c, count=int(len(top) == 1 or (len(top) and top.iloc[0] >= 0.99))))
+val = pd.DataFrame(val)
+val.to_csv(q / "validity.csv", index=False); C.wrote(q / "validity.csv")
+vf = val[val["count"] > 0]
+append_log([dict(check=f"validity_{k}", scope=f"{n} grains x 106 columns", rows_affected=int(d["count"].sum()), action="none; reported",
+                 reason=f"{len(d)} columns flagged: " + " ".join(d.column.head(8))) for k, d in vf.groupby("check")] or
+           [dict(check="validity_none", scope=f"{n} grains x 106 columns", rows_affected=0, action="none", reason="no infinite, out-of-range or near-constant columns")],
+           ["validity_infinite", "validity_out_of_range", "validity_near_constant", "validity_none"])
+add_insight("validity_flags", "columns with any validity flag", int(vf.column.nunique()), "")
+
+# outliers: robust z > 6 per class and column
+orow, worst = [], []
+for k in C.CLASSES:
+    s = g[g["class"] == k]
+    X = s[C.ALL106]
+    med = X.median()
+    mad = (X - med).abs().median()
+    z = 0.6745 * (X - med) / mad.replace(0, np.nan)
+    for c in C.ALL106:
+        orow.append(dict(**{"class": k}, column=c, n_outliers=int((z[c].abs() > 6).sum()), n=len(s)))
+    zz = z.abs().stack()
+    zz = zz[zz > 6]
+    worst += [(v, i, c) for (i, c), v in zz.nlargest(20).items()]
+od = pd.DataFrame(orow)
+od.to_csv(q / "outliers.csv", index=False); C.wrote(q / "outliers.csv")
+worst = sorted(worst, reverse=True)
+seen, pick = set(), []
+for v, i, c in worst:
+    if i not in seen: seen.add(i); pick.append((v, i, c))
+    if len(pick) == 20: break
+if pick:
+    ims = C.read_images(g.loc[[i for _, i, _ in pick]])
+    fig, axs = plt.subplots(4, 5, figsize=(10, 9))
+    for ax, im, (v, i, c) in zip(axs.ravel(), ims, pick):
+        ax.imshow(im); ax.set_title(f"{g.grain_id[i]}\n{c} z={v:.0f}", fontsize=6); ax.axis("off")
+    for ax in axs.ravel()[len(pick):]: ax.axis("off")
+    fig.suptitle(f"Most extreme grains by robust z (n={len(pick)} of {n}); action: keep")
+    C.savefig(fig, "eda_outlier_montage")
+append_log([dict(check="outliers_robust_z6", scope=f"{n} grains x 106 columns", rows_affected=int(od.n_outliers.sum()), action="keep",
+                 reason="cells with |robust z| > 6 (median, MAD) per class; counts in outliers.csv")], ["outliers_robust_z6"])
+add_insight("outlier_cells", "cells with robust z above 6", int(od.n_outliers.sum()), "eda_outlier_montage")
+
+# trends against file number
+fo = []
+fig, axs = plt.subplots(1, 2, figsize=(11, 3.8))
+for ax, f in zip(axs, ["AREA", "meanRR"]):
+    for k in C.CLASSES:
+        s = g[g["class"] == k].sort_values("file_no")
+        ax.plot(s.file_no, s[f].rolling(200, center=True, min_periods=20).median(), lw=1, color=col[k], label=k)
+        fo.append(dict(**{"class": k}, column=f, lag1_autocorr=float(s[f].autocorr(1)), n=len(s)))
+    ax.set(title=f"{f}, rolling median 200", xlabel="Image file number", ylabel=f"{f} (table units)")
+axs[0].legend(fontsize=7)
+C.savefig(fig, "eda_file_order")
+fo = pd.DataFrame(fo)
+fo.to_csv(out / "file_order.csv", index=False); C.wrote(out / "file_order.csv")
+add_insight("max_lag1_autocorr", "largest lag-1 autocorrelation by file number", float(fo.lag1_autocorr.abs().max()), "eda_file_order")
+
+# image side
+mean_im = {k: C.read_images(g[g["class"] == k].sample(min(300, (g["class"] == k).sum()), random_state=0)).astype(np.float32).mean(0) for k in C.CLASSES}
+fig, axs = plt.subplots(1, 5, figsize=(11, 2.8))
+for ax, k in zip(axs, C.CLASSES):
+    ax.imshow(mean_im[k].astype(np.uint8)); ax.set_title(k, fontsize=8); ax.axis("off")
+fig.suptitle("Mean grain image per variety, 128 px (300 grains each)")
+C.savefig(fig, "eda_mean_images")
+rs = g.sample(min(n, 600), random_state=C.SEED)
+fr = []
+for im, a in zip(C.read_images(rs), rs.AREA):
+    m = C.grain_mask(im)
+    fr.append(m.mean() * 250 ** 2 / a if m is not None else np.nan)
+rs = rs.assign(ratio=fr)
+rc = rs.groupby("class").agg(n=("ratio", "size"), median_ratio=("ratio", "median"))
+rc["pearson_area"] = [float(np.corrcoef(np.log(rs.AREA[rs["class"] == k]), np.log(rs.ratio[rs["class"] == k] * rs.AREA[rs["class"] == k]))[0, 1]) for k in rc.index]
+rc.to_csv(out / "resize_area_check.csv"); C.wrote(out / "resize_area_check.csv")
+add_insight("resize_area_ratio", "median (128 px mask area scaled to 250 px) / table AREA", float(rs.ratio.median()), "")
+add_insight("copy_columns_identical", "ALLdaub4 columns equal to their mean column", int(pd.DataFrame(rows).identical.sum()), "")
+add_insight("corr_clusters", "correlation clusters at 0.95 on distinct91", int(len(set(cl))), "eda_correlation")
+add_insight("jasmine_late_area_ratio", "late/early median AREA, Jasmine", float(l["AREA"] / e["AREA"]), "eda_jasmine_break")
+pd.DataFrame(ins).to_csv(out / "insights.csv", index=False); C.wrote(out / "insights.csv")
