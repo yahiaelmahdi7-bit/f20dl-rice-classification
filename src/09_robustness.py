@@ -61,7 +61,6 @@ import joblib, numpy as np, pandas as pd
 import common as C
 
 SRC = Path(__file__).resolve().parent
-SIZE_COLS = "AREA PERIMETER MAJOR_AXIS MINOR_AXIS EQDIASQ CONVEX_AREA EXTENT".split()
 HOLD_FS = ["all106", "shape16", "sizefree7", "sizefree22"]
 CONF = 0.95
 

@@ -476,3 +476,8 @@ def test_leak_audit_counts_parquet_rows_not_in_csv(tmp_path):
     assert L.audit(sp, g, mm)["parquet_rows_not_in_csv"] == 0
     R = L.audit(sp.iloc[2:], g, mm)
     assert R["parquet_rows_not_in_csv"] == 2 and R["parquet_vs_csv_split_mismatch"] == 0
+
+
+# ---- stage 9: no unused size list that holds EXTENT
+def test_stage9_has_no_size_cols_constant():
+    assert "SIZE_COLS" not in _code("src/09_robustness.py")
