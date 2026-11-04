@@ -13,3 +13,6 @@ Standardise on train before PCA, and report cumulative explained variance of PCA
 - `cluster_heatmaps`: the colour bar covers the `sizefree22` panels. Use `plt.subplots(..., layout="constrained")` so it gets its own column.
 - GMM has one start per fit, which made the score swing (ARI 0.86, then 0.66 on the same slice). Use `n_init=5` on full data and `n_init=3` on smoke.
 - New `results/cluster/gmm_stability.csv`: for each column set, k = 5 and 6, 5 seeds: `featureset, k, seed, ARI, NMI, silhouette, bic`. Silhouette uses the same sampling as the main table.
+
+## Fix 4
+- `cluster_overview`: every panel title states its own n. Silhouette is computed on the 10,000-grain sample, so its title gives the sample out of all grains. Inertia and BIC use all grains.

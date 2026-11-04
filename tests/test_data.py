@@ -415,3 +415,10 @@ def test_eda_titles_state_n():
     C = types.SimpleNamespace(CLASSES=list("abcde"))
     assert _fstrings("src/02_eda.py", "rolling median 200", f="AREA", n=7) == ["AREA, rolling median 200 (n=7)"]
     assert _fstrings("src/02_eda.py", "Example grains", C=C, n=70) == ["Example grains, 128 px, train+val (n=30 of 70)"]
+
+
+def test_cluster_titles_state_their_own_n():
+    names = dict(sidx=range(10), g=range(63))
+    assert _fstrings("src/04_cluster.py", "Silhouette vs k", **names) == ["Silhouette vs k, k-means (n=10 of 63)"]
+    assert _fstrings("src/04_cluster.py", "inertia vs k", **names) == ["K-means inertia vs k (n=63)"]
+    assert _fstrings("src/04_cluster.py", "BIC vs k", **names) == ["GMM BIC vs k (n=63)"]
