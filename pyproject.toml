@@ -1,0 +1,15 @@
+[project]
+name = "rice-study"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy", "pandas", "pyarrow", "scipy", "scikit-learn", "scikit-image",
+    "pillow", "torch", "matplotlib", "joblib",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

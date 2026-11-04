@@ -1,0 +1,15 @@
+data/raw/
+data/derived/
+.venv/
+.claude/
+docs/designs/
+research/
+results/smoke/
+figures/smoke/
+models/smoke/
+models/baselines/
+models/holdout/
+logs/
+__pycache__/
+.pytest_cache/
+*.pyc
