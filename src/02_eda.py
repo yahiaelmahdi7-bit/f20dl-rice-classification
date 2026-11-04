@@ -68,17 +68,16 @@ from scipy.stats import spearmanr
 import common as C
 
 out = C.stage_dir("eda")
-sp = pd.read_csv(C.SPLITS)
 g = C.load_grains()
 n = len(g)
 col = dict(zip(C.CLASSES, plt.cm.tab10.colors))
 
-# class balance (counts only, all splits)
-cnt = sp.groupby(["class", "split"]).size().unstack()
+# class balance (counts only, train and validation: test labels are not loaded)
+cnt = g.groupby(["class", "split"]).size().unstack()
 cnt.to_csv(out / "class_balance.csv"); C.wrote(out / "class_balance.csv")
 fig, ax = plt.subplots(figsize=(6, 3.5))
 cnt.plot.bar(stacked=True, ax=ax)
-ax.set(title=f"Grains per variety and split (n={len(sp)})", xlabel="Variety", ylabel="Grains (count)")
+ax.set(title=f"Grains per variety and split (n={len(g)})", xlabel="Variety", ylabel="Grains (count)")
 ax.legend(title="Split", loc="upper left", bbox_to_anchor=(1.01, 1))
 C.savefig(fig, "eda_class_balance")
 

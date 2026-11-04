@@ -96,3 +96,21 @@ def test_make_read_only_handles_apostrophe_in_path(tmp_path):
         assert not os.access(d / "f.txt", os.W_OK) or os.geteuid() == 0
     finally:
         os.system(f"chmod -R u+w {str(tmp_path)!r}")
+
+
+# ---- job 3: stage 2 must not load test labels (read from source; stage 2 is never imported)
+def test_eda_never_reads_splits_csv():
+    src = (ROOT / "src/02_eda.py").read_text()
+    assert "SPLITS" not in src and "splits.csv" not in src
+    assert "load_split" not in src
+    calls = [ast.unparse(n.func) for n in ast.walk(ast.parse(src)) if isinstance(n, ast.Call)]
+    assert "pd.read_csv" not in calls or all("SPLITS" not in c for c in calls)
+
+
+def test_class_balance_expression_on_train_val_frame():
+    g = pd.DataFrame({"class": ["A", "A", "B", "B", "B"], "split": ["train", "val", "train", "train", "val"]})
+    cnt = g.groupby(["class", "split"]).size().unstack()
+    assert list(cnt.columns) == ["train", "val"]
+    assert cnt.loc["B", "train"] == 2
+    src = (ROOT / "src/02_eda.py").read_text()
+    assert 'cnt = g.groupby(["class", "split"]).size().unstack()' in src
