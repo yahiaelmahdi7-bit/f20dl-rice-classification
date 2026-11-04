@@ -109,6 +109,104 @@ def features(fs):
     raise KeyError(fs)
 
 
+def _a(writers, readers="", columns=""):
+    return {"writers": writers.split(), "readers": readers.split(), "columns": columns.split()}
+
+
+_S1, _S2, _S3, _S4, _S5, _S6, _S7, _S8, _S9 = ("01_build_grains.py", "02_eda.py", "03_features.py", "04_cluster.py", "05_baselines.py",
+                                               "06_neural.py", "07_compare.py", "08_routing.py", "09_robustness.py")
+_METRICS = "model featureset seed split n accuracy errors acc_lo acc_hi macro_f1 macro_precision macro_recall f1_lo f1_hi"
+_MODEL_KEYS = "pipe cols params"
+# The contract. Paths are the full-mode ones, relative to the repo root; {sp} is val or test.
+# columns: CSV or parquet columns, or the top-level keys of a JSON or joblib dict; empty for a binary file.
+ARTEFACTS = {
+    "names": {
+        "classes": CLASSES,
+        "splits": ["train", "val", "test"],
+        "feature_sets": ["all106", "distinct91", "shape16", "colour90", "sizefree7", "sizefree22", "selected"],
+        "metrics": ["accuracy", "macro_f1", "macro_precision", "macro_recall"],
+        "columns": {"class": ["cls"], "featureset": ["fs", "feature_set"]},      # one name, then the names it must not go by
+    },
+    "files": {
+        "data/splits.csv": _a(_S1, f"{_S1} {_S2} freeze.py", "grain_id class lot file_no msc_row split"),
+        "data/derived/grains.parquet": _a(_S1, f"common.py {_S2} {_S3} {_S4} {_S5} {_S6} {_S7} {_S8} {_S9} predict.py",
+                                          "grain_id class y lot file_no msc_row path row split " + " ".join(ALL106)),
+        "data/derived/images128.u8": _a(_S1, "common.py"),
+        "data/derived/measures.parquet": _a(_S1, _S1),
+        "data/derived/embeddings/cnn_seed{seed}_{split}.npy": _a(_S6, _S8),
+        "results/quality/cleaning_log.csv": _a(f"{_S1} {_S2}", _S2, "check scope rows_affected action reason"),
+        "results/quality/missing_cells.csv": _a(_S1, "", "grain_id class column file_no"),
+        "results/quality/link_check.csv": _a(_S1, "", "class n median_link_dist_true median_link_dist_shuffled p95_link_dist_true area_pearson median_area_ratio"),
+        "results/quality/data_dictionary.csv": _a(_S2, "", "column family channel missing min median max feature_sets median_within_class_corr_logarea"),
+        "results/quality/entropy_check.csv": _a(_S2, "", "column scale n pearson median_ratio min_ratio max_ratio"),
+        "results/quality/validity.csv": _a(_S2, "", "check column count"),
+        "results/quality/outliers.csv": _a(_S2, "", "class column n_outliers n"),
+        "results/quality/outlier_picks.csv": _a(_S2, "", "grain_id class column value class_median robust_z action"),
+        "results/eda/class_balance.csv": _a(_S2, "", "class test train val"),
+        "results/eda/copy_columns.csv": _a(_S2, "", "copy mean_column max_abs_diff pearson identical"),
+        "results/eda/corr_clusters.csv": _a(_S2, "", "feature cluster"),
+        "results/eda/entropy_vs_logarea.csv": _a(_S2, "", "class feature spearman_vs_logarea"),
+        "results/eda/file_order.csv": _a(_S2, "", "class column lag1_autocorr n"),
+        "results/eda/insights.csv": _a(_S2, "", "id finding value n figure"),
+        "results/eda/jasmine_lots.csv": _a(_S2, "", "feature early late ratio"),
+        "results/eda/resize_area_check.csv": _a(_S2, "", "class n median_ratio pearson_area"),
+        "results/eda/tint_by_class.csv": _a(_S2, "", "class mean std median count"),
+        "results/features/accuracy_vs_k.csv": _a(_S3, "", "k hgb_val_accuracy logreg_val_accuracy val_accuracy"),
+        "results/features/cluster_representatives.csv": _a(_S3, "", "feature mutual_info"),
+        "results/features/ranking.csv": _a(_S3, "", "feature mutual_info anova_F"),
+        "results/features/selected.json": _a(_S3, "common.py", "selected k k_by_model best_val_accuracy"),
+        "results/features/selected_info.csv": _a(_S3, "", "feature family median_within_class_corr_logarea"),
+        "results/features/set_comparison.csv": _a(_S3, "", "featureset n_features model val_accuracy val_macro_f1 n_val"),
+        "results/features/stability.csv": _a(_S3, "", "kind name value k"),
+        "results/cluster/cluster_metrics.csv": _a(_S4, "", "featureset method k silhouette bic inertia ARI NMI pca_cum_var"),
+        "results/cluster/gmm_stability.csv": _a(_S4, "", "featureset k seed ARI NMI silhouette bic"),
+        "results/cluster/late_lot_check.csv": _a(_S4, "", "featureset method cluster size share_of_late purity_late passes"),
+        "results/cluster/pca_variance.csv": _a(_S4, "", "featureset pca_components cumulative_explained_variance"),
+        "results/cluster/profiles.csv": _a(_S4, "", "featureset method k cluster size median_AREA median_ASPECT_RATIO median_SOLIDITY "
+                                                    "median_meanRR median_meanRG median_meanRB dominant_variety purity"),
+        "results/baselines/grid.csv": _a(_S5, _S5, "model featureset params val_macro_f1"),
+        "results/baselines/val_results.csv": _a(_S5, f"{_S5} report.py", "model featureset val_accuracy val_macro_f1 val_macro_precision val_macro_recall params"),
+        "results/baselines/control.csv": _a(_S5, _S5, "model featureset val_accuracy"),
+        "results/baselines/best_params.json": _a(_S5, f"{_S5} {_S9} freeze.py"),
+        "results/baselines/tree_depth4.txt": _a(_S5),
+        "results/neural/epoch_times.csv": _a(_S6, "", "time tag epoch seconds device n_train config"),
+        "results/neural/curves.csv": _a(_S6, _S6, "tag epoch train_loss val_loss val_acc seconds"),
+        "results/neural/tuning_mlp.csv": _a(_S6, "", "hidden lr dropout val_macro_f1"),
+        "results/neural/tuning_cnn.csv": _a(_S6, "", "width lr dropout val_macro_f1"),
+        "results/neural/control.csv": _a(_S6, "", "model val_accuracy train_n in_18_22_band"),
+        "results/neural/best_config.json": _a(_S6, f"{_S6} {_S9} freeze.py", "mlp cnn"),
+        "results/preds/{model}__{featureset}__seed{seed}__{split}.parquet": _a(f"common.py {_S5} {_S6} {_S7}", f"common.py {_S7} {_S8} {_S9}", "grain_id y p0 p1 p2 p3 p4"),
+        "results/compare/{sp}_metrics.csv": _a(_S7, "report.py", _METRICS),
+        "results/compare/{sp}_recall.csv": _a(_S7, "", "model featureset seed split class n recall precision f1 errors"),
+        "results/compare/{sp}_confusion.csv": _a(_S7, "", "model featureset seed true predicted count"),
+        "results/compare/{sp}_seed_spread.csv": _a(_S7, "report.py", "model featureset seeds acc_mean acc_sd f1_mean f1_sd err_min err_max"),
+        "results/compare/{sp}_mcnemar.csv": _a(_S7, "", "seed model_a model_b b_a_right_b_wrong c_a_wrong_b_right disagreements p_exact "
+                                                        "errors_a errors_b acc_diff diff_lo diff_hi family p_holm"),
+        "results/routing/{sp}_calibration.csv": _a(_S8, "", "split model n accuracy ece_raw ece_calibrated temperature err_at_95_coverage"),
+        "results/routing/{sp}_routes.csv": _a(_S8, "", "split route grains share errors accuracy"),
+        "results/robustness/late_recall.csv": _a(_S9, "", "model subset n recall ci_low ci_high mean_confidence confidently_wrong"),
+        "results/robustness/late_chain.csv": _a(_S9, "", "subset route grains share errors"),
+        "results/robustness/greyworld_gain_vs_area.csv": _a(_S9, "", "cls n r_R r_G r_B max_abs_r passes_abs_lt_0_1"),
+        "results/robustness/mean_colour_check.csv": _a(_S9, "", "channel n pearson median_abs_diff"),
+        "results/robustness/greyworld_results.csv": _a(_S9, "", "arm variant n accuracy"),
+        "results/robustness/greyworld_control.csv": _a(_S9, "", "seed n max_abs_diff argmax_equal"),
+        "results/frozen.json": _a("freeze.py", "common.py", "hash seeds pairs parts"),
+        "results/test_reads.csv": _a("common.py", "", "caller time frozen_hash"),
+        "results/SUMMARY.csv": _a("report.py", "", "split model featureset n seeds accuracy acc_lo acc_hi macro_f1 macro_precision macro_recall f1_lo f1_hi acc_sd f1_sd"),
+        "results/MANIFEST.csv": _a("report.py", "", "requirement stage output_file covers_R2 covers_R3 covers_R4 generative_task discriminative_task exists"),
+        "models/baselines/{model}__{featureset}.joblib": _a(_S5, f"{_S7} {_S9}", _MODEL_KEYS),
+        "models/hgb_all106.joblib": _a(_S5, f"{_S9} predict.py", _MODEL_KEYS),
+        "models/mlp_prep.joblib": _a(_S6, "common.py"),
+        "models/mlp_seed{seed}.pt": _a(_S6, "common.py", "state hidden dropout"),
+        "models/cnn_seed{seed}.pt": _a(_S6, "common.py", "state cfg mean std"),
+        "models/routing.json": _a(_S8, f"{_S8} predict.py freeze.py"),
+        "models/gate_table.joblib": _a(_S8, f"{_S8} predict.py"),
+        "models/gate_image.joblib": _a(_S8, f"{_S8} predict.py"),
+        "models/holdout/": _a(_S9, _S9),
+    },
+}
+
+
 def stage_dir(name):
     d = RES / name
     d.mkdir(parents=True, exist_ok=True)
