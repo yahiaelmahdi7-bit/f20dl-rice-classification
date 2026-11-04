@@ -27,3 +27,7 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 
 ## Fix 4
 - `Makefile`: add `overfit`, which runs `06_neural.py --overfit-test`. It uses a fixed config and needs nothing trained, so `all` runs it before `train`. Add `controls`, which runs `05_baselines.py --control`, `06_neural.py --control`. It has no prerequisites, so it never retrains. It stops with a message if `results/neural/best_config.json` is missing, because control reads the chosen configs and so runs after `train`. `all` runs it straight after `train`.
+
+## Fix 5
+- `common.py`: add `CHANCE_BAND = (0.18, 0.22)` and `CONTROL_CEILING = 0.90`. Add `shuffled_labels(y, rng)`, which shuffles the labels and stops the run if the share left in place falls outside the band; a smoke slice only prints. Add `control_gate(path)`, which stops the run if any row of a `control.csv` is at or above the ceiling or has no score, reading the whole file. The stop is not the 18-22% band on the score: on made-up tight clusters, a clean shuffled-label control left that band in 25 of 30 runs for naive Bayes, because a simple model can give a whole class one shuffled label.
+- `tests/test_control_gate.py`: planted faults for both stops, on made-up grains.

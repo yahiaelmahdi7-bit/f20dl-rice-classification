@@ -164,6 +164,15 @@ def test_holdout_training_excludes_late_lot():
 
 
 @GO
+def test_every_control_stayed_below_the_ceiling():
+    import pandas as pd
+    import common as C
+    for stage in ("baselines", "neural"):
+        d = pd.read_csv(ROOT / "results" / stage / "control.csv")
+        assert (d.val_accuracy < C.CONTROL_CEILING).all()
+
+
+@GO
 def test_hgb_beats_chance_on_validation():
     import pandas as pd
     d = pd.read_csv(ROOT / "results" / "baselines" / "val_results.csv")

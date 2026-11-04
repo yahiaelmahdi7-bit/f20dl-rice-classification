@@ -123,7 +123,7 @@ def train_cnn(cfg, seed, tr, va, epochs, patience, tag, shuffle=False, aug=True,
     opt = torch.optim.AdamW(model.parameters(), lr=cfg["lr"], weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=max(epochs, 1))
     ytr = tr.y.to_numpy().copy()
-    if shuffle: ytr = rng.permutation(ytr)
+    if shuffle: ytr = C.shuffled_labels(ytr, rng)
     best, bad, hist, state = 1e9, 0, [], None
     for ep in range(1, epochs + 1):
         t0 = time.time()
@@ -282,13 +282,14 @@ def main():
             rows.append({"model": "cnn", "val_accuracy": h[-1]["val_acc"], "train_n": len(sub)})
         if a.only in (None, "mlp"):
             prep = C.Pipeline([("imp", C.SimpleImputer(strategy="median")), ("sc", C.StandardScaler())]).fit(tr[C.ALL106])
-            ys = np.random.default_rng(0).permutation(tr.y.to_numpy())
+            ys = C.shuffled_labels(tr.y.to_numpy(), np.random.default_rng(0))
             m, h = train_mlp(cfgs.get("mlp", DEFAULT_MLP), 0, prep.transform(tr[C.ALL106]), ys, prep.transform(va[C.ALL106]), va.y.to_numpy(), EP_MLP, PAT_MLP, "control_mlp")
             P = mlp_proba(m, prep.transform(va[C.ALL106]))
             rows.append({"model": "mlp", "val_accuracy": float((P.argmax(1) == va.y.to_numpy()).mean()), "train_n": len(tr)})
         d = pd.DataFrame(rows)
-        d["in_18_22_band"] = d.val_accuracy.between(0.18, 0.22)
+        d["in_18_22_band"] = d.val_accuracy.between(*C.CHANCE_BAND)
         merge_rows(out / "control.csv", d, "model"); print(d.to_string())
+        C.control_gate(out / "control.csv")
         return
 
     if a.only in (None, "mlp"):

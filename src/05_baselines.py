@@ -164,11 +164,12 @@ def main():
         for m, fs in jobs:
             Xtr, ytr = C.xy(tr, fs)
             Xva, yva = C.xy(va, fs)
-            yshuf = np.random.default_rng(C.SEED).permutation(ytr)
+            yshuf = C.shuffled_labels(ytr, np.random.default_rng(C.SEED))
             pipe = build(m, points(m)[0]).fit(Xtr, yshuf)
             ctl.append({"model": m, "featureset": fs, "val_accuracy": float((pipe.predict(Xva) == yva).mean())})
             print(ctl[-1], flush=True)
         merge_csv(out / "control.csv", pd.DataFrame(ctl), ["model", "featureset"])
+        C.control_gate(out / "control.csv")
         return
     if not a.only: clear_results(out)
     tune_jobs(jobs, tr, va, out)

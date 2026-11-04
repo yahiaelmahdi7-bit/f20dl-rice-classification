@@ -307,6 +307,32 @@ def xy(df, fs):
     return df[features(fs)].to_numpy(dtype=np.float64), df["y"].to_numpy()
 
 
+# ---- shuffled-label controls ------------------------------------------------------
+CHANCE_BAND = (0.18, 0.22)     # 5 balanced classes: chance is 20%
+CONTROL_CEILING = 0.90         # a control that learned the real labels scores near the real accuracy
+
+
+def shuffled_labels(y, rng):
+    """Control labels. Stops the run if the shuffle left the labels in place. A smoke slice is too small to judge, so there it only prints."""
+    s = rng.permutation(y)
+    kept = float((s == y).mean())
+    if not CHANCE_BAND[0] <= kept <= CHANCE_BAND[1]:
+        msg = f"CONTROL FAILED: {kept:.2%} of labels unchanged after the shuffle, expected {CHANCE_BAND}"
+        if not SMOKE: raise SystemExit(msg)
+        print(msg, "(smoke slice, no verdict)", flush=True)
+    return s
+
+
+def control_gate(path):
+    """Stops the run if any control row reached the ceiling or has no score. Reads the whole file, so rerunning one model cannot hide another.
+    The stop is not the 18-22% band: a simple model can give a whole tight class one shuffled label, so a clean control can sit far from 20%."""
+    d = pd.read_csv(path)
+    bad = d[~(d["val_accuracy"] < CONTROL_CEILING)]         # an empty score fails too
+    if not bad.empty:
+        raise SystemExit(f"CONTROL FAILED: {len(bad)} of {len(d)} rows in {path} at or above {CONTROL_CEILING:.0%} or empty\n{bad.to_string()}")
+    print(f"controls passed: {len(d)} rows below {CONTROL_CEILING:.0%} in {path}", flush=True)
+
+
 # ---- image cache ----------------------------------------------------------------
 def cache_path():
     return DERIVED / "images128.u8"

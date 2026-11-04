@@ -42,3 +42,6 @@ Write `src/06_neural.py`. Options: `--only mlp|cnn`, `--seeds 0 1 2`, `--overfit
 - `control.csv` is merged by `model`, and `curves.csv` by `tag`. CSV and JSON writes go to a temp file and then rename.
 - `best_config.json` is written straight after tuning. A run of fewer seeds than `C.SEEDS` keeps the saved config and skips tuning, but only if the tuning table beside it holds this exact grid and names that config as its winner. Any other run tunes as before.
 - `chan_stats` sums in float64, because float32 sums drift on a 5,000-image sample.
+
+## Fix 4
+`--control` takes its labels from `C.shuffled_labels`, in `train_cnn` and on the MLP path, and calls `C.control_gate` on `control.csv` once the rows are merged. `in_18_22_band` stays in the file as a reported fact, read from `C.CHANCE_BAND`.

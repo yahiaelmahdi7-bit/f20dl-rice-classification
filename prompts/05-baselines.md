@@ -23,3 +23,6 @@ The brief's R3 names accuracy, precision, recall and F1. Add `val_macro_precisio
 
 ## Fix 3
 Save each job as it finishes: model files first, then its `best_params.json` entry, its `grid.csv` rows and its `val_results.csv` row, merged by `model, featureset`, so a crash keeps every finished job and a row always has its model. CSV and JSON writes go to a temp file and then rename. A run without `--only` or `--control` first deletes those three files, so no row of an older grid survives it.
+
+## Fix 4
+`--control` takes its labels from `C.shuffled_labels` and calls `C.control_gate` on `control.csv` once every row is saved.
