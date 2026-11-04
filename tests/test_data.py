@@ -99,8 +99,13 @@ def test_make_read_only_handles_apostrophe_in_path(tmp_path):
 
 
 # ---- job 3: stage 2 must not load test labels (read from source; stage 2 is never imported)
+def _code(rel):
+    """Source after the prompt-record header, whose comments quote the rules."""
+    return (ROOT / rel).read_text().split("PROMPT RECORD END ===", 1)[1]
+
+
 def test_eda_never_reads_splits_csv():
-    src = (ROOT / "src/02_eda.py").read_text()
+    src = _code("src/02_eda.py")
     assert "SPLITS" not in src and "splits.csv" not in src
     assert "load_split" not in src
     calls = [ast.unparse(n.func) for n in ast.walk(ast.parse(src)) if isinstance(n, ast.Call)]
@@ -112,5 +117,5 @@ def test_class_balance_expression_on_train_val_frame():
     cnt = g.groupby(["class", "split"]).size().unstack()
     assert list(cnt.columns) == ["train", "val"]
     assert cnt.loc["B", "train"] == 2
-    src = (ROOT / "src/02_eda.py").read_text()
+    src = _code("src/02_eda.py")
     assert 'cnt = g.groupby(["class", "split"]).size().unstack()' in src
