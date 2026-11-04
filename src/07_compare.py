@@ -109,6 +109,27 @@ def lot_rows(y, pred, cls, lots):
     return r
 
 
+def angle_rows(y, pred, deg):
+    """Scores per grain-angle band on validation rows, every band and class listed even when empty. Class 'all' pools the band; its macro_f1 averages the classes with rows
+    in that band, so an absent class does not count as 0. A class row is that class inside the band: accuracy is its recall, f1 its F1 against the band's other rows."""
+    from sklearn.metrics import f1_score
+    band, r = C.angle_band(deg), []
+    grid = [(f"{lo}-{hi}", lo, hi) for lo, hi in C.ANGLE_BANDS] + [(C.NO_ANGLE, np.nan, np.nan)]
+    for (m, fs, k), p in pred.items():
+        for b, lo, hi in grid:
+            i = band == b
+            yb, pb, per = y[i], p[i], []
+            for t, c in enumerate(C.CLASSES):
+                j = yb == t
+                per.append({"class": c, "n": int(j.sum()), "accuracy": float((pb[j] == t).mean()) if j.any() else np.nan, "macro_f1": np.nan,
+                            "f1": float(f1_score(j, pb == t, zero_division=0)) if j.any() else np.nan, "errors": int((pb[j] != t).sum())})
+            have = [q["f1"] for q in per if q["n"]]
+            every = {"class": "all", "n": int(i.sum()), "accuracy": float((pb == yb).mean()) if i.any() else np.nan, "macro_f1": float(np.mean(have)) if have else np.nan,
+                     "f1": np.nan, "errors": int((pb != yb).sum())}
+            r += [{"model": m, "featureset": fs, "seed": k, "band": b, "lo_deg": lo, "hi_deg": hi} | q for q in [every] + per]
+    return r
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", choices=["val", "test"], default="test")
@@ -168,6 +189,7 @@ def main():
     if sp == "val":
         vg = C.load_grains().set_index("grain_id").reindex(ref.grain_id)
         pd.DataFrame(lot_rows(y, pred, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / "val_by_lot.csv", index=False); C.wrote(out / "val_by_lot.csv")
+        pd.DataFrame(angle_rows(y, pred, C.angles(vg))).to_csv(out / "val_by_angle.csv", index=False); C.wrote(out / "val_by_angle.csv")
     pd.DataFrame(cm).to_csv(out / f"{sp}_confusion.csv", index=False); C.wrote(out / f"{sp}_confusion.csv")
     sd = M.groupby(["model", "featureset"]).agg(seeds=("seed", "size"), acc_mean=("accuracy", "mean"), acc_sd=("accuracy", "std"),
                                                   f1_mean=("macro_f1", "mean"), f1_sd=("macro_f1", "std"), err_min=("errors", "min"), err_max=("errors", "max")).reset_index()

@@ -13,3 +13,6 @@ Add macro precision and macro recall to every metrics row. Add per-class precisi
 
 ## Fix 5
 - New `results/compare/val_by_lot.csv`, validation only: recall per model, column set, seed, class and lot.
+
+## Fix 6
+- New `results/compare/val_by_angle.csv`, validation only: row counts, accuracy, macro F1 and class F1 per grain-angle band, overall and per class. Angle is measured on the image by `common.angles`, moved unchanged from stage 2. Bands are the constants `common.ANGLE_BANDS`, saved as `lo_deg` and `hi_deg`; rows with no usable mask get band `no_mask`.

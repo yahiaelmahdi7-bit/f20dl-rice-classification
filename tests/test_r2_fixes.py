@@ -224,7 +224,9 @@ def test_stage_3_saves_both_rules_and_recheck_covers_the_inner_columns(repo):
 
 # ---- fix 8: shift accounting
 def _shift_ns(**c):
-    ns = {"np": np, "pd": pd, "C": __import__("types").SimpleNamespace(SEED=0, **c)}
+    m = {"np": np, **{k: c[k] for k in ("read_images", "grain_mask") if k in c}}
+    exec(_block("src/common.py", "def off_axis(", "def angle_band("), m)        # the real measure, run on these stand-in images
+    ns = {"np": np, "pd": pd, "C": __import__("types").SimpleNamespace(SEED=0, off_axis=m["off_axis"], angles=m["angles"], **c)}
     exec(_block("src/02_eda.py", "def shift_row(", "# shift accounting run"), ns)
     return ns
 
@@ -267,7 +269,7 @@ def _bar(deg):
 
 @pytest.mark.parametrize("deg,want", [(0, 0), (90, 0), (45, 45), (135, 45), (20, 20), (110, 20), (70, 20)])
 def test_off_axis_folds_to_degrees_from_the_image_axes(deg, want):
-    assert _shift_ns()["off_axis"](_bar(deg)) == pytest.approx(want, abs=3)
+    assert _shift_ns()["C"].off_axis(_bar(deg)) == pytest.approx(want, abs=3)
 
 
 def test_extent_effect_shrinks_when_angle_explains_it():
@@ -297,7 +299,7 @@ def test_rows_with_no_usable_mask_are_dropped_from_the_angle_check():
     ang[0] = ang[150] = 99
     d = pd.DataFrame({"lot": np.where(late, "late", "main"), "ang": ang, "EXTENT": 0.8 - 0.005 * ang})
     ns = _shift_ns(read_images=lambda s: s.ang.to_numpy(), grain_mask=lambda a: None if a == 99 else _bar(a))
-    assert np.isnan(ns["angles"](d)).sum() == 2
+    assert np.isnan(ns["C"].angles(d)).sum() == 2
     before = ns["extent_shift"](d, r)[0]
     assert before["n"] == 99 and before["n_ref"] == 99
 
@@ -351,8 +353,9 @@ def test_val_by_lot_scores_each_class_and_lot_on_its_own_rows():
 def test_val_by_lot_hook_lines_up_on_grain_id_and_runs_on_validation_only(tmp_path):
     g = pd.DataFrame({"grain_id": ["a", "b", "c"], "class": ["Jasmine", "Jasmine", "Arborio"], "lot": ["late", "main", "main"]})
     reads = []
-    stub = __import__("types").SimpleNamespace(load_grains=lambda: reads.append(1) or g, wrote=lambda p: None)
-    ns = {"C": stub, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path}
+    stub = __import__("types").SimpleNamespace(load_grains=lambda: reads.append(1) or g, wrote=lambda p: None, angles=lambda d: np.full(len(d), 5.0), angle_band=C.angle_band,
+                                               ANGLE_BANDS=C.ANGLE_BANDS, NO_ANGLE=C.NO_ANGLE, CLASSES=C.CLASSES)
+    ns = {"C": stub, "np": np, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path}
     exec(_block("src/07_compare.py", "def lot_rows(", "def main():"), ns)
     body = "if 1:\n" + _block("src/07_compare.py", '    if sp == "val":\n        vg', "    pd.DataFrame(cm)")
     exec(body, ns | {"sp": "test"})
@@ -362,3 +365,93 @@ def test_val_by_lot_hook_lines_up_on_grain_id_and_runs_on_validation_only(tmp_pa
     assert list(d.columns) == C.ARTEFACTS["files"]["results/compare/val_by_lot.csv"]["columns"]
     d = d.set_index(["class", "lot"])
     assert d.loc[("Jasmine", "late"), "recall"] == 0.0 and d.loc[("Jasmine", "main"), "recall"] == 1.0 and d.loc[("Arborio", "main"), "recall"] == 1.0
+
+
+# ---- fix 9: validation scores by grain-angle band
+def _angle_rows(y, p, deg):
+    ns = {"np": np, "C": C}
+    exec(_block("src/07_compare.py", "def angle_rows(", "def main():"), ns)
+    return pd.DataFrame(ns["angle_rows"](np.array(y), {("m", "fs", 0): np.array(p)}, np.array(deg, float)))
+
+
+def test_angle_bands_are_the_ones_fixed_before_scoring_and_cover_the_fold():
+    assert C.ANGLE_BANDS == [(0, 10), (10, 20), (20, 30), (30, 45)]
+    assert [hi for _, hi in C.ANGLE_BANDS[:-1]] == [lo for lo, _ in C.ANGLE_BANDS[1:]]
+
+
+@pytest.mark.parametrize("deg,band", [(0, "0-10"), (9.99, "0-10"), (10, "10-20"), (19.99, "10-20"), (20, "20-30"), (29.99, "20-30"), (30, "30-45"), (44.9, "30-45"), (45, "30-45"), (np.nan, "no_mask")])
+def test_angle_band_edges(deg, band):
+    assert C.angle_band([deg])[0] == band
+
+
+def test_angle_band_does_not_move_with_the_rows_it_is_given():
+    a = np.r_[np.linspace(0, 9, 90), 44.0]
+    assert (C.angle_band(a)[:-1] == "0-10").all() and C.angle_band(a)[-1] == "30-45"
+    assert set(C.angle_band(np.full(50, 7.0))) == {"0-10"}
+
+
+def test_angle_rows_score_each_band_overall_and_per_class():
+    y = [0, 0, 1, 1, 2, 2, 3, 4]
+    p = [0, 1, 1, 1, 2, 0, 3, 4]
+    d = _angle_rows(y, p, [5, 5, 5, 5, 15, 15, 40, np.nan]).set_index(["band", "class"])
+    a, b = C.CLASSES[0], C.CLASSES[1]
+    low = d.loc[("0-10", "all")]
+    assert low.n == 4 and low.accuracy == 0.75 and low.errors == 1 and low.macro_f1 == pytest.approx((2 / 3 + 0.8) / 2) and np.isnan(low.f1)
+    assert d.loc[("0-10", a)].n == 2 and d.loc[("0-10", a)].accuracy == 0.5 and d.loc[("0-10", a)].f1 == pytest.approx(2 / 3) and np.isnan(d.loc[("0-10", a)].macro_f1)
+    assert d.loc[("0-10", b)].accuracy == 1.0 and d.loc[("0-10", b)].f1 == pytest.approx(0.8)
+    assert (d.lo_deg.loc["0-10"] == 0).all() and (d.hi_deg.loc["0-10"] == 10).all() and (d.hi_deg.loc["30-45"] == 45).all()
+
+
+def test_band_macro_f1_averages_only_the_classes_with_rows_in_that_band():
+    d = _angle_rows([2, 2], [2, 0], [15, 15]).set_index(["band", "class"])     # class 0 is predicted here but has no rows, so it is not averaged in
+    assert d.loc[("10-20", "all")].macro_f1 == pytest.approx(2 / 3)
+    assert d.loc[("10-20", C.CLASSES[0])].n == 0 and np.isnan(d.loc[("10-20", C.CLASSES[0])].f1)
+
+
+def test_every_band_is_listed_and_the_counts_add_up_to_all_rows():
+    d = _angle_rows([0, 1, 2, 3, 4, 0], [0, 1, 2, 3, 4, 0], [5, 5, 15, 40, np.nan, 45])
+    every = d[d["class"] == "all"].set_index("band")
+    assert list(every.index) == ["0-10", "10-20", "20-30", "30-45", "no_mask"] and len(d) == 5 * 6
+    assert every.n.tolist() == [2, 1, 0, 2, 1] and every.n.sum() == 6
+    assert np.isnan(every.loc["20-30"].accuracy) and np.isnan(every.loc["20-30"].macro_f1)
+    assert np.isnan(every.loc["no_mask"].lo_deg) and every.loc["no_mask"].accuracy == 1.0
+    assert (d[d["class"] != "all"].groupby("band", sort=False).n.sum() == every.n).all()
+
+
+def test_band_counts_do_not_depend_on_the_predictions():
+    y, deg = [0, 1, 2, 3, 4, 0], [5, 12, 15, 40, 33, 45]
+    right, wrong = _angle_rows(y, y, deg), _angle_rows(y, [(v + 1) % 5 for v in y], deg)
+    assert right[["band", "class", "n"]].equals(wrong[["band", "class", "n"]]) and wrong.query("`class` == 'all' and n > 0").accuracy.max() == 0
+
+
+def test_angles_read_the_image_and_no_table_column(monkeypatch):
+    monkeypatch.setattr(C, "read_images", lambda d: d.img.to_numpy())
+    monkeypatch.setattr(C, "grain_mask", _bar)
+    d = pd.DataFrame({"img": [5.0, 105.0, 65.0, 38.0], "EXTENT": [0.5, 0.6, 0.7, 0.8], "AREA": [1.0, 2.0, 3.0, 4.0]})
+    assert C.angle_band(C.angles(d)).tolist() == ["0-10", "10-20", "20-30", "30-45"]
+    assert C.angles(d).tolist() == C.angles(d.assign(EXTENT=d.EXTENT[::-1].to_numpy(), AREA=0.0)).tolist()
+    assert C.angle_band(C.angles(d[["img"]])).tolist() == ["0-10", "10-20", "20-30", "30-45"]
+
+
+def test_val_by_angle_hook_lines_up_on_grain_id_uses_image_angle_and_runs_on_validation_only(tmp_path):
+    g = pd.DataFrame({"grain_id": ["a", "b", "c", "t"], "class": ["Jasmine", "Jasmine", "Arborio", "Arborio"], "lot": ["late", "main", "main", "main"],
+                      "split": ["val", "val", "val", "train"], "img_deg": [40.0, 5.0, 15.0, 25.0], "EXTENT": [5.0, 15.0, 40.0, 25.0]})
+    seen = []
+    stub = __import__("types").SimpleNamespace(load_grains=lambda: g, wrote=lambda p: None, angles=lambda d: seen.append(list(d.index)) or d.img_deg.to_numpy(), angle_band=C.angle_band,
+                                               ANGLE_BANDS=C.ANGLE_BANDS, NO_ANGLE=C.NO_ANGLE, CLASSES=C.CLASSES)
+    ns = {"C": stub, "np": np, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path}
+    exec(_block("src/07_compare.py", "def lot_rows(", "def main():"), ns)
+    body = "if 1:\n" + _block("src/07_compare.py", '    if sp == "val":\n        vg', "    pd.DataFrame(cm)")
+    exec(body, ns | {"sp": "test"})
+    assert not seen and not (tmp_path / "val_by_angle.csv").exists()
+    exec(body, ns | {"sp": "val"})
+    assert seen == [["c", "a", "b"]]                                          # validation rows only, in prediction order
+    d = pd.read_csv(tmp_path / "val_by_angle.csv")
+    assert list(d.columns) == C.ARTEFACTS["files"]["results/compare/val_by_angle.csv"]["columns"]
+    e = d[d["class"] == "all"].set_index("band")
+    assert e.n.tolist() == [1, 1, 0, 1, 0] and e.loc["10-20"].accuracy == 1.0 and e.loc["30-45"].accuracy == 0.0 and e.loc["0-10"].accuracy == 1.0
+
+
+def test_no_output_name_or_table_column_carries_a_reading_of_the_angle():
+    words = " ".join(C.ARTEFACTS["files"]["results/compare/val_by_angle.csv"]["columns"]) + " " + " ".join(C.angle_band([5, 15, 25, 35, np.nan]))
+    assert "upright" not in words and "upright" not in _block("src/07_compare.py", "def angle_rows(", "def main():")

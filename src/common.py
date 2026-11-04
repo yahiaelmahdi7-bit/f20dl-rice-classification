@@ -186,6 +186,7 @@ ARTEFACTS = {
         "results/preds/{model}__{featureset}__seed{seed}__{split}.parquet": _a(f"common.py {_S5} {_S6} {_S7}", f"common.py {_S7} {_S8} {_S9}", "grain_id y p0 p1 p2 p3 p4"),
         "results/compare/{sp}_metrics.csv": _a(_S7, "report.py", _METRICS),
         "results/compare/val_by_lot.csv": _a(_S7, "", "model featureset seed class lot n recall errors"),
+        "results/compare/val_by_angle.csv": _a(_S7, "", "model featureset seed band lo_deg hi_deg class n accuracy macro_f1 f1 errors"),
         "results/compare/{sp}_recall.csv": _a(_S7, "", "model featureset seed split class n recall precision f1 errors"),
         "results/compare/{sp}_confusion.csv": _a(_S7, "", "model featureset seed true predicted count"),
         "results/compare/{sp}_seed_spread.csv": _a(_S7, "report.py", "model featureset seeds acc_mean acc_sd f1_mean f1_sd err_min err_max"),
@@ -338,6 +339,32 @@ def grain_mask(a):
     if n == 0: return None
     sizes = ndi.sum(m, lab, range(1, n + 1))
     return lab == (int(np.argmax(sizes)) + 1)
+
+
+# ---- grain angle -----------------------------------------------------------------
+ANGLE_BANDS = [(0, 10), (10, 20), (20, 30), (30, 45)]   # degrees off the image axes, set by hand before any model was scored by angle; the fold stops at 45
+NO_ANGLE = "no_mask"
+
+
+def off_axis(m):
+    """Grain angle from the second moments of its image mask, folded to degrees off the image axes: 0 lies along an axis, 45 is diagonal."""
+    yy, xx = np.nonzero(m)
+    c = np.cov(xx, yy)
+    a = np.degrees(0.5 * np.arctan2(2 * c[0, 1], c[0, 0] - c[1, 1])) % 90
+    return min(a, 90 - a)
+
+
+def angles(df):
+    """Off-axis degrees per row, measured on its image; NaN where no usable mask is found. Reads no table column."""
+    return np.array([off_axis(m) if m is not None and m.sum() > 2 else np.nan for m in map(grain_mask, read_images(df))])
+
+
+def angle_band(deg):
+    """Band label per angle. Lower edge in, upper edge out, and the top band also holds its upper edge. A row with no angle gets NO_ANGLE."""
+    deg = np.asarray(deg, float)
+    labels = np.array([f"{lo}-{hi}" for lo, hi in ANGLE_BANDS] + [NO_ANGLE])
+    i = np.searchsorted([hi for _, hi in ANGLE_BANDS[:-1]], deg, side="right")
+    return labels[np.where(np.isfinite(deg), i, len(ANGLE_BANDS))]
 
 
 # ---- predictions ----------------------------------------------------------------

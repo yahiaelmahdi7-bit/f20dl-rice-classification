@@ -382,23 +382,10 @@ def share_rows(cnt):
     return [shift_row("split_share", f"{c} {l}", "all rows in split", "", cnt.loc[(c, l), s], t[s], cnt.loc[(c, l), s] / t[s], note=s) for c, l in cnt.index for s in cnt.columns]
 
 
-def off_axis(m):
-    """Grain angle from the second moments of its image mask, folded to degrees off the image axes: 0 lies along an axis, 45 is diagonal."""
-    yy, xx = np.nonzero(m)
-    c = np.cov(xx, yy)
-    a = np.degrees(0.5 * np.arctan2(2 * c[0, 1], c[0, 0] - c[1, 1])) % 90
-    return min(a, 90 - a)
-
-
-def angles(s):
-    """Off-axis degrees per row, measured on its image; NaN where no usable mask is found."""
-    return np.array([off_axis(m) if m is not None and m.sum() > 2 else np.nan for m in map(C.grain_mask, C.read_images(s))])
-
-
 def extent_shift(d, rng, n=300):
     """EXTENT late against main, before and after removing what grain angle explains. Angle comes from the images, so it does not reuse EXTENT; the fit uses main rows only."""
     s = pd.concat([d[d.lot == l].sample(min(n // 2, int((d.lot == l).sum())), random_state=C.SEED) for l in ("late", "main")])
-    ang = angles(s)
+    ang = C.angles(s)
     s, ang = s[np.isfinite(ang)], ang[np.isfinite(ang)]
     main, e = (s.lot == "main").to_numpy(), s.EXTENT.to_numpy(float)
     X = np.c_[np.ones(len(s)), ang, ang ** 2]
@@ -411,7 +398,7 @@ def extent_shift(d, rng, n=300):
 def late_drift(d, blocks=6):
     """Median AREA, EXTENT and image-measured grain angle per block of consecutive file numbers inside one lot."""
     d = d.sort_values("file_no")
-    d = d.assign(off_axis_deg=angles(d))
+    d = d.assign(off_axis_deg=C.angles(d))
     b = np.arange(len(d)) * blocks // max(len(d), 1)
     return [shift_row("late_drift", f"block {i}", "", c, (b == i).sum(), 0, d.loc[b == i, c].median(), note=f"files {d.file_no[b == i].min()}-{d.file_no[b == i].max()}, median")
             for i in range(blocks) if (b == i).any() for c in ("AREA", "EXTENT", "off_axis_deg")]
