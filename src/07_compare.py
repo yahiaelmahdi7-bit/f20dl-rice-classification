@@ -48,6 +48,13 @@
 #
 # ## Fix 2
 # Add macro precision and macro recall to every metrics row. Add per-class precision and F1 beside recall in `{split}_recall.csv`. File names stay, because `report.py` reads them. No new intervals.
+#
+# ## Fix 5
+# - New `results/compare/val_by_lot.csv`, validation only: recall per model, column set, seed, class and lot.
+#
+# ## Fix 6
+# - New `results/compare/val_by_angle.csv`, validation only: row counts, accuracy, macro F1 and class F1 per grain-angle band, overall and per class. Angle is measured on the image by `common.angles`, moved unchanged from stage 2. Bands are the constants `common.ANGLE_BANDS`, saved as `lo_deg` and `hi_deg`; rows with no usable mask get band `no_mask`.
+# - New `results/compare/val_by_angle_lot.csv`, validation only: row counts, recall and errors per grain-angle band, class and lot, every band listed even when empty. Same angle measure and fixed bands as `val_by_angle.csv`, measured once for both. Recall only, as in `val_by_lot.csv`: late is Jasmine only.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 7: compare every model on one split with intervals and paired tests. --split test is one gated test read."""
 import argparse, json
@@ -130,6 +137,20 @@ def angle_rows(y, pred, deg):
     return r
 
 
+def angle_lot_rows(y, pred, deg, cls, lots):
+    """Recall per grain-angle band, class and lot on validation rows, so a band gap inside one lot cannot hide in the pooled band. Every band is listed for every class and lot
+    pair the rows hold, even when empty, and n is the rows behind the cell. Recall only, as in lot_rows: late is Jasmine only, so macro F1 would mean nothing there."""
+    band, r = C.angle_band(deg), []
+    grid = [(f"{lo}-{hi}", lo, hi) for lo, hi in C.ANGLE_BANDS] + [(C.NO_ANGLE, np.nan, np.nan)]
+    for (m, fs, k), p in pred.items():
+        for b, lo, hi in grid:
+            for c, l in sorted(set(zip(cls, lots))):
+                i = (band == b) & (cls == c) & (lots == l)
+                r.append({"model": m, "featureset": fs, "seed": k, "band": b, "lo_deg": lo, "hi_deg": hi, "class": c, "lot": l, "n": int(i.sum()),
+                          "recall": float((p[i] == y[i]).mean()) if i.any() else np.nan, "errors": int((p[i] != y[i]).sum())})
+    return r
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", choices=["val", "test"], default="test")
@@ -189,7 +210,9 @@ def main():
     if sp == "val":
         vg = C.load_grains().set_index("grain_id").reindex(ref.grain_id)
         pd.DataFrame(lot_rows(y, pred, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / "val_by_lot.csv", index=False); C.wrote(out / "val_by_lot.csv")
-        pd.DataFrame(angle_rows(y, pred, C.angles(vg))).to_csv(out / "val_by_angle.csv", index=False); C.wrote(out / "val_by_angle.csv")
+        deg = C.angles(vg)
+        pd.DataFrame(angle_rows(y, pred, deg)).to_csv(out / "val_by_angle.csv", index=False); C.wrote(out / "val_by_angle.csv")
+        pd.DataFrame(angle_lot_rows(y, pred, deg, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / "val_by_angle_lot.csv", index=False); C.wrote(out / "val_by_angle_lot.csv")
     pd.DataFrame(cm).to_csv(out / f"{sp}_confusion.csv", index=False); C.wrote(out / f"{sp}_confusion.csv")
     sd = M.groupby(["model", "featureset"]).agg(seeds=("seed", "size"), acc_mean=("accuracy", "mean"), acc_sd=("accuracy", "std"),
                                                   f1_mean=("macro_f1", "mean"), f1_sd=("macro_f1", "std"), err_min=("errors", "min"), err_max=("errors", "max")).reset_index()
