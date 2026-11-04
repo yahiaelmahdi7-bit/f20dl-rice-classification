@@ -72,7 +72,17 @@ def load_image(p):
 def need(*paths):
     for p in paths:
         if not Path(p).exists():
-            fail(3, f"missing trained-model file: {p}. Run `make train` first.")
+            fail(3, f"missing trained-model file: {p}. Run `make train`, then `make fit`.")
+
+
+def table_row(name):
+    """Table row of a file named `<Class> (<file_no>).jpg`, or None. Read directly, never through the gated test loader, and without label columns."""
+    m = re.match(r"^(\w+) \((\d+)\)\.jpg$", name)
+    if not m or not (C.DERIVED / "grains.parquet").exists(): return None
+    import pandas as pd
+    g = pd.read_parquet(C.DERIVED / "grains.parquet", columns=["grain_id", *C.ALL106])
+    g = g[g.grain_id == f"{m.group(1)}-{m.group(2)}"]
+    return g.iloc[[0]] if len(g) else None
 
 
 def main():
@@ -82,21 +92,14 @@ def main():
     img = load_image(path)
     M = C.MODELS
     need(M / "cnn_seed0.pt", M / "routing.json", M / "gate_image.joblib", M / "gate_table.joblib", M / "hgb_all106.joblib")
-    import joblib, pandas as pd
+    import joblib
     R = json.loads((M / "routing.json").read_text())
     model, mean, std = C.load_cnn(M / "cnn_seed0.pt")
     Pc, E = C.run_cnn(model, mean, std, lambda a, b: C.resize128(img)[None], 1)
     Pc = C.apply_temp(Pc, R["cnn"]["temperature"])
     unf_i = bool(joblib.load(M / "gate_image.joblib").unfamiliar(E)[0])
 
-    gid = None
-    m = re.match(r"^(\w+) \((\d+)\)\.jpg$", path.name)
-    if m: gid = f"{m.group(1)}-{m.group(2)}"
-    row = None
-    if gid:                                      # read the table directly; never through the gated test loader
-        g = pd.read_parquet(C.DERIVED / "grains.parquet")
-        g = g[g.grain_id == gid]
-        row = g.iloc[[0]] if len(g) else None
+    row = table_row(path.name)
 
     print(f"image: {path.name}")
     print(f"image side: {C.CLASSES[int(Pc.argmax())]} (confidence {Pc.max():.4f})")
