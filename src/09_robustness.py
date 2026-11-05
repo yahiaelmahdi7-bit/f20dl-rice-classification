@@ -258,6 +258,11 @@ def score():
     preflight(read_needs(tr, va))                     # names every missing file before the read is spent
     te = C.load_split("test")                         # the single gated test read of this stage
     print(f"test read: {len(te)} grains", flush=True)
+    score_late(N, hd, out, tr, va, te)
+
+
+def score_late(N, hd, out, tr, va, te):
+    """Everything after the read. Apart from score() so a test can drive the real grey_world call on made-up rows."""
     allsplit = pd.concat([tr, va, te], ignore_index=True).drop_duplicates("grain_id")   # smoke: te is validation again
     late = allsplit[allsplit.lot == "late"].reset_index(drop=True)
     is_te = late.grain_id.isin(te.grain_id).to_numpy()

@@ -287,3 +287,45 @@ def test_holdout_cnn_trains_only_when_it_must(tmp_path, monkeypatch):
     assert s.holdout_cnn(N, 0, cfg, rows, rows, None, p)[0] == "from file" and trained == [0.001]    # rerun after a crash: reused
     assert s.holdout_cnn(N, 0, cfg | {"lr": 0.01}, rows, rows, None, p)[0] != "from file" and trained == [0.001, 0.01]   # other settings
     assert s.holdout_cnn(N, 0, cfg, frame(("early",)), rows, None, p)[0] != "from file" and trained == [0.001, 0.01, 0.001]   # other rows
+
+
+def rows_of(tag, lots, split):
+    f = pd.DataFrame({"grain_id": [f"{tag}{i}" for i in range(len(lots))], "lot": list(lots), "y": 0, "path": "/nowhere/a.jpg", "split": split})
+    return pd.concat([f, pd.DataFrame(0.0, index=f.index, columns=C.ALL106)], axis=1)
+
+
+class Saved:
+    """Stands in for every saved model and gate score_late loads: no model exists here."""
+    def __getitem__(self, _): return self
+    def predict_proba(self, X): return rows_for(np.zeros(len(X), int))
+    def unfamiliar(self, X): return np.zeros(len(X), bool)
+
+
+def drive_late(monkeypatch, tr, va, te):
+    """Runs the real score_late on made-up frames and returns the frame it hands to grey_world."""
+    s, N = load("src/09_robustness.py"), load("src/08_routing.py")
+    monkeypatch.setattr(s.joblib, "load", lambda p: Saved())
+    monkeypatch.setattr(C, "cnn_on_df", lambda p, df: (rows_for(np.zeros(len(df), int)), np.zeros((len(df), 2))))
+    hd = s.hold_dir()
+    (hd / "routing.json").write_text(json.dumps({k: {"temperature": 1.0, "floor": 0.5} for k in ("hgb", "cnn")}))
+    grabbed = []
+    monkeypatch.setattr(s, "grey_world", lambda first, *rest: grabbed.append(first))
+    s.score_late(N, hd, C.stage_dir("robustness"), tr, va, te)
+    return grabbed[0]
+
+
+def test_grey_world_is_handed_the_late_test_grains_at_the_call_site(env, monkeypatch):
+    tr, va, te = rows_of("tr", ("early", "late"), "train"), rows_of("va", ("late", "late"), "val"), rows_of("te", ("late", "early", "late"), "test")
+    assert set(drive_late(monkeypatch, tr, va, te).grain_id) == {"te0", "te2"}
+
+
+def test_grey_world_gets_the_late_stand_ins_in_smoke(env, monkeypatch):
+    tr, va = rows_of("tr", ("early", "late"), "train"), rows_of("va", ("late", "early"), "val")
+    assert set(drive_late(monkeypatch, tr, va, va.copy()).grain_id) == {"va0"}
+
+
+def test_a_scored_grain_in_train_stops_the_tint_arms(env, monkeypatch):
+    tr, va = rows_of("tr", ("early", "late"), "train"), rows_of("va", ("late",), "val")
+    te = pd.concat([rows_of("te", ("late",), "test"), tr.tail(1)], ignore_index=True)
+    with pytest.raises(AssertionError, match="a scored grain is in train"):
+        drive_late(monkeypatch, tr, va, te)
