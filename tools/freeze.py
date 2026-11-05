@@ -80,8 +80,28 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import common as C  # noqa: E402
+import pandas as pd  # noqa: E402
 
 PARTS = [C.RES / "baselines" / "best_params.json", C.RES / "neural" / "best_config.json", C.MODELS / "routing.json", C.SPLITS]
+
+
+def control_faults():
+    """Why the shuffled-label controls cannot stand, empty when they can. control_gate passes a file with rows missing, so each expected model is checked too."""
+    bad = []
+    best, cfg = json.loads(PARTS[0].read_text()), json.loads(PARTS[1].read_text())
+    for stage, want, cols in [("baselines", [tuple(k.split(":")) for k in best], ["model", "featureset"]), ("neural", [(k,) for k in cfg], ["model"])]:
+        p = C.RES / stage / "control.csv"
+        if not p.exists():
+            bad.append(f"{p}: missing")
+            continue
+        try:
+            C.control_gate(p)
+            have = set(pd.read_csv(p)[cols].astype(str).itertuples(index=False, name=None))
+        except (SystemExit, ValueError, KeyError) as e:
+            bad.append(f"{p}: {e}")
+            continue
+        bad += [f"{p}: no row for {':'.join(w)}" for w in want if w not in have]
+    return bad
 
 
 def main():
@@ -89,6 +109,13 @@ def main():
     if missing:
         print("cannot freeze, missing:", *missing, sep="\n  ")
         return 1
+    if C.SMOKE:
+        print("controls not checked: smoke runs no --control")
+    else:
+        bad = control_faults()
+        if bad:
+            print("cannot freeze, controls:", *bad, sep="\n  ")
+            return 1
     parts = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in PARTS}
     body = {"seeds": list(C.SEEDS), "pairs": C.PAIRS, "parts": parts}
     h = hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
