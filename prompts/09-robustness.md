@@ -27,3 +27,9 @@ A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` 
 
 ## Fix 6
 `score_late` is everything after the test read and `fit_tables` is the table-model fit and save, each split out with no change in behaviour, so a test can drive the real `grey_world` call and check that a saved record holds the rows its model was fitted on, on made-up rows with no model fitted.
+
+## Fix 7
+- `read_test` is the one gated read. An infinite cell becomes a missing one, as in stage 7, and the count is printed.
+- `--score` stops before the read if train and validation hold no late grains: the first hold-out model would raise on no rows, after the read.
+- `grey_world` writes parts 1 and 1b, then stops with a printed line if no late grain reached test. `greyworld_results.csv` stays absent, so the report and the go check notice.
+- `gain_rows` takes the largest correlation with `np.max`, so a channel with no answer fails `passes_abs_lt_0_1`. Python's `max` could drop the nan and pass it.

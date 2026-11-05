@@ -255,15 +255,22 @@ def late_rows(name, P, y, is_te):
     return rows
 
 
+def read_test():
+    """The single gated test read of this stage. An infinite cell becomes a missing one, which every pipeline imputes; left in, the first imputer raises right after the read."""
+    df = C.load_split("test")
+    print(f"test read: {len(df)} grains, {int(np.isinf(df[C.ALL106].to_numpy(np.float64)).sum())} infinite cells made missing", flush=True)
+    return df.replace([np.inf, -np.inf], np.nan)
+
+
 def score():
     N = _load("08_routing.py")
     hd = hold_dir()
     out = C.stage_dir("robustness")
     tr, va = C.load_split("train"), C.load_split("val")
+    if not (pd.concat([tr.lot, va.lot]) == "late").any():
+        raise SystemExit("cannot read test: no late grains in train or validation, so the late models would have no rows to score")
     preflight(read_needs(tr, va))                     # names every missing file before the read is spent
-    te = C.load_split("test")                         # the single gated test read of this stage
-    print(f"test read: {len(te)} grains", flush=True)
-    score_late(N, hd, out, tr, va, te)
+    score_late(N, hd, out, tr, va, read_test())
 
 
 def score_late(N, hd, out, tr, va, te):
@@ -316,18 +323,24 @@ def score_late(N, hd, out, tr, va, te):
     grey_world(late_te, tr, va, out)
 
 
-def grey_world(late_te, tr, va, out):
-    from sklearn.ensemble import HistGradientBoostingClassifier as HGB
-    # 1. is the gain independent of grain size? r(gain, log AREA) per class, on a train+val sample
-    samp = per_class_sample(pd.concat([tr, va]), 1000)
-    G = np.array([grey_world_gains(im, C.grain_mask(im)) for im in (read250(p) for p in samp.path)])
+def gain_rows(samp, G):
+    """r(gain, log AREA) per class. A channel with no answer fails the check: np.max carries a nan through, where Python's max can drop it depending on its place."""
     cr = []
     for k in range(5):
         m = (samp.y == k).to_numpy()
         la = np.log(samp.loc[m, "AREA"].to_numpy(np.float64))
         r = [float(np.corrcoef(G[m, c], la)[0, 1]) for c in range(3)]
-        cr.append(dict(**{"class": C.CLASSES[k]}, n=int(m.sum()), r_R=r[0], r_G=r[1], r_B=r[2], max_abs_r=max(abs(x) for x in r), passes_abs_lt_0_1=max(abs(x) for x in r) < 0.1))
-    pd.DataFrame(cr).to_csv(out / "greyworld_gain_vs_area.csv", index=False); C.wrote(out / "greyworld_gain_vs_area.csv")
+        top = float(np.max(np.abs(r)))
+        cr.append(dict(**{"class": C.CLASSES[k]}, n=int(m.sum()), r_R=r[0], r_G=r[1], r_B=r[2], max_abs_r=top, passes_abs_lt_0_1=top < 0.1))
+    return cr
+
+
+def grey_world(late_te, tr, va, out):
+    from sklearn.ensemble import HistGradientBoostingClassifier as HGB
+    # 1. is the gain independent of grain size? r(gain, log AREA) per class, on a train+val sample
+    samp = per_class_sample(pd.concat([tr, va]), 1000)
+    G = np.array([grey_world_gains(im, C.grain_mask(im)) for im in (read250(p) for p in samp.path)])
+    pd.DataFrame(gain_rows(samp, G)).to_csv(out / "greyworld_gain_vs_area.csv", index=False); C.wrote(out / "greyworld_gain_vs_area.csv")
 
     # 1b. table means vs mask means on a stratified 5000-grain train sample
     ms = per_class_sample(tr, 1000)
@@ -337,6 +350,10 @@ def grey_world(late_te, tr, va, out):
         t = ms[col].to_numpy(np.float64)
         mcr.append(dict(channel="RGB"[c], n=len(ms), pearson=float(np.corrcoef(t, MM[:, c])[0, 1]), median_abs_diff=float(np.median(np.abs(t - MM[:, c])))))
     pd.DataFrame(mcr).to_csv(out / "mean_colour_check.csv", index=False); C.wrote(out / "mean_colour_check.csv")
+
+    if late_te.empty:                  # only a broken split gets here; parts 1 and 1b stand and greyworld_results.csv stays absent
+        print("no late test grains: tint arms not scored", flush=True)
+        return
 
     # 2. mean-colour model, raw vs corrected image means on the late test grains (it was fitted on train)
     mcm = HGB(random_state=C.SEED, early_stopping=False, max_iter=150).fit(MM, ms.y.to_numpy())   # fitted on mask_means, same measure as scoring

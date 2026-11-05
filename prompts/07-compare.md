@@ -22,3 +22,7 @@ Add macro precision and macro recall to every metrics row. Add per-class precisi
 - `--split test`: before the read, `preflight(read_needs())` names every missing file and stops. The list is built from `model_list()`, through `model_file`, which `test_probs` also loads from.
 - On test a model that cannot load stops the stage (`score_models`); it is never dropped. Validation stays tolerant, so `make wedge` still runs with some models present.
 - `paired` holds the b, c, exact p and bootstrap difference, unchanged, so it can be tested on made-up rows.
+
+## Fix 8
+- `read_test` is the one gated read. An infinite cell becomes a missing one, which every pipeline imputes, and the count is printed. Left in, the first imputer raises right after the read. Stage 5 still stops on an infinite train or validation cell, before any read.
+- `tables` is everything after the predictions, split out with no change in behaviour, so a test can drive the real metrics, recall, confusion, spread and McNemar code on made-up predictions.

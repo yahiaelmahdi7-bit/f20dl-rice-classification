@@ -185,6 +185,13 @@ def angle_lot_rows(y, pred, deg, cls, lots):
     return r
 
 
+def read_test():
+    """The single gated test read of this stage. An infinite cell becomes a missing one, which every pipeline imputes; left in, the first imputer raises right after the read."""
+    df = C.load_split("test")
+    print(f"test read: {len(df)} grains, {int(np.isinf(df[C.ALL106].to_numpy(np.float64)).sum())} infinite cells made missing", flush=True)
+    return df.replace([np.inf, -np.inf], np.nan)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", choices=["val", "test"], default="test")
@@ -194,15 +201,18 @@ def main():
     preds = {}
     if sp == "test":
         preflight(read_needs())            # names every missing file before the read is spent
-        df = C.load_split("test")          # the single gated test read of this stage
-        print(f"test read: {len(df)} grains", flush=True)
-        preds = score_models(df)
+        preds = score_models(read_test())
     else:
         for m, fs, seeds in model_list():
             for k in seeds:
                 d = C.load_preds(m, fs, k, "val")
                 if d is not None: preds[(m, fs, k)] = d
     assert preds, "no predictions found"
+    tables(preds, sp, out)
+
+
+def tables(preds, sp, out):
+    """Everything after the predictions. Apart from main so a test can drive the real tables on made-up predictions."""
     ref = next(iter(preds.values()))
     ids = ref.grain_id.to_numpy()
     y = ref.y.to_numpy().astype(int)

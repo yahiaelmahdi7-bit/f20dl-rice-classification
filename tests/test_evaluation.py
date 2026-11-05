@@ -1,5 +1,5 @@
 """Stages 7, 8, 9 and freeze: refusals before a read, on made-up rows. No model is fitted and no real path is touched."""
-import importlib.util, json, sys
+import ast, importlib.util, json, sys
 from pathlib import Path
 from types import SimpleNamespace
 import numpy as np, pandas as pd, pytest
@@ -388,3 +388,144 @@ def test_paired_gives_what_the_inline_lines_gave():
         diff = ok[ka][idx].mean(1) - ok[kb][idx].mean(1)
         nb, nc, np_, nd = s.paired(a, b_, idx)
         assert (nb, nc, np_) == (b, c, p) and (nd == diff).all()
+
+
+STAGES = ["src/07_compare.py", "src/08_routing.py", "src/09_robustness.py"]
+
+
+@pytest.mark.parametrize("stage", STAGES)
+def test_an_infinite_cell_is_missing_once_the_read_returns(stage, monkeypatch, capsys):
+    te = rows_of("te", ("late", "early"), "test")
+    te.loc[0, "AREA"], te.loc[1, "MINOR_AXIS"] = np.inf, -np.inf
+    monkeypatch.setattr(C, "load_split", lambda name: te)
+    got = load(stage).read_test()
+    X = got[C.ALL106]
+    assert not np.isinf(X.to_numpy(np.float64)).any() and int(X.isna().sum().sum()) == 2
+    assert np.isnan(got.loc[0, "AREA"]) and got.lot.tolist() == ["late", "early"]
+    assert "2 infinite cells made missing" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("stage", STAGES)
+def test_a_stage_reads_test_in_one_place(stage):
+    tree = ast.parse((ROOT / stage).read_text())
+    at = [f.name for f in ast.walk(tree) if isinstance(f, ast.FunctionDef) for n in ast.walk(f)
+          if isinstance(n, ast.Call) and ast.unparse(n) == "C.load_split('test')"]
+    assert at == ["read_test"]
+
+
+def made_preds(y, miss):
+    """A prediction frame right on every grain but the first miss."""
+    y = np.asarray(y)
+    said = (y + (np.arange(len(y)) < miss)) % 5
+    return pd.DataFrame({"grain_id": [f"g{i}" for i in range(len(y))], "y": y} | {f"p{k}": np.where(said == k, 0.9, 0.025) for k in range(5)})
+
+
+@pytest.mark.parametrize("y,cnn_misses", [([0, 1, 2, 3, 4, 0], 0), ([0, 1, 2, 3, 0, 1], 2), ([0, 1, 2, 3, 4, 0], 6), ([3], 0), ([3], 1)],
+                         ids=["no disagreements", "class 4 absent", "one model wrong on every grain", "one grain right", "one grain wrong"])
+def test_stage7_tables_stand_on_a_thin_read(y, cnn_misses, tmp_path, monkeypatch):
+    s = load("src/07_compare.py")
+    monkeypatch.setattr(s, "NBOOT", 20)
+    monkeypatch.setattr(C, "FIG", tmp_path / "no" / "such" / "folder")
+    keys = [("hgb", "all106", 0)] + [(m, fs, k) for m, fs in (("cnn", "image"), ("mlp", "all106")) for k in C.SEEDS]
+    s.tables({k: made_preds(y, cnn_misses if k[0] == "cnn" else 0) for k in keys}, "test", tmp_path)
+    M, T = pd.read_csv(tmp_path / "test_metrics.csv"), pd.read_csv(tmp_path / "test_mcnemar.csv")
+    assert len(M) == 7 and len(T) == 3 * len(C.PAIRS)
+    assert len(pd.read_csv(tmp_path / "test_confusion.csv")) == 7 * 25 and len(pd.read_csv(tmp_path / "test_recall.csv")) == 7 * 5
+    assert len(pd.read_csv(tmp_path / "test_seed_spread.csv")) == 3
+    assert (T[T.disagreements == 0].p_exact == 1.0).all() and T.p_holm.between(0, 1).all()
+    assert (M[M.model == "cnn"].errors == cnn_misses).all() and (tmp_path / "no/such/folder/compare_confusion_test.png").exists()
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+@pytest.mark.parametrize("y,conf,hgb_floor,unfamiliar,route", [
+    ([0, 1, 2, 3], 0.9, 0.0, False, "hgb"), ([0, 1, 2, 3], 0.9, 0.99, True, "unfamiliar"), ([0, 1, 2, 3], 1.0, 0.0, False, "hgb"), ([2], 0.9, 0.0, False, "hgb"),
+    ([0, 1, 2, 3], 0.3, 0.99, False, "unsure")], ids=["all on hgb", "all unfamiliar", "confidence exactly 1", "one grain", "all unsure"])
+def test_stage8_report_stands_with_empty_routes(y, conf, hgb_floor, unfamiliar, route, tmp_path, monkeypatch):
+    s = load("src/08_routing.py")
+    monkeypatch.setattr(C, "FIG", tmp_path / "no" / "such" / "folder")
+    y = np.array(y)
+    R = routing()
+    R["hgb"]["floor"] = hgb_floor
+    s.report("test", y, rows_for(y, conf), {k: rows_for(y, conf) for k in C.SEEDS}, R, np.full(len(y), unfamiliar), np.zeros(len(y), bool), tmp_path)
+    t = pd.read_csv(tmp_path / "test_routes.csv")
+    assert len(t) == 8 * len(C.SEEDS) and len(pd.read_csv(tmp_path / "test_calibration.csv")) == 1 + len(C.SEEDS)
+    routes = t[t.route.isin(["hgb", "cnn", "unsure", "unfamiliar"])]
+    assert (routes[routes.route == route].grains == len(y)).all() and (routes[routes.route != route].grains == 0).all()
+    assert routes[routes.route.isin(["hgb", "cnn"]) & (routes.grains == 0)].accuracy.isna().all()
+    assert all((tmp_path / "no/such/folder" / f"routing_{n}_test.png").exists() for n in ("risk_coverage", "reliability"))
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_a_read_with_no_late_grain_in_test_leaves_empty_rows(env, monkeypatch):
+    tr, va, te = rows_of("tr", ("early", "late"), "train"), rows_of("va", ("late",), "val"), rows_of("te", ("early",), "test")
+    assert drive_late(monkeypatch, tr, va, te).empty
+    r = pd.read_csv(C.RES / "robustness" / "late_recall.csv")
+    t = r[r.subset == "late_test"]
+    assert len(t) and (t.n == 0).all() and t.recall.isna().all() and t.ci_low.isna().all()
+    c = pd.read_csv(C.RES / "robustness" / "late_chain.csv")
+    assert (c[c.subset == "late_test"].grains == 0).all() and (c[c.subset == "late_all"].grains.max() == 2)
+
+
+def test_every_late_grain_on_one_route_and_a_missing_cell_stand(env, monkeypatch):
+    tr, va, te = rows_of("tr", ("early", "late"), "train"), rows_of("va", ("late",), "val"), rows_of("te", ("late", "late"), "test")
+    te.loc[0, "AREA"] = np.nan
+    assert len(drive_late(monkeypatch, tr, va, te)) == 2
+    c = pd.read_csv(C.RES / "robustness" / "late_chain.csv").set_index(["subset", "route"])
+    assert c.loc[("late_test", "hgb"), "grains"] == 2 and c.loc[("late_test", "cnn"), "grains"] == 0 and c.loc[("late_test", "answered_total"), "errors"] == 0
+
+
+def test_empty_inputs_give_a_stated_answer():
+    s = load("src/09_robustness.py")
+    assert all(np.isnan(C.wilson(0, 0)))
+    assert C.floor_for(np.array([]), np.array([], bool), 0.99) == 1.01 and C.ece(np.array([]), np.array([], bool)) == 0.0
+    with np.errstate(all="ignore"), pytest.warns(RuntimeWarning):
+        r = s.recall_row("m", "late_test", np.zeros((0, 5)), np.zeros(0, int))
+    assert r["n"] == 0 and np.isnan(r["recall"]) and r["confidently_wrong"] == 0
+
+
+def test_missing_output_folders_are_made(env, monkeypatch):
+    C.save_preds("cnn", "image", 0, "test", ["g0"], [0], rows_for(np.array([0])))
+    assert C.load_preds("cnn", "image", 0, "test").grain_id.tolist() == ["g0"]
+    assert load("src/09_robustness.py").hold_dir().is_dir() and C.stage_dir("robustness").is_dir()
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_a_channel_with_no_answer_fails_the_gain_check():
+    s = load("src/09_robustness.py")
+    area = np.exp(np.arange(1.0, 9.0))
+    even = np.array([1.0, -1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0])       # no slope against log area
+    samp = pd.DataFrame({"y": [0] * 8 + [1] * 8, "AREA": np.r_[area, area]})
+    G = np.column_stack([np.r_[even, even], np.r_[np.full(8, 2.0), even], np.r_[even, even]])     # class 0: green has no spread, so no answer
+    a, b, *rest = s.gain_rows(samp, G)
+    assert a["n"] == 8 and np.isnan(a["r_G"]) and np.isnan(a["max_abs_r"]) and not a["passes_abs_lt_0_1"]
+    assert b["max_abs_r"] < 0.1 and b["passes_abs_lt_0_1"]
+    assert [r["n"] for r in rest] == [0, 0, 0] and not any(r["passes_abs_lt_0_1"] for r in rest)     # a class with no rows
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_no_late_test_grain_keeps_the_gain_tables_and_stops_before_the_tint_arms(env, monkeypatch):
+    s = load("src/09_robustness.py")
+
+    def photo(_):
+        a = np.zeros((250, 250, 3), np.uint8)
+        a[80:170, 60:190] = (200, 170, 140)
+        return a
+
+    class NoFit:
+        def __init__(self, *a, **k): pytest.fail("the tint arms went on to fit a model")
+    monkeypatch.setattr(s, "read250", photo)
+    monkeypatch.setattr("sklearn.ensemble.HistGradientBoostingClassifier", NoFit)
+    tr = rows_of("tr", ("early",) * 5, "train").assign(y=range(5))
+    va = rows_of("va", ("late",) * 5, "val").assign(y=range(5))
+    out = C.stage_dir("robustness")
+    s.grey_world(tr.iloc[:0], tr, va, out)
+    assert len(pd.read_csv(out / "greyworld_gain_vs_area.csv")) == 5 and len(pd.read_csv(out / "mean_colour_check.csv")) == 3
+    assert not (out / "greyworld_results.csv").exists()
+
+
+def test_stage9_stops_before_the_read_with_no_late_rows(env, monkeypatch):
+    def split(name):
+        if name == "test": pytest.fail("test rows were read")
+        return frame(("early",))
+    monkeypatch.setattr(C, "load_split", split)
+    assert "no late grains" in refuse(load("src/09_robustness.py"), ["09", "--score"], monkeypatch)

@@ -182,6 +182,13 @@ def check_seeds(R):
     if gone: raise SystemExit(f"cannot read test, routing.json has no temperature and floor for CNN seeds {gone}: run --fit, then freeze")
 
 
+def read_test():
+    """The single gated test read of this stage. An infinite cell becomes a missing one, which every pipeline imputes; left in, the first imputer raises right after the read."""
+    df = C.load_split("test")
+    print(f"test read: {len(df)} grains, {int(np.isinf(df[C.ALL106].to_numpy(np.float64)).sum())} infinite cells made missing", flush=True)
+    return df.replace([np.inf, -np.inf], np.nan)
+
+
 def main():
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
@@ -211,7 +218,7 @@ def main():
         R = json.loads((C.MODELS / "routing.json").read_text())
         check_seeds(R)
         gt, gi = joblib.load(C.MODELS / "gate_table.joblib"), joblib.load(C.MODELS / "gate_image.joblib")
-        df = C.load_split("test")       # the single gated test read of this stage
+        df = read_test()
         _, E = C.cnn_on_df(C.MODELS / "cnn_seed0.pt", df)
         y = df.y.to_numpy()
         Ph = C.load_preds("hgb", "all106", 0, "test")
