@@ -111,6 +111,10 @@
 # - `tests/contract_known.txt`: one line per real mismatch in a file Foundation does not own. The test passes on a listed mismatch and fails on anything new or on a line that has stopped being true.
 # - `tests/test_foundation.py`: small model-free tests for the Foundation fixes and for the shared lines the 2,000-grain slice cannot reach.
 # - `tests/test_data.py`: small model-free tests for stages 0 to 2 and `tools/leak_audit.py`. Stage 2 is read as source and never imported, because importing it runs it.
+#
+# ## Fix 4
+# - `tests/test_evaluation.py`: model-free tests for stages 7, 8, 9 and `tools/freeze.py`, on made-up rows. Each stage stops before its test read when a needed file is missing, freeze refuses a bad control and hashes each file under its own path, a file changed since freeze stops the read before it is logged, and a thin read still writes its tables. A stage's `main()` runs only to prove a refusal.
+# - `tests/test_awaiting_go.py`: the hold-out test reads `train_ids` from every hold-out arm and checks that none is a late grain. `test_every_read_is_kept_under_one_hash_and_extras_are_disclosed` checks the read log after go: committed, never edited, one hash that matches `frozen.json`, and every read past a stage's first disclosed with a reason. `test_stage7_tables_reproduce_from_saved_predictions` reruns stage 7's tables on the saved test predictions in a temporary folder and checks each file matches the one the read wrote, so plan step 8 has a check behind it; a crash after a read still costs a second logged read.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Tests that fit a model or need predictions. Written, not run, until training is approved."""
 import subprocess, sys
@@ -158,9 +162,63 @@ def test_unchanged_image_control_matches_stage7():
 
 @GO
 def test_holdout_training_excludes_late_lot():
-    import joblib
-    obj = joblib.load(ROOT / "models" / "holdout" / "hgb__all106.joblib")
-    assert obj["pipe"].named_steps["m"].n_features_in_ == 106
+    import joblib, torch
+    import common as C
+    hold = ROOT / "models" / "holdout"
+    g = C.load_grains()
+    late = set(g.loc[g.lot == "late", "grain_id"])
+    assert late, "no late grains to check against"
+    saved = {f"hgb__{fs}": joblib.load(hold / f"hgb__{fs}.joblib") for fs in ("all106", "shape16", "sizefree7", "sizefree22")}
+    saved |= {f"cnn_seed{s}": torch.load(hold / f"cnn_seed{s}.pt", map_location="cpu", weights_only=False) for s in C.SEEDS}
+    assert saved["hgb__all106"]["pipe"].named_steps["m"].n_features_in_ == 106
+    for name, obj in saved.items():
+        assert obj["train_ids"], f"{name} records no training rows"
+        assert not late & set(obj["train_ids"]), f"{name} trained on late grains"
+
+
+@GO
+def test_every_read_is_kept_under_one_hash_and_extras_are_disclosed():
+    """Three stages read test. A row past a stage's first must be disclosed; the log itself is never edited."""
+    import json
+    from collections import Counter
+    import pandas as pd
+    import common as C
+    git = lambda *a: subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, check=True).stdout
+    revs = git("log", "--reverse", "--format=%H", "--", "results/test_reads.csv").split()
+    assert revs, "commit results/test_reads.csv after each read"
+    seen = [git("show", f"{r}:results/test_reads.csv") for r in revs] + [C.TEST_READS.read_text()]
+    assert all(b.startswith(a) for a, b in zip(seen, seen[1:])), "a logged read was removed or edited"
+    log = pd.read_csv(C.TEST_READS, dtype=str)
+    assert {"07_compare.py", "08_routing.py", "09_robustness.py"} <= set(log.caller), "a stage has no read logged"
+    assert log.frozen_hash.nunique() == 1, "reads ran under more than one freeze"
+    assert log.frozen_hash.iloc[0] == json.loads(C.FROZEN.read_text())["hash"], "the log's hash is not the one in frozen.json"
+    key = ["caller", "time", "frozen_hash"]
+    extra = Counter(log[log.groupby("caller").cumcount() > 0][key].itertuples(index=False, name=None))
+    told = Counter()
+    p = ROOT / "results" / "test_reads_disclosed.csv"
+    if p.exists():
+        d = pd.read_csv(p, dtype=str)
+        assert d.reason.fillna("").str.strip().ne("").all(), "a disclosed read gives no reason"
+        told = Counter(d[key].itertuples(index=False, name=None))
+    assert extra == told, f"not disclosed: {list(extra - told)}; disclosed but not an extra read: {list(told - extra)}"
+
+
+@GO
+def test_stage7_tables_reproduce_from_saved_predictions(tmp_path, monkeypatch):
+    """Plan step 8. Stage 7's real tables, rerun on the saved test predictions in a temporary folder, must match the files the read wrote. A read builds its tables from these same saved files, so the match is exact. Loads no test rows and logs no read."""
+    import importlib.util
+    import common as C
+    spec = importlib.util.spec_from_file_location("stage7", ROOT / "src" / "07_compare.py")
+    s = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(s)
+    monkeypatch.setattr(C, "FIG", tmp_path)        # the read's own figure stays as it wrote it
+    preds = {(m, fs, k): C.load_preds(m, fs, k, "test") for m, fs, seeds in s.model_list() for k in seeds}
+    gone = [k for k, d in preds.items() if d is None]
+    assert not gone, f"no saved predictions for {gone}"
+    s.tables(preds, "test", tmp_path)
+    for name in ("metrics", "recall", "confusion", "seed_spread", "mcnemar"):
+        f = f"test_{name}.csv"
+        assert (tmp_path / f).read_text() == (C.RES / "compare" / f).read_text(), f"{f} does not reproduce from the saved predictions"
 
 
 @GO

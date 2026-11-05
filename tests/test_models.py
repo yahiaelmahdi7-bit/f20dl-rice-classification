@@ -111,6 +111,10 @@
 # - `tests/contract_known.txt`: one line per real mismatch in a file Foundation does not own. The test passes on a listed mismatch and fails on anything new or on a line that has stopped being true.
 # - `tests/test_foundation.py`: small model-free tests for the Foundation fixes and for the shared lines the 2,000-grain slice cannot reach.
 # - `tests/test_data.py`: small model-free tests for stages 0 to 2 and `tools/leak_audit.py`. Stage 2 is read as source and never imported, because importing it runs it.
+#
+# ## Fix 4
+# - `tests/test_evaluation.py`: model-free tests for stages 7, 8, 9 and `tools/freeze.py`, on made-up rows. Each stage stops before its test read when a needed file is missing, freeze refuses a bad control and hashes each file under its own path, a file changed since freeze stops the read before it is logged, and a thin read still writes its tables. A stage's `main()` runs only to prove a refusal.
+# - `tests/test_awaiting_go.py`: the hold-out test reads `train_ids` from every hold-out arm and checks that none is a late grain. `test_every_read_is_kept_under_one_hash_and_extras_are_disclosed` checks the read log after go: committed, never edited, one hash that matches `frozen.json`, and every read past a stage's first disclosed with a reason. `test_stage7_tables_reproduce_from_saved_predictions` reruns stage 7's tables on the saved test predictions in a temporary folder and checks each file matches the one the read wrote, so plan step 8 has a check behind it; a crash after a read still costs a second logged read.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Models team fixes to stages 5, 6 and predict. No model is fitted: helpers run on made-up rows, main() is read as text."""
 import ast, csv, importlib, io, json, re

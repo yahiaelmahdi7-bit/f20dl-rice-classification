@@ -53,6 +53,28 @@
 #
 # ## Fix 3
 # A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` trained on train, which holds 2,298 of the 3,283 late grains, so score them on the late test subset only and write no `late_all` row for them. Hold-out models never saw a late grain and keep both rows. The tint arms use a model fitted on train and the frozen CNNs, so score them on the late test subset only. In smoke mode the late test subset is the validation stand-in, so pick it by `grain_id`, not by the split label. Stop if a scored grain is in train. Sample per class without `groupby().apply`, because pandas 3 drops the `y` column there and `samp.y` fails.
+#
+# ## Fix 4
+# - `--train`: `frozen_configs()` runs first and stops, naming any missing `best_params.json`, `best_config.json` or needed key. There are no default settings. `sizefree7` and `sizefree22` take the `hgb:all106` point by design.
+# - Saved hold-out models carry `train_ids`, and joblib models `params_from`. `late_recall.csv` gains `params_from`, so the borrowed point is disclosed in a committed file.
+# - `--score`: `preflight` stops before the read on a missing file or image folder. The unchanged-image control records the largest difference on grains both stages hold and never stops the stage.
+# - `greyworld_gain_vs_area.csv` column `cls` is now `class`.
+#
+# ## Fix 5
+# `--train`: routing and gates run after the CNN loop, so a crash there used to cost all three seeds again. A hold-out CNN file now also holds `run`, every setting that shaped its weights. A seed whose file holds the same `run` and the same `train_ids` is reused, not retrained, and seed 0's embeddings are rebuilt from the saved weights. A missing file, a torn file, or a file with a different `run` or `train_ids` is retrained and overwritten. A clean run with no files behaves as before.
+#
+# ## Fix 6
+# `score_late` is everything after the test read and `fit_tables` is the table-model fit and save, each split out with no change in behaviour, so a test can drive the real `grey_world` call and check that a saved record holds the rows its model was fitted on, on made-up rows with no model fitted.
+#
+# ## Fix 7
+# - `read_test` is the one gated read. An infinite cell becomes a missing one, as in stage 7, and the count is printed.
+# - `--score` stops before the read if train and validation hold no late grains: the first hold-out model would raise on no rows, after the read.
+# - `grey_world` writes parts 1 and 1b, then stops with a printed line if no late grain reached test. `greyworld_results.csv` stays absent, so the report and the go check notice.
+# - `gain_rows` takes the largest correlation with `np.max`, so a channel with no answer fails `passes_abs_lt_0_1`. Python's `max` could drop the nan and pass it.
+#
+# ## Fix 8
+# - `controls_stand` runs freeze's control check at the start of `--train`. Hold-out training now comes before freeze, so a run that skipped `make controls` would spend 1.98 h before freeze refused. Smoke skips it, as freeze does, because smoke runs no `--control`.
+# - `_load` takes a folder, so stage 9 can load `tools/freeze.py` without running it.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 9: late-lot robustness. --train fits hold-out models without the late lot; --score reads the test split once."""
 import argparse, importlib.util, json

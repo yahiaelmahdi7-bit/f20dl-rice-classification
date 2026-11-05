@@ -73,6 +73,16 @@
 # ## Fix 6
 # - `common.py`: list `06_neural.py` as a reader of `results/neural/tuning_mlp.csv`, `tuning_cnn.csv` and `control.csv`, because it reads them back.
 # - `Makefile`: add `val-compare`, which runs `07_compare.py --split val` and reads no test grains. `all` runs it straight after `controls`.
+#
+# ## Fix 7
+# - `tools/freeze.py`: in a full run, refuses and writes no `frozen.json` if `results/baselines/control.csv` or `results/neural/control.csv` is missing, fails `C.control_gate`, or has no row for a key of `best_params.json` or `best_config.json`, because a stage-by-stage run can skip `make controls` and `control_gate` alone passes a file with rows missing. Smoke runs no `--control`, so there it prints that the check was skipped.
+# - `common.py`: `ARTEFACTS` lists `freeze.py` as a reader of both control files, adds `seed` to the route tables and `params_from` to `late_recall.csv`, and names `class` in place of `cls` on `greyworld_gain_vs_area.csv`.
+#
+# ## Fix 8
+# - `tools/freeze.py`: the hash covers every saved file a test read loads, taken at call time from `read_needs` in stages 7, 8 and 9, plus `best_params.json`, `best_config.json`, `selected.json` and `splits.csv`. Each file is keyed by its path from the repo root, because `routing.json` and the gates exist twice. Test predictions and the image cache stay out: read 1 writes the first, and the second is 3.69 GB derived from fixed raw images.
+# - `tools/freeze.py`: once `test_reads.csv` holds a read, freeze refuses and leaves `frozen.json` as it is, because later reads need the hash they were logged under. Any other stop, a crash included, first removes the older `frozen.json`, so a refused freeze shuts the gate. A models folder moved by `RICE_MODELS_DIR` is refused.
+# - `common.py`: `digest` hashes a file for freeze and the read alike. `_unchanged` runs in `load_split` after `_gate` and before the log row, and refuses a redirected models folder or a hashed file that has changed or gone, so no read is logged under a hash its files no longer match. It sits outside `_gate` because `_gate` also runs per image batch.
+# - `Makefile`: `holdout-train` moves before `freeze` in `all`, and `09_robustness.py --train` before `tools/freeze.py` in `smoke`, because freeze now hashes the hold-out files.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Leak audit: do any grains, table rows, files or pixels sit in more than one split?
 

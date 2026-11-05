@@ -55,6 +55,15 @@
 # ## Fix 6
 # - New `results/compare/val_by_angle.csv`, validation only: row counts, accuracy, macro F1 and class F1 per grain-angle band, overall and per class. Angle is measured on the image by `common.angles`, moved unchanged from stage 2. Bands are the constants `common.ANGLE_BANDS`, saved as `lo_deg` and `hi_deg`; rows with no usable mask get band `no_mask`.
 # - New `results/compare/val_by_angle_lot.csv`, validation only: row counts, recall and errors per grain-angle band, class and lot, every band listed even when empty. Same angle measure and fixed bands as `val_by_angle.csv`, measured once for both. Recall only, as in `val_by_lot.csv`: late is Jasmine only.
+#
+# ## Fix 7
+# - `--split test`: before the read, `preflight(read_needs())` names every missing file and stops. The list is built from `model_list()`, through `model_file`, which `test_probs` also loads from.
+# - On test a model that cannot load stops the stage (`score_models`); it is never dropped. Validation stays tolerant, so `make wedge` still runs with some models present.
+# - `paired` holds the b, c, exact p and bootstrap difference, unchanged, so it can be tested on made-up rows.
+#
+# ## Fix 8
+# - `read_test` is the one gated read. An infinite cell becomes a missing one, which every pipeline imputes, and the count is printed. Left in, the first imputer raises right after the read. Stage 5 still stops on an infinite train or validation cell, before any read.
+# - `tables` is everything after the predictions, split out with no change in behaviour, so a test can drive the real metrics, recall, confusion, spread and McNemar code on made-up predictions.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 7: compare every model on one split with intervals and paired tests. --split test is one gated test read."""
 import argparse, json
