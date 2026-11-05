@@ -570,3 +570,52 @@ def test_freeze_refuses_a_missing_file(fz, capsys, rel):
     controls()
     (C.ROOT / rel).unlink()
     assert fz.main() == 1 and rel in capsys.readouterr().out and not C.FROZEN.exists()
+
+
+def logged(rows=1):
+    C.TEST_READS.write_text("caller,time,frozen_hash\n" + "07_compare.py,2026-11-05T00:00:00,abc\n" * rows)
+
+
+@pytest.mark.parametrize("fault", ["none", "control", "part"])
+def test_no_refreeze_once_a_read_is_logged(fz, capsys, fault):
+    controls()
+    assert fz.main() == 0
+    before = C.FROZEN.read_bytes()
+    logged()
+    if fault == "control": controls(base=0.95)
+    if fault == "part": (C.ROOT / "models/routing.json").write_text("{}")
+    assert fz.main() == 1 and C.FROZEN.read_bytes() == before
+    assert "holds reads" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("fault", ["control", "part", "crash"])
+def test_a_failed_freeze_removes_the_older_file(fz, fault):
+    controls()
+    assert fz.main() == 0 and C.FROZEN.exists()
+    if fault == "control":
+        controls(base=0.95)
+        assert fz.main() == 1
+    if fault == "part":
+        (C.ROOT / "models/routing.json").unlink()
+        assert fz.main() == 1
+    if fault == "crash":
+        (C.RES / "baselines" / "best_params.json").write_text("{")
+        with pytest.raises(json.JSONDecodeError):
+            fz.main()
+    assert not C.FROZEN.exists()
+
+
+@pytest.mark.parametrize("text", ["", "caller,time,frozen_hash\n"])
+def test_a_log_with_no_rows_does_not_stop_a_freeze(fz, text):
+    controls()
+    C.TEST_READS.write_text(text)
+    assert fz.main() == 0 and C.FROZEN.exists()
+
+
+def test_smoke_freezes_beside_a_real_log_and_leaves_the_real_file(fz, monkeypatch):
+    controls()
+    assert fz.main() == 0
+    before = C.FROZEN.read_bytes()
+    logged()
+    monkeypatch.setattr(C, "SMOKE", True)
+    assert fz.main() == 0 and (C.RES / "frozen.json").exists() and C.FROZEN.read_bytes() == before

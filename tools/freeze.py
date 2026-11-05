@@ -121,7 +121,17 @@ def control_faults():
     return bad
 
 
+def has_reads():
+    """True once the log holds a row. Lines are counted, so a torn log cannot raise. C.TEST_READS stays the real path in smoke and a smoke read logs nothing, so smoke is never stopped."""
+    return not C.SMOKE and C.TEST_READS.exists() and len(C.TEST_READS.read_text().splitlines()) > 1
+
+
 def main():
+    out = (C.RES / "frozen.json") if C.SMOKE else C.FROZEN
+    if has_reads():
+        print(f"cannot freeze: {C.TEST_READS} holds reads, and later reads need the hash they were logged under. {out} left as it is")
+        return 1
+    out.unlink(missing_ok=True)      # from here any stop, a crash included, leaves the gate shut
     paths = parts()
     missing = [str(p) for p in paths if not p.exists()]
     if missing:
@@ -137,7 +147,6 @@ def main():
     hashes = {os.path.relpath(p, C.ROOT): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}    # by path: routing.json and the gates exist twice
     body = {"seeds": list(C.SEEDS), "pairs": C.PAIRS, "parts": hashes}
     h = hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
-    out = (C.RES / "frozen.json") if C.SMOKE else C.FROZEN
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"hash": h, **body}, indent=1))
     print("frozen", h, "->", out)
