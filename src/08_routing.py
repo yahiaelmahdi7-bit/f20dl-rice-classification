@@ -137,6 +137,18 @@ def report(tag, y, Ph, Pcs, R, unf_t, unf_i, out):
     C.savefig(fig, f"routing_reliability_{tag}")
 
 
+def read_needs():
+    """Every file the --score path loads."""
+    return [C.MODELS / "routing.json", C.MODELS / "gate_table.joblib", C.MODELS / "gate_image.joblib", C.MODELS / "cnn_seed0.pt", C.cache_path(),
+            C.pred_path("hgb", "all106", 0, "test")] + [C.pred_path("cnn", "image", s, "test") for s in C.SEEDS]
+
+
+def preflight(paths):
+    """Names everything missing and stops, before a test read is spent."""
+    gone = [str(p) for p in paths if not p.exists()]
+    if gone: raise SystemExit("cannot read test, missing:\n  " + "\n  ".join(gone))
+
+
 def main():
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
@@ -165,6 +177,7 @@ def main():
         unf_t = gt.unfamiliar(va[C.ALL106].to_numpy(np.float64)); unf_i = gi.unfamiliar(np.load(emb / "cnn_seed0_val.npy"))
         report("val", y, Ph, Pcs, R, unf_t, unf_i, out)
     else:
+        preflight(read_needs())         # names every missing file before the read is spent
         R = json.loads((C.MODELS / "routing.json").read_text())
         gt, gi = joblib.load(C.MODELS / "gate_table.joblib"), joblib.load(C.MODELS / "gate_image.joblib")
         df = C.load_split("test")       # the single gated test read of this stage

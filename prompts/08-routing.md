@@ -12,3 +12,6 @@
 - Reports: calibration error, risk-coverage curve, error rate at a fixed 95% coverage (the same yardstick for every model, since floors differ), errors and unsure counts by route, over 3 seeds. This can separate models tied on accuracy.
 
 Write `src/08_routing.py` with `--fit` and `--score`. Saves `models/routing.json`, `models/gate_table.joblib`, `models/gate_image.joblib`. Routing is plain local statistics inside this code, with no external service. Outputs include a risk-coverage figure and a reliability figure.
+
+## Fix 2
+- `--score`: before the read, `preflight(read_needs())` names every missing file and stops.
