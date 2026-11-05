@@ -17,3 +17,8 @@ Add macro precision and macro recall to every metrics row. Add per-class precisi
 ## Fix 6
 - New `results/compare/val_by_angle.csv`, validation only: row counts, accuracy, macro F1 and class F1 per grain-angle band, overall and per class. Angle is measured on the image by `common.angles`, moved unchanged from stage 2. Bands are the constants `common.ANGLE_BANDS`, saved as `lo_deg` and `hi_deg`; rows with no usable mask get band `no_mask`.
 - New `results/compare/val_by_angle_lot.csv`, validation only: row counts, recall and errors per grain-angle band, class and lot, every band listed even when empty. Same angle measure and fixed bands as `val_by_angle.csv`, measured once for both. Recall only, as in `val_by_lot.csv`: late is Jasmine only.
+
+## Fix 7
+- `--split test`: before the read, `preflight(read_needs())` names every missing file and stops. The list is built from `model_list()`, through `model_file`, which `test_probs` also loads from.
+- On test a model that cannot load stops the stage (`score_models`); it is never dropped. Validation stays tolerant, so `make wedge` still runs with some models present.
+- `paired` holds the b, c, exact p and bootstrap difference, unchanged, so it can be tested on made-up rows.

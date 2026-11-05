@@ -76,12 +76,46 @@ def model_list():
     return L + [("mlp", "all106", C.SEEDS), ("cnn", "image", C.SEEDS)]
 
 
+def model_file(m, fs, k):
+    """The saved file behind one model and seed; test_probs and the preflight both use it."""
+    if m in ("cnn", "mlp"): return C.MODELS / f"{m}_seed{k}.pt"
+    return C.MODELS / "baselines" / f"{m}__{fs}.joblib"
+
+
+def read_needs():
+    """Every file the test path loads, built from model_list so the two cannot drift."""
+    return [model_file(m, fs, k) for m, fs, seeds in model_list() for k in seeds] + [C.MODELS / "mlp_prep.joblib", C.cache_path()]
+
+
+def preflight(paths):
+    """Names everything missing and stops, before a test read is spent."""
+    gone = [str(p) for p in paths if not p.exists()]
+    if gone: raise SystemExit("cannot read test, missing:\n  " + "\n  ".join(gone))
+
+
 def test_probs(df, m, fs, k):
     """Test-split probabilities from a saved model."""
-    if m == "cnn": return C.cnn_on_df(C.MODELS / f"cnn_seed{k}.pt", df)[0]
-    if m == "mlp": return C.mlp_probs(C.MODELS / f"mlp_seed{k}.pt", df[C.ALL106].to_numpy(np.float64))
-    obj = joblib.load(C.MODELS / "baselines" / f"{m}__{fs}.joblib")
+    if m == "cnn": return C.cnn_on_df(model_file(m, fs, k), df)[0]
+    if m == "mlp": return C.mlp_probs(model_file(m, fs, k), df[C.ALL106].to_numpy(np.float64))
+    obj = joblib.load(model_file(m, fs, k))
     return obj["pipe"].predict_proba(df[obj["cols"]])
+
+
+def score_models(df):
+    """Every model on the read rows. A model that cannot load stops the stage: dropping it would spend the read on part of the study."""
+    preds = {}
+    for m, fs, seeds in model_list():
+        for k in seeds:
+            C.save_preds(m, fs, k, "test", df.grain_id, df.y, test_probs(df, m, fs, k))
+            preds[(m, fs, k)] = C.load_preds(m, fs, k, "test")
+    return preds
+
+
+def paired(oka, okb, idx):
+    """b, c, exact two-sided binomial p and bootstrap accuracy differences for two aligned right-or-wrong arrays."""
+    b = int((oka & ~okb).sum()); c = int((~oka & okb).sum())
+    p = binomtest(min(b, c), b + c, 0.5).pvalue if b + c else 1.0
+    return b, c, p, oka[idx].mean(1) - okb[idx].mean(1)
 
 
 def boot_f1(y, pred, idx):
@@ -159,16 +193,10 @@ def main():
     sp = a.split
     preds = {}
     if sp == "test":
+        preflight(read_needs())            # names every missing file before the read is spent
         df = C.load_split("test")          # the single gated test read of this stage
         print(f"test read: {len(df)} grains", flush=True)
-        for m, fs, seeds in model_list():
-            for k in seeds:
-                try:
-                    P = test_probs(df, m, fs, k)
-                except FileNotFoundError:
-                    print("missing model", m, fs, k); continue
-                C.save_preds(m, fs, k, "test", df.grain_id, df.y, P)
-                preds[(m, fs, k)] = C.load_preds(m, fs, k, "test")
+        preds = score_models(df)
     else:
         for m, fs, seeds in model_list():
             for k in seeds:
@@ -227,9 +255,7 @@ def main():
         for A, B in C.PAIRS:
             ka, kb = get(A, s), get(B, s)
             if ka not in ok or kb not in ok: continue
-            b = int((ok[ka] & ~ok[kb]).sum()); c = int((~ok[ka] & ok[kb]).sum())
-            p = binomtest(min(b, c), b + c, 0.5).pvalue if b + c else 1.0
-            diff = ok[ka][idx].mean(1) - ok[kb][idx].mean(1)
+            b, c, p, diff = paired(ok[ka], ok[kb], idx)
             tests.append(dict(seed=s, model_a=A, model_b=B, b_a_right_b_wrong=b, c_a_wrong_b_right=c, disagreements=b + c, p_exact=p,
                               errors_a=int((~ok[ka]).sum()), errors_b=int((~ok[kb]).sum()), acc_diff=float(ok[ka].mean() - ok[kb].mean()),
                               diff_lo=np.percentile(diff, 2.5), diff_hi=np.percentile(diff, 97.5), family="primary" if s == 0 else "seed_check"))
