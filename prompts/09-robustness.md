@@ -21,3 +21,6 @@ A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` 
 - Saved hold-out models carry `train_ids`, and joblib models `params_from`. `late_recall.csv` gains `params_from`, so the borrowed point is disclosed in a committed file.
 - `--score`: `preflight` stops before the read on a missing file or image folder. The unchanged-image control records the largest difference on grains both stages hold and never stops the stage.
 - `greyworld_gain_vs_area.csv` column `cls` is now `class`.
+
+## Fix 5
+`--train`: routing and gates run after the CNN loop, so a crash there used to cost all three seeds again. A hold-out CNN file now also holds `run`, every setting that shaped its weights. A seed whose file holds the same `run` and the same `train_ids` is reused, not retrained, and seed 0's embeddings are rebuilt from the saved weights. A missing file, a torn file, or a file with a different `run` or `train_ids` is retrained and overwritten. A clean run with no files behaves as before.

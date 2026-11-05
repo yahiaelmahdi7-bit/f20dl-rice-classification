@@ -1,6 +1,7 @@
 """Stages 7, 8, 9 and freeze: refusals before a read, on made-up rows. No model is fitted and no real path is touched."""
 import importlib.util, json, sys
 from pathlib import Path
+from types import SimpleNamespace
 import numpy as np, pandas as pd, pytest
 import common as C
 
@@ -242,3 +243,47 @@ def test_score_stops_before_the_read_on_a_routing_file_with_a_seed_missing(env, 
     del R["cnn_seeds"]
     (C.MODELS / "routing.json").write_text(json.dumps(R))
     assert "seeds [0, 1, 2]" in refuse(s, ["08", "--score"], monkeypatch)
+
+
+RUN = {"width": 8, "dropout": 0.1, "lr": 0.001, "epochs": 5, "patience": 2}
+
+
+def test_a_saved_seed_counts_only_from_the_same_run():
+    s = load("src/09_robustness.py")
+    ck = {"run": RUN, "train_ids": ["a", "b"]}
+    assert s.same_run(ck, dict(RUN), ["a", "b"])
+    assert not s.same_run(ck, RUN | {"lr": 0.01}, ["a", "b"])
+    assert not s.same_run(ck, RUN | {"epochs": 6}, ["a", "b"])
+    assert not s.same_run(ck, RUN, ["a", "late"])
+    assert not s.same_run({"train_ids": ["a", "b"]}, RUN, ["a", "b"])   # a file with no run record
+
+
+def test_a_missing_or_torn_file_is_never_reused(tmp_path):
+    import torch
+    s = load("src/09_robustness.py")
+    p = tmp_path / "cnn_seed0.pt"
+    assert not s.reusable(p, RUN, ["a"])
+    torch.save({"run": RUN, "train_ids": ["a"]}, p)
+    assert s.reusable(p, RUN, ["a"]) and not s.reusable(p, RUN, ["b"])
+    p.write_bytes(p.read_bytes()[:40])
+    assert not s.reusable(p, RUN, ["a"])
+
+
+def test_holdout_cnn_trains_only_when_it_must(tmp_path, monkeypatch):
+    s = load("src/09_robustness.py")
+    trained = []
+
+    class Net:
+        def state_dict(self): return {}
+
+    def train_cnn(cfg, seed, *a, **k):      # stands in for training: no model exists here
+        trained.append(cfg["lr"])
+        return Net(), [], 0.5, 0.2
+
+    N = SimpleNamespace(EP_CNN=5, PAT_CNN=2, train_cnn=train_cnn)
+    monkeypatch.setattr(C, "load_cnn", lambda p: ("from file", 0.5, 0.2))
+    cfg, rows, p = {"width": 8, "dropout": 0.1, "lr": 0.001}, frame(("early", "early")), tmp_path / "cnn_seed0.pt"
+    assert s.holdout_cnn(N, 0, cfg, rows, rows, None, p)[0] != "from file" and trained == [0.001]    # clean run: trains and saves
+    assert s.holdout_cnn(N, 0, cfg, rows, rows, None, p)[0] == "from file" and trained == [0.001]    # rerun after a crash: reused
+    assert s.holdout_cnn(N, 0, cfg | {"lr": 0.01}, rows, rows, None, p)[0] != "from file" and trained == [0.001, 0.01]   # other settings
+    assert s.holdout_cnn(N, 0, cfg, frame(("early",)), rows, None, p)[0] != "from file" and trained == [0.001, 0.01, 0.001]   # other rows

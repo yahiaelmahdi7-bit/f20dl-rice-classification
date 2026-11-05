@@ -164,6 +164,38 @@ def mask_means(img):
 
 
 # ---- training ------------------------------------------------------------------------
+def same_run(ck, run, ids):
+    """A saved seed counts only if it came from these settings and these rows."""
+    return ck.get("run") == run and ck.get("train_ids") == ids
+
+
+def reusable(path, run, ids):
+    """True only for a complete file from this same run. A missing, torn or stale file is retrained, never reused."""
+    if not path.exists(): return False
+    import torch
+    try:
+        return same_run(torch.load(path, map_location="cpu", weights_only=False), run, ids)
+    except Exception:
+        return False
+
+
+def cnn_record(m, cfg, run, mean, std, ids):
+    """What a hold-out CNN file holds. cfg is what load_cnn builds from; run is everything that shaped the weights."""
+    return {"state": m.state_dict(), "cfg": {"width": cfg["width"], "dropout": cfg["dropout"]}, "run": run, "mean": mean, "std": std, "train_ids": ids}
+
+
+def holdout_cnn(N, s, cfg, trh, vah, stats, path):
+    """One seed's hold-out CNN. A file from this same run is reused, so a crash after the CNN loop does not cost the 1.98 h again."""
+    run, ids = {**cfg, "epochs": N.EP_CNN, "patience": N.PAT_CNN}, trh.grain_id.tolist()
+    if reusable(path, run, ids):
+        print(f"reusing {path.name}: same settings, same training rows", flush=True)
+        return C.load_cnn(path)
+    m, _, mean, std = N.train_cnn(cfg, s, trh, vah, N.EP_CNN, N.PAT_CNN, f"holdout_cnn_seed{s}", stats=stats)
+    import torch
+    torch.save(cnn_record(m, cfg, run, mean, std, ids), path)
+    return m, mean, std
+
+
 def train():
     params, cfg = frozen_configs()                  # first line: no fit on a missing setting
     B, N = _load("05_baselines.py"), _load("06_neural.py")
@@ -177,11 +209,9 @@ def train():
     stats = N.chan_stats(trh)
     emb = {}
     for s in C.SEEDS:
-        m, hist, mean, std = N.train_cnn(cfg, s, trh, vah, N.EP_CNN, N.PAT_CNN, f"holdout_cnn_seed{s}", stats=stats)
-        import torch
-        torch.save({"state": m.state_dict(), "cfg": {"width": cfg["width"], "dropout": cfg["dropout"]}, "mean": mean, "std": std, "train_ids": trh.grain_id.tolist()}, hd / f"cnn_seed{s}.pt")
-        Pv, Ev = N.cnn_eval(m, mean, std, vah)
-        if s == 0:
+        m, mean, std = holdout_cnn(N, s, cfg, trh, vah, stats, hd / f"cnn_seed{s}.pt")
+        if s == 0:                                  # embeddings come from the model in hand, trained or rebuilt from its file
+            Pv, Ev = N.cnn_eval(m, mean, std, vah)
             _, Et = N.cnn_eval(m, mean, std, trh)
             emb = {"tr": Et, "va": Ev, "Pv": Pv}
     # hold-out routing, refit on hold-out validation only
