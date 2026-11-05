@@ -290,6 +290,20 @@ def _gate():
     return ok[0], json.loads(FROZEN.read_text())["hash"]
 
 
+def digest(p):
+    """sha256 of a file's bytes: freeze writes it, the read checks it."""
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+def _unchanged():
+    """Raise if the models folder is redirected or a file the freeze hashed has changed. Once per read: _gate also runs per image batch through read_images, so this cannot sit there."""
+    if MODELS != ROOT / "models":
+        raise PermissionError(f"test split read refused: models folder is {MODELS}, set by RICE_MODELS_DIR")
+    for k, v in json.loads(FROZEN.read_text()).get("parts", {}).items():
+        if not (ROOT / k).is_file() or digest(ROOT / k) != v:
+            raise PermissionError(f"test split read refused: {k} changed since freeze")
+
+
 def load_split(name):
     if name != "test":
         g = pd.read_parquet(DERIVED / "grains.parquet")
@@ -298,6 +312,7 @@ def load_split(name):
     if SMOKE:                      # validation stands in for test: no hash, no log
         return g[g["split"] == "val"].reset_index(drop=True)
     caller, h = _gate()
+    _unchanged()
     TEST_READS.parent.mkdir(parents=True, exist_ok=True)
     new = not TEST_READS.exists()
     with open(TEST_READS, "a", newline="") as f:

@@ -4,8 +4,10 @@ from pathlib import Path
 from types import SimpleNamespace
 import numpy as np, pandas as pd, pytest
 import common as C
+from conftest import run_as
 
 ROOT = Path(__file__).resolve().parents[1]
+REAL_SPLIT = C.load_split     # env stubs it; the read-time tests need the real one
 
 
 def load(rel):
@@ -619,3 +621,64 @@ def test_smoke_freezes_beside_a_real_log_and_leaves_the_real_file(fz, monkeypatc
     logged()
     monkeypatch.setattr(C, "SMOKE", True)
     assert fz.main() == 0 and (C.RES / "frozen.json").exists() and C.FROZEN.read_bytes() == before
+
+
+@pytest.fixture
+def rd(fz, monkeypatch):
+    """A clean freeze that a real read can reach, on two made-up grains. Every path is under tmp_path."""
+    controls()
+    assert fz.main() == 0
+    monkeypatch.setattr(C, "load_split", REAL_SPLIT)
+    pd.DataFrame({"grain_id": ["a", "b"], "y": [0, 1], "split": ["val", "test"]}).to_parquet(C.DERIVED / "grains.parquet")
+    return fz
+
+
+def test_a_read_after_freeze_passes_and_logs(rd):
+    assert list(run_as("src/07_compare.py")["out"].grain_id) == ["b"]
+    assert list(pd.read_csv(C.TEST_READS).frozen_hash) == [frozen()["hash"]]
+
+
+@pytest.mark.parametrize("how", ["changed", "gone"])
+@pytest.mark.parametrize("rel", ["models/routing.json", "models/holdout/cnn_seed0.pt", "results/features/selected.json", "data/splits.csv"])
+def test_a_file_changed_since_freeze_stops_the_read_unlogged(rd, rel, how):
+    p = C.ROOT / rel
+    if how == "gone":
+        p.unlink()
+    else:
+        with open(p, "a") as f: f.write("\n")
+    with pytest.raises(PermissionError, match=rel):
+        run_as("src/07_compare.py")
+    assert not C.TEST_READS.exists()
+
+
+def test_a_change_between_reads_stops_the_second_read(rd):
+    run_as("src/07_compare.py")
+    (C.ROOT / "models/routing.json").write_text("{}")
+    with pytest.raises(PermissionError, match="routing.json"):
+        run_as("src/09_robustness.py")
+    assert len(pd.read_csv(C.TEST_READS)) == 1
+
+
+def test_a_redirected_models_folder_stops_the_read_unlogged(rd, monkeypatch):
+    monkeypatch.setattr(C, "MODELS", C.ROOT / "elsewhere")
+    with pytest.raises(PermissionError, match="RICE_MODELS_DIR"):
+        run_as("src/07_compare.py")
+    assert not C.TEST_READS.exists()
+
+
+def test_freeze_refuses_a_redirected_models_folder(fz, monkeypatch, capsys):
+    controls()
+    assert fz.main() == 0
+    monkeypatch.setattr(C, "MODELS", C.ROOT / "elsewhere")
+    assert fz.main() == 1 and "RICE_MODELS_DIR" in capsys.readouterr().out and not C.FROZEN.exists()
+
+
+def test_the_per_batch_gate_hashes_nothing(rd, monkeypatch):
+    monkeypatch.setattr(C, "digest", lambda p: pytest.fail("a file was hashed on the per-batch path"))
+    assert run_as("src/07_compare.py", "import common as C\nout = C._gate()")["out"][1] == frozen()["hash"]
+
+
+def test_a_smoke_read_checks_nothing(rd, monkeypatch):
+    monkeypatch.setattr(C, "SMOKE", True)
+    monkeypatch.setattr(C, "digest", lambda p: pytest.fail("smoke hashed a file"))
+    assert list(C.load_split("test").grain_id) == ["a"] and not C.TEST_READS.exists()

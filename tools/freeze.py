@@ -132,6 +132,9 @@ def main():
         print(f"cannot freeze: {C.TEST_READS} holds reads, and later reads need the hash they were logged under. {out} left as it is")
         return 1
     out.unlink(missing_ok=True)      # from here any stop, a crash included, leaves the gate shut
+    if not C.SMOKE and C.MODELS != C.ROOT / "models":
+        print(f"cannot freeze: models folder is {C.MODELS}, set by RICE_MODELS_DIR. A read would hash these files and load the default ones")
+        return 1
     paths = parts()
     missing = [str(p) for p in paths if not p.exists()]
     if missing:
@@ -144,7 +147,7 @@ def main():
         if bad:
             print("cannot freeze, controls:", *bad, sep="\n  ")
             return 1
-    hashes = {os.path.relpath(p, C.ROOT): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}    # by path: routing.json and the gates exist twice
+    hashes = {os.path.relpath(p, C.ROOT): C.digest(p) for p in paths}    # by path: routing.json and the gates exist twice
     body = {"seeds": list(C.SEEDS), "pairs": C.PAIRS, "parts": hashes}
     h = hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
     out.parent.mkdir(parents=True, exist_ok=True)
