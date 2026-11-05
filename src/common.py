@@ -214,7 +214,7 @@ ARTEFACTS = {
         "results/compare/{sp}_mcnemar.csv": _a(_S7, "", "seed model_a model_b b_a_right_b_wrong c_a_wrong_b_right disagreements p_exact "
                                                         "errors_a errors_b acc_diff diff_lo diff_hi family p_holm"),
         "results/routing/{sp}_calibration.csv": _a(_S8, "", "split model n accuracy ece_raw ece_calibrated temperature err_at_95_coverage"),
-        "results/routing/{sp}_routes.csv": _a(_S8, "", "split route grains share errors accuracy"),
+        "results/routing/{sp}_routes.csv": _a(_S8, "", "split seed route grains share errors accuracy"),
         "results/robustness/late_recall.csv": _a(_S9, "", "model subset n recall ci_low ci_high mean_confidence confidently_wrong params_from"),
         "results/robustness/late_chain.csv": _a(_S9, "", "subset route grains share errors"),
         "results/robustness/greyworld_gain_vs_area.csv": _a(_S9, "", "class n r_R r_G r_B max_abs_r passes_abs_lt_0_1"),

@@ -15,3 +15,8 @@ Write `src/08_routing.py` with `--fit` and `--score`. Saves `models/routing.json
 
 ## Fix 2
 - `--score`: before the read, `preflight(read_needs())` names every missing file and stops.
+
+## Fix 3
+- `--fit` stores a temperature and a floor per CNN seed in `models/routing.json` under `cnn_seeds`, fitted on validation only. `cnn` stays as seed 0, the primary answer and the entry `predict.py` reads. `--fit` stops if any seed has no validation predictions.
+- `--score` stops before the read if `routing.json` has no entry for a seed. Each seed's predictions are checked against the test rows by `grain_id`.
+- The route table carries a `seed` column, one block per seed, seed 0 first. Stated limit: seed 0's image familiarity gate serves all three seeds, so `cnn_seed1.pt` and `cnn_seed2.pt` are not new read-time needs.

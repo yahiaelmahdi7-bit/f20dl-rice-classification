@@ -85,11 +85,43 @@ def chain(Ph, Pc, fh, fc, unf):
     return route, ans, key
 
 
+def fitted(P, y, target):
+    """Temperature and floor for one model, from validation rows only."""
+    T = C.temperature(P, y)
+    Pk = C.apply_temp(P, T)
+    return {"temperature": T, "target_accuracy": target, "floor": C.floor_for(Pk.max(1), Pk.argmax(1) == y, target)}
+
+
+def fit_routes(Ph, Pcs, y):
+    """Routing entries from validation only: hgb, every CNN seed, and seed 0 as the primary answer that predict.py reads."""
+    R = {"hgb": fitted(Ph, y, TARGET["hgb"]), "cnn_seeds": {str(s): fitted(P, y, TARGET["cnn"]) for s, P in Pcs.items()}}
+    R["cnn"] = R["cnn_seeds"]["0"]
+    return R
+
+
+def route_rows(tag, seed, route, right, key, unf_t, unf_i):
+    """One block of the route table, for one CNN seed."""
+    base = dict(split=tag, seed=seed)
+    rt = []
+    for r in ["hgb", "cnn", "unsure", "unfamiliar"]:
+        m = route == r
+        rt.append(dict(base, route=r, grains=int(m.sum()), share=float(m.mean()), errors=int((~right[m]).sum()) if r in ("hgb", "cnn") else np.nan,
+                       accuracy=float(right[m].mean()) if r in ("hgb", "cnn") and m.any() else np.nan))
+    ans_m = np.isin(route, ["hgb", "cnn"])
+    rt.append(dict(base, route="answered_total", grains=int(ans_m.sum()), share=float(ans_m.mean()), errors=int((~right[ans_m]).sum()),
+                   accuracy=float(right[ans_m].mean()) if ans_m.any() else np.nan))
+    rt.append(dict(base, route="unfamiliar_table_gate", grains=int(unf_t.sum()), share=float(unf_t.mean()), errors=np.nan, accuracy=np.nan))
+    rt.append(dict(base, route="unfamiliar_image_gate", grains=int(unf_i.sum()), share=float(unf_i.mean()), errors=np.nan, accuracy=np.nan))
+    rt.append(dict(base, route="chain_err_at_95_coverage", grains=len(route), share=COVERAGE, errors=np.nan, accuracy=1 - err_at(key, right)))
+    return rt
+
+
 def report(tag, y, Ph, Pcs, R, unf_t, unf_i, out):
-    """Tables and figures for one split. Ph: hgb probs; Pcs: {seed: cnn probs}; R: routing dict."""
+    """Tables and figures for one split. Ph: hgb probs; Pcs: {seed: cnn probs}; R: routing dict. Figures show seed 0, the primary answer."""
     rows = []
     cal = {}
-    for name, P, T in [("hgb", Ph, R["hgb"]["temperature"])] + [(f"cnn_seed{s}", p, R["cnn"]["temperature"] if s == 0 else C.temperature(p, y) if tag == "val" else R["cnn"]["temperature"]) for s, p in Pcs.items()]:
+    seeds = sorted(Pcs)
+    for name, P, T in [("hgb", Ph, R["hgb"]["temperature"])] + [(f"cnn_seed{s}", Pcs[s], R["cnn_seeds"][str(s)]["temperature"]) for s in seeds]:
         Pk = C.apply_temp(P, T)
         cal[name] = Pk
         ok = Pk.argmax(1) == y
@@ -99,19 +131,9 @@ def report(tag, y, Ph, Pcs, R, unf_t, unf_i, out):
     M.to_csv(out / f"{tag}_calibration.csv", index=False); C.wrote(out / f"{tag}_calibration.csv")
     Pc0 = cal["cnn_seed0"]
     unf = unf_t | unf_i
-    route, ans, key = chain(cal["hgb"], Pc0, R["hgb"]["floor"], R["cnn"]["floor"], unf)
-    right = ans == y
-    rt = []
-    for r in ["hgb", "cnn", "unsure", "unfamiliar"]:
-        m = route == r
-        rt.append(dict(split=tag, route=r, grains=int(m.sum()), share=float(m.mean()), errors=int((~right[m]).sum()) if r in ("hgb", "cnn") else np.nan,
-                       accuracy=float(right[m].mean()) if r in ("hgb", "cnn") and m.any() else np.nan))
-    ans_m = np.isin(route, ["hgb", "cnn"])
-    rt.append(dict(split=tag, route="answered_total", grains=int(ans_m.sum()), share=float(ans_m.mean()), errors=int((~right[ans_m]).sum()),
-                   accuracy=float(right[ans_m].mean()) if ans_m.any() else np.nan))
-    rt.append(dict(split=tag, route="unfamiliar_table_gate", grains=int(unf_t.sum()), share=float(unf_t.mean()), errors=np.nan, accuracy=np.nan))
-    rt.append(dict(split=tag, route="unfamiliar_image_gate", grains=int(unf_i.sum()), share=float(unf_i.mean()), errors=np.nan, accuracy=np.nan))
-    rt.append(dict(split=tag, route="chain_err_at_95_coverage", grains=len(y), share=COVERAGE, errors=np.nan, accuracy=1 - err_at(key, right)))
+    chains = {s: chain(cal["hgb"], cal[f"cnn_seed{s}"], R["hgb"]["floor"], R["cnn_seeds"][str(s)]["floor"], unf) for s in seeds}
+    rt = [r for s in seeds for r in route_rows(tag, s, chains[s][0], chains[s][1] == y, chains[s][2], unf_t, unf_i)]   # seed 0 first; the image gate is seed 0's for all three
+    key, right = chains[0][2], chains[0][1] == y
     pd.DataFrame(rt).to_csv(out / f"{tag}_routes.csv", index=False); C.wrote(out / f"{tag}_routes.csv")
     print(M.round(5).to_string(index=False)); print(pd.DataFrame(rt).round(5).to_string(index=False))
 
@@ -143,10 +165,21 @@ def read_needs():
             C.pred_path("hgb", "all106", 0, "test")] + [C.pred_path("cnn", "image", s, "test") for s in C.SEEDS]
 
 
-def preflight(paths):
+def fit_needs():
+    """Every prediction file the --fit path loads. A seed left out here would only surface at the second test read."""
+    return [C.pred_path("hgb", "all106", 0, "val")] + [C.pred_path("cnn", "image", s, "val") for s in C.SEEDS]
+
+
+def preflight(paths, doing="read test"):
     """Names everything missing and stops, before a test read is spent."""
     gone = [str(p) for p in paths if not p.exists()]
-    if gone: raise SystemExit("cannot read test, missing:\n  " + "\n  ".join(gone))
+    if gone: raise SystemExit(f"cannot {doing}, missing:\n  " + "\n  ".join(gone))
+
+
+def check_seeds(R):
+    """routing.json must carry every CNN seed, or the read would be spent and then crash."""
+    gone = [s for s in C.SEEDS if str(s) not in R.get("cnn_seeds", {})]
+    if gone: raise SystemExit(f"cannot read test, routing.json has no temperature and floor for CNN seeds {gone}: run --fit, then freeze")
 
 
 def main():
@@ -159,15 +192,12 @@ def main():
     C.MODELS.mkdir(parents=True, exist_ok=True)
     emb = C.DERIVED / "embeddings"
     if a.fit:
+        preflight(fit_needs(), "fit")
         tr, va = C.load_split("train"), C.load_split("val")
         y = va.y.to_numpy()
         Ph = C.probs(C.load_preds("hgb", "all106", 0, "val"))
-        Pcs = {s: C.probs(C.load_preds("cnn", "image", s, "val")) for s in C.SEEDS if C.load_preds("cnn", "image", s, "val") is not None}
-        R = {}
-        for nm, P in [("hgb", Ph), ("cnn", Pcs[0])]:
-            T = C.temperature(P, y)
-            Pk = C.apply_temp(P, T)
-            R[nm] = {"temperature": T, "target_accuracy": TARGET[nm], "floor": C.floor_for(Pk.max(1), Pk.argmax(1) == y, TARGET[nm])}
+        Pcs = {s: C.probs(C.load_preds("cnn", "image", s, "val")) for s in C.SEEDS}
+        R = fit_routes(Ph, Pcs, y)
         gt = C.Gate().fit(tr[C.ALL106].to_numpy(np.float64), tr.y.to_numpy(), va[C.ALL106].to_numpy(np.float64))
         gi = C.Gate().fit(np.load(emb / "cnn_seed0_train.npy"), tr.y.to_numpy(), np.load(emb / "cnn_seed0_val.npy"))
         joblib.dump(gt, C.MODELS / "gate_table.joblib"); joblib.dump(gi, C.MODELS / "gate_image.joblib")
@@ -179,6 +209,7 @@ def main():
     else:
         preflight(read_needs())         # names every missing file before the read is spent
         R = json.loads((C.MODELS / "routing.json").read_text())
+        check_seeds(R)
         gt, gi = joblib.load(C.MODELS / "gate_table.joblib"), joblib.load(C.MODELS / "gate_image.joblib")
         df = C.load_split("test")       # the single gated test read of this stage
         _, E = C.cnn_on_df(C.MODELS / "cnn_seed0.pt", df)
@@ -187,8 +218,9 @@ def main():
         assert (Ph.grain_id.to_numpy() == df.grain_id.to_numpy()).all(), "run stage 7 on test first"
         Pcs = {}
         for s in C.SEEDS:
-            d = C.load_preds("cnn", "image", s, "test")
-            if d is not None: Pcs[s] = C.probs(d)
+            d = C.load_preds("cnn", "image", s, "test")     # in the preflight list, so no seed can drop out here
+            assert (d.grain_id.to_numpy() == df.grain_id.to_numpy()).all(), "run stage 7 on test first"
+            Pcs[s] = C.probs(d)
         unf_t = gt.unfamiliar(df[C.ALL106].to_numpy(np.float64)); unf_i = gi.unfamiliar(E)
         report("test", y, C.probs(Ph), Pcs, R, unf_t, unf_i, out)
 

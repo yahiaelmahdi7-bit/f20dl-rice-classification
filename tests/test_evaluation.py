@@ -178,3 +178,67 @@ def test_freeze_refuses_a_control_with_a_row_missing(fz):
 def test_freeze_skips_controls_in_smoke(fz, monkeypatch, capsys):
     monkeypatch.setattr(C, "SMOKE", True)
     assert fz.main() == 0 and "controls not checked" in capsys.readouterr().out
+
+
+def rows_for(y, conf=0.9):
+    P = np.full((len(y), 5), (1 - conf) / 4)
+    P[np.arange(len(y)), y] = conf
+    return P
+
+
+def routing(floors=(0.7, 0.95, 0.7), temps=(1.0, 1.0, 3.0)):
+    seeds = {str(s): {"temperature": t, "floor": f} for s, (t, f) in enumerate(zip(temps, floors))}
+    return {"hgb": {"temperature": 1.0, "floor": 0.99}, "cnn": seeds["0"], "cnn_seeds": seeds}
+
+
+def test_fit_stores_every_seed_and_keeps_the_keys_predict_reads(monkeypatch):
+    s = load("src/08_routing.py")
+    y = np.array([0, 1, 2, 3])
+    Pcs = {k: rows_for(y, c) for k, c in enumerate((0.9, 0.8, 0.7))}
+    seen = []
+    monkeypatch.setattr(C, "temperature", lambda P, yy: seen.append(yy) or float(P.max()))    # stands in for the optimiser
+    R = s.fit_routes(rows_for(y, 0.6), Pcs, y)
+    assert [R["cnn_seeds"][k]["temperature"] for k in "012"] == pytest.approx([0.9, 0.8, 0.7])
+    assert R["cnn"] == R["cnn_seeds"]["0"] and R["cnn"]["floor"] <= 1.01
+    assert R["hgb"]["temperature"] == pytest.approx(0.6) and "floor" in R["hgb"]
+    assert len(seen) == 4 and all(v is y for v in seen)
+
+
+def test_route_table_has_one_block_per_seed_on_its_own_numbers(tmp_path, monkeypatch):
+    s = load("src/08_routing.py")
+    monkeypatch.setattr(C, "savefig", lambda fig, name: s.plt.close(fig))
+    y = np.array([0, 1, 2, 3])
+    Pcs = {k: rows_for(y) for k in C.SEEDS}
+    unf_t = np.array([False, False, False, True])
+    s.report("test", y, rows_for(y, 0.4), Pcs, routing(), unf_t, np.zeros(4, bool), tmp_path)
+    t = pd.read_csv(tmp_path / "test_routes.csv")
+    assert list(t.columns) == "split seed route grains share errors accuracy".split()
+    assert list(t.seed.drop_duplicates()) == [0, 1, 2] and t.groupby("seed").size().eq(8).all()
+    g = t.set_index(["seed", "route"]).grains
+    assert g[0, "cnn"] == 3 and g[0, "unsure"] == 0            # seed 0 answers
+    assert g[1, "cnn"] == 0 and g[1, "unsure"] == 3            # seed 1 is held back by its own floor
+    assert g[2, "cnn"] == 0 and g[2, "unsure"] == 3            # seed 2 is softened by its own temperature
+    assert (t[t.route == "unfamiliar"].grains == 1).all()
+    c = pd.read_csv(tmp_path / "test_calibration.csv").set_index("model").temperature
+    assert c["cnn_seed2"] == 3.0 and c["cnn_seed0"] == 1.0
+
+
+def test_fit_stops_on_a_seed_with_no_validation_predictions(env, monkeypatch):
+    s = load("src/08_routing.py")
+    for p in s.fit_needs()[:-1]:
+        p.parent.mkdir(exist_ok=True); p.touch()
+    msg = refuse(s, ["08", "--fit"], monkeypatch)
+    assert "cannot fit" in msg and "cnn__image__seed2__val" in msg and "seed1" not in msg
+
+
+def test_score_stops_before_the_read_on_a_routing_file_with_a_seed_missing(env, monkeypatch):
+    s = load("src/08_routing.py")
+    for p in s.read_needs():
+        p.parent.mkdir(parents=True, exist_ok=True); p.touch()
+    R = routing()
+    del R["cnn_seeds"]["1"]
+    (C.MODELS / "routing.json").write_text(json.dumps(R))
+    assert "seeds [1]" in refuse(s, ["08", "--score"], monkeypatch)
+    del R["cnn_seeds"]
+    (C.MODELS / "routing.json").write_text(json.dumps(R))
+    assert "seeds [0, 1, 2]" in refuse(s, ["08", "--score"], monkeypatch)
