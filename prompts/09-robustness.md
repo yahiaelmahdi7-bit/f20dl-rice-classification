@@ -24,3 +24,6 @@ A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` 
 
 ## Fix 5
 `--train`: routing and gates run after the CNN loop, so a crash there used to cost all three seeds again. A hold-out CNN file now also holds `run`, every setting that shaped its weights. A seed whose file holds the same `run` and the same `train_ids` is reused, not retrained, and seed 0's embeddings are rebuilt from the saved weights. A missing file, a torn file, or a file with a different `run` or `train_ids` is retrained and overwritten. A clean run with no files behaves as before.
+
+## Fix 6
+`score_late` is everything after the test read and `fit_tables` is the table-model fit and save, each split out with no change in behaviour, so a test can drive the real `grey_world` call and check that a saved record holds the rows its model was fitted on, on made-up rows with no model fitted.

@@ -329,3 +329,62 @@ def test_a_scored_grain_in_train_stops_the_tint_arms(env, monkeypatch):
     te = pd.concat([rows_of("te", ("late",), "test"), tr.tail(1)], ignore_index=True)
     with pytest.raises(AssertionError, match="a scored grain is in train"):
         drive_late(monkeypatch, tr, va, te)
+
+
+def test_each_saved_table_record_holds_the_rows_it_was_fitted_on(env, monkeypatch):
+    s = load("src/09_robustness.py")
+    tr, trh = rows_of("tr", ("early", "late", "late"), "train").assign(y=[1, 2, 3]), rows_of("h", ("early", "early"), "train").assign(y=[7, 8])
+    name = dict(zip(pd.concat([tr, trh]).y, pd.concat([tr, trh]).grain_id))
+    fitted, saved = [], {}
+
+    class Pipe:                                     # stands in for a model: nothing is fitted
+        def fit(self, X, y):
+            fitted.append([name[v] for v in y])
+            return self
+
+    monkeypatch.setattr(s.joblib, "dump", lambda rec, p: saved.update({p.stem: rec}))
+    s.fit_tables(SimpleNamespace(build=lambda kind, params: Pipe()), s.table_jobs(tr, trh), dict.fromkeys(s.HOLD_FS, {}), C.MODELS)
+    assert [saved[k]["train_ids"] for k in saved] == fitted and len(saved) == 6
+    assert saved["hgb__all106"]["train_ids"] == ["h0", "h1"] and saved["full_hgb__sizefree7"]["train_ids"] == ["tr0", "tr1", "tr2"]
+    assert saved["hgb__sizefree7"]["params_from"] == "hgb:all106" and saved["hgb__shape16"]["params_from"] == "hgb:shape16"
+
+
+def test_a_saved_cnn_record_holds_the_rows_it_was_fitted_on(tmp_path):
+    import torch
+    s = load("src/09_robustness.py")
+    fitted = []
+
+    class Net:
+        def state_dict(self): return {}
+
+    def train_cnn(cfg, seed, trh, *a, **k):         # stands in for training: no model exists here
+        fitted.append(trh.grain_id.tolist())
+        return Net(), [], 0.5, 0.2
+
+    N = SimpleNamespace(EP_CNN=5, PAT_CNN=2, train_cnn=train_cnn)
+    rows, p = frame(("early", "early")), tmp_path / "cnn_seed0.pt"
+    s.holdout_cnn(N, 0, {"width": 8, "dropout": 0.1, "lr": 0.001}, rows, frame(("early",)), None, p)
+    assert torch.load(p, weights_only=False)["train_ids"] == fitted[0] == ["g0", "g1"]
+
+
+def test_late_recall_says_which_arm_borrowed_its_point(env, monkeypatch):
+    drive_late(monkeypatch, rows_of("tr", ("early",), "train"), rows_of("va", ("early",), "val"), rows_of("te", ("late",), "test"))
+    r = pd.read_csv(C.RES / "robustness" / "late_recall.csv", keep_default_na=False).set_index(["model", "subset"]).params_from
+    assert r["holdout_hgb:sizefree22", "late_all"] == "hgb:all106" and r["full_hgb:sizefree7", "late_test"] == "hgb:all106"
+    assert r["holdout_hgb:all106", "late_all"] == "" and r["holdout_cnn:seed0", "late_all"] == ""
+
+
+def test_paired_gives_what_the_inline_lines_gave():
+    from scipy.stats import binomtest
+    s = load("src/07_compare.py")
+    rng = np.random.default_rng(0)
+    cases = [(np.array([1, 1, 1, 1, 0, 1], bool), np.array([0, 0, 0, 1, 1, 1], bool)), (np.ones(6, bool), np.ones(6, bool))]
+    cases += [(rng.random(40) < 0.8, rng.random(40) < 0.7) for _ in range(5)]
+    for a, b_ in cases:
+        idx = rng.integers(0, len(a), (50, len(a)))
+        ok, ka, kb = {"a": a, "b": b_}, "a", "b"
+        b = int((ok[ka] & ~ok[kb]).sum()); c = int((~ok[ka] & ok[kb]).sum())           # src/07_compare.py at 8c7c592, lines 230-232
+        p = binomtest(min(b, c), b + c, 0.5).pvalue if b + c else 1.0
+        diff = ok[ka][idx].mean(1) - ok[kb][idx].mean(1)
+        nb, nc, np_, nd = s.paired(a, b_, idx)
+        assert (nb, nc, np_) == (b, c, p) and (nd == diff).all()

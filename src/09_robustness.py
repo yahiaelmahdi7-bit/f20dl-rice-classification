@@ -196,6 +196,13 @@ def holdout_cnn(N, s, cfg, trh, vah, stats, path):
     return m, mean, std
 
 
+def fit_tables(B, jobs, params, hd):
+    """Fits each table model and saves with it the rows it was fitted on."""
+    for stem, fs, rows in jobs:
+        pipe = B.build("hgb", params[fs]).fit(*C.xy(rows, fs))
+        joblib.dump({"pipe": pipe, "cols": C.features(fs), "params": params[fs], "params_from": hgb_key(fs), "train_ids": rows.grain_id.tolist()}, hd / f"{stem}.joblib")
+
+
 def train():
     params, cfg = frozen_configs()                  # first line: no fit on a missing setting
     B, N = _load("05_baselines.py"), _load("06_neural.py")
@@ -203,9 +210,7 @@ def train():
     trh, vah = holdout_frames(tr, va)
     print(f"hold-out train {len(trh)} val {len(vah)} (late dropped: {len(tr) - len(trh)} + {len(va) - len(vah)})", flush=True)
     hd = hold_dir()
-    for stem, fs, rows in table_jobs(tr, trh):
-        pipe = B.build("hgb", params[fs]).fit(*C.xy(rows, fs))
-        joblib.dump({"pipe": pipe, "cols": C.features(fs), "params": params[fs], "params_from": hgb_key(fs), "train_ids": rows.grain_id.tolist()}, hd / f"{stem}.joblib")
+    fit_tables(B, table_jobs(tr, trh), params, hd)
     stats = N.chan_stats(trh)
     emb = {}
     for s in C.SEEDS:
