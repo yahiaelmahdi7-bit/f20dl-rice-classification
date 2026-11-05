@@ -145,10 +145,15 @@ def test_only_holdout_rows_cover_every_late_grain():
 @pytest.fixture
 def fz(env, monkeypatch):
     f = load("tools/freeze.py")
+    for n, d in (("RES", "results"), ("MODELS", "models")):
+        (env / d).mkdir(exist_ok=True)
+        monkeypatch.setattr(C, n, env / d)
+    monkeypatch.setattr(C, "ROOT", env)
+    monkeypatch.setattr(C, "SPLITS", env / "data" / "splits.csv")
     configs({"hgb:all106": {}, "nb:all106": {}}, {"cnn": {}, "mlp": {}})
-    sp = env / "splits.csv"; sp.write_text("x\n")
-    rt = C.MODELS / "routing.json"; rt.write_text("{}")
-    monkeypatch.setattr(f, "PARTS", [C.RES / "baselines" / "best_params.json", C.RES / "neural" / "best_config.json", rt, sp])
+    for p in f.parts():
+        p.parent.mkdir(parents=True, exist_ok=True)
+        if not p.exists(): p.write_text(p.name)
     return f
 
 
@@ -529,3 +534,39 @@ def test_stage9_stops_before_the_read_with_no_late_rows(env, monkeypatch):
         return frame(("early",))
     monkeypatch.setattr(C, "load_split", split)
     assert "no late grains" in refuse(load("src/09_robustness.py"), ["09", "--score"], monkeypatch)
+
+
+NAMED = ["results/baselines/best_params.json", "results/neural/best_config.json", "results/features/selected.json", "data/splits.csv", "models/routing.json",
+         "models/gate_table.joblib", "models/gate_image.joblib", "models/holdout/routing.json", "models/holdout/gate_table.joblib", "models/holdout/gate_image.joblib"]
+WEIGHTS = ["models/cnn_seed1.pt", "models/mlp_seed2.pt", "models/mlp_prep.joblib", "models/hgb_all106.joblib", "models/baselines/hgb__all106.joblib",
+           "models/holdout/cnn_seed2.pt", "models/holdout/hgb__shape16.joblib", "models/holdout/full_hgb__sizefree7.joblib"]
+
+
+def frozen():
+    return json.loads(C.FROZEN.read_text())
+
+
+def test_freeze_hashes_each_file_under_its_own_path(fz):
+    controls()
+    assert fz.main() == 0
+    assert set(NAMED + WEIGHTS) <= set(frozen()["parts"])
+
+
+@pytest.mark.parametrize("rel", NAMED + WEIGHTS)
+def test_a_changed_file_changes_the_hash(fz, rel):
+    controls()
+    assert fz.main() == 0
+    h = frozen()["hash"]
+    with open(C.ROOT / rel, "a") as f: f.write("\n")     # one byte, and a json file still parses
+    assert fz.main() == 0 and frozen()["hash"] != h
+
+
+def test_freeze_hashes_nothing_a_read_writes(fz):
+    assert {p.suffix for p in fz.parts()} == {".json", ".joblib", ".pt", ".csv"}
+
+
+@pytest.mark.parametrize("rel", ["models/holdout/routing.json", "models/holdout/cnn_seed0.pt", "models/cnn_seed1.pt", "results/features/selected.json"])
+def test_freeze_refuses_a_missing_file(fz, capsys, rel):
+    controls()
+    (C.ROOT / rel).unlink()
+    assert fz.main() == 1 and rel in capsys.readouterr().out and not C.FROZEN.exists()

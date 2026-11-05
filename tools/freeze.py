@@ -74,21 +74,38 @@
 # - `common.py`: list `06_neural.py` as a reader of `results/neural/tuning_mlp.csv`, `tuning_cnn.csv` and `control.csv`, because it reads them back.
 # - `Makefile`: add `val-compare`, which runs `07_compare.py --split val` and reads no test grains. `all` runs it straight after `controls`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
-"""Hash every configuration, seed, floor, familiarity cut and test pair after all validation work."""
-import hashlib, json, sys
+"""Hash every configuration, seed, floor, familiarity cut, saved model and test pair after all validation work."""
+import hashlib, importlib.util, json, os, sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+SRC = Path(__file__).resolve().parents[1] / "src"
+sys.path.insert(0, str(SRC))
 import common as C  # noqa: E402
 import pandas as pd  # noqa: E402
 
-PARTS = [C.RES / "baselines" / "best_params.json", C.RES / "neural" / "best_config.json", C.MODELS / "routing.json", C.SPLITS]
+SAVED = (".json", ".joblib", ".pt")    # what a preflight list holds that exists at freeze: not test predictions, which read 1 writes, and not the image cache
+
+
+def stage_module(fname):
+    """Import a numbered stage without running it, for its preflight list."""
+    spec = importlib.util.spec_from_file_location(fname.replace(".py", "").replace("0", "m", 1), SRC / fname)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def parts():
+    """Every file the hash covers, worked out at call time. The preflight lists name what each read loads, so the hash and the lists cannot drift apart."""
+    none = pd.DataFrame({"path": []})              # no rows, so stage 9 lists no image folders
+    needs = stage_module("07_compare.py").read_needs() + stage_module("08_routing.py").read_needs() + stage_module("09_robustness.py").read_needs(none, none)
+    fixed = [C.RES / "baselines" / "best_params.json", C.RES / "neural" / "best_config.json", C.RES / "features" / "selected.json", C.SPLITS]
+    return sorted({*fixed, *(p for p in needs if p.suffix in SAVED)})
 
 
 def control_faults():
     """Why the shuffled-label controls cannot stand, empty when they can. control_gate passes a file with rows missing, so each expected model is checked too."""
     bad = []
-    best, cfg = json.loads(PARTS[0].read_text()), json.loads(PARTS[1].read_text())
+    best, cfg = json.loads((C.RES / "baselines" / "best_params.json").read_text()), json.loads((C.RES / "neural" / "best_config.json").read_text())
     for stage, want, cols in [("baselines", [tuple(k.split(":")) for k in best], ["model", "featureset"]), ("neural", [(k,) for k in cfg], ["model"])]:
         p = C.RES / stage / "control.csv"
         if not p.exists():
@@ -105,7 +122,8 @@ def control_faults():
 
 
 def main():
-    missing = [str(p) for p in PARTS if not p.exists()]
+    paths = parts()
+    missing = [str(p) for p in paths if not p.exists()]
     if missing:
         print("cannot freeze, missing:", *missing, sep="\n  ")
         return 1
@@ -116,8 +134,8 @@ def main():
         if bad:
             print("cannot freeze, controls:", *bad, sep="\n  ")
             return 1
-    parts = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in PARTS}
-    body = {"seeds": list(C.SEEDS), "pairs": C.PAIRS, "parts": parts}
+    hashes = {os.path.relpath(p, C.ROOT): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}    # by path: routing.json and the gates exist twice
+    body = {"seeds": list(C.SEEDS), "pairs": C.PAIRS, "parts": hashes}
     h = hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
     out = (C.RES / "frozen.json") if C.SMOKE else C.FROZEN
     out.parent.mkdir(parents=True, exist_ok=True)
