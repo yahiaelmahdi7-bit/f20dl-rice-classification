@@ -682,3 +682,30 @@ def test_a_smoke_read_checks_nothing(rd, monkeypatch):
     monkeypatch.setattr(C, "SMOKE", True)
     monkeypatch.setattr(C, "digest", lambda p: pytest.fail("smoke hashed a file"))
     assert list(C.load_split("test").grain_id) == ["a"] and not C.TEST_READS.exists()
+
+
+def stage9_ready(s, monkeypatch, base=0.2, neural=("cnn", "mlp"), write=True):
+    """Settings frozen_configs accepts, so a stop here can only come from the control check."""
+    monkeypatch.setattr(s, "_load", lambda f, *a: load("tools/freeze.py") if f == "freeze.py" else pytest.fail("reached training"))
+    configs({"hgb:all106": {"a": 1}, "hgb:shape16": {"a": 2}}, {"cnn": {"width": 8}, "mlp": {"width": 8}})
+    if write:
+        controls(0.2, neural)
+        pd.DataFrame({"model": "hgb", "featureset": ["all106", "shape16"], "val_accuracy": base}).to_csv(C.RES / "baselines" / "control.csv", index=False)
+
+
+@pytest.mark.parametrize("kw,word", [({"write": False}, "control.csv: missing"), ({"base": 0.95}, "baselines/control.csv"), ({"neural": ("cnn",)}, "no row for mlp")])
+def test_stage9_train_stops_on_the_controls_before_any_fit(env, monkeypatch, kw, word):
+    s = load("src/09_robustness.py")
+    stage9_ready(s, monkeypatch, **kw)
+    msg = refuse(s, ["09", "--train"], monkeypatch)
+    assert "cannot train hold-out, controls" in msg and word in msg
+
+
+def test_stage9_controls_pass_when_clean_and_smoke_reads_none(env, monkeypatch):
+    s = load("src/09_robustness.py")
+    stage9_ready(s, monkeypatch)
+    assert s.controls_stand() is None
+    (C.RES / "baselines" / "control.csv").unlink()
+    monkeypatch.setattr(C, "SMOKE", True)
+    monkeypatch.setattr(s, "_load", lambda *a: pytest.fail("smoke loaded freeze"))
+    assert s.controls_stand() is None

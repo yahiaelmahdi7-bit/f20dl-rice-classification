@@ -66,9 +66,9 @@ UNTUNED = ("sizefree7", "sizefree22")    # never tuned: they take the all106 poi
 CONF = 0.95
 
 
-def _load(fname):
-    """Import a numbered stage module without running it."""
-    spec = importlib.util.spec_from_file_location(fname.replace(".py", "").replace("0", "m", 1), SRC / fname)
+def _load(fname, folder=SRC):
+    """Import a numbered stage module, or freeze from tools, without running it."""
+    spec = importlib.util.spec_from_file_location(fname.replace(".py", "").replace("0", "m", 1), folder / fname)
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m
@@ -203,8 +203,16 @@ def fit_tables(B, jobs, params, hd):
         joblib.dump({"pipe": pipe, "cols": C.features(fs), "params": params[fs], "params_from": hgb_key(fs), "train_ids": rows.grain_id.tolist()}, hd / f"{stem}.joblib")
 
 
+def controls_stand():
+    """Hold-out training costs 1.98 h and freeze would refuse a failed control after it, so the same check runs first. Smoke runs no --control, as in freeze."""
+    if C.SMOKE: return
+    bad = _load("freeze.py", SRC.parent / "tools").control_faults()
+    if bad: raise SystemExit("cannot train hold-out, controls:\n  " + "\n  ".join(bad))
+
+
 def train():
     params, cfg = frozen_configs()                  # first line: no fit on a missing setting
+    controls_stand()
     B, N = _load("05_baselines.py"), _load("06_neural.py")
     tr, va = C.load_split("train"), C.load_split("val")
     trh, vah = holdout_frames(tr, va)

@@ -33,3 +33,7 @@ A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` 
 - `--score` stops before the read if train and validation hold no late grains: the first hold-out model would raise on no rows, after the read.
 - `grey_world` writes parts 1 and 1b, then stops with a printed line if no late grain reached test. `greyworld_results.csv` stays absent, so the report and the go check notice.
 - `gain_rows` takes the largest correlation with `np.max`, so a channel with no answer fails `passes_abs_lt_0_1`. Python's `max` could drop the nan and pass it.
+
+## Fix 8
+- `controls_stand` runs freeze's control check at the start of `--train`. Hold-out training now comes before freeze, so a run that skipped `make controls` would spend 1.98 h before freeze refused. Smoke skips it, as freeze does, because smoke runs no `--control`.
+- `_load` takes a folder, so stage 9 can load `tools/freeze.py` without running it.
