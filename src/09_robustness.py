@@ -62,6 +62,7 @@ import common as C
 
 SRC = Path(__file__).resolve().parent
 HOLD_FS = ["all106", "shape16", "sizefree7", "sizefree22"]
+UNTUNED = ("sizefree7", "sizefree22")    # never tuned: they take the all106 point by design
 CONF = 0.95
 
 
@@ -79,15 +80,61 @@ def hold_dir():
     return d
 
 
-def hgb_params(fs):
-    p = C.RES / "baselines" / "best_params.json"
-    best = json.loads(p.read_text()) if p.exists() else {}
-    return best.get(f"hgb:{fs}") or best.get("hgb:all106") or {"learning_rate": 0.1, "max_iter": 150, "max_leaf_nodes": 31}
+def hgb_key(fs):
+    return "hgb:all106" if fs in UNTUNED else f"hgb:{fs}"
 
 
-def cnn_cfg():
-    p = C.RES / "neural" / "best_config.json"
-    return json.loads(p.read_text()).get("cnn") if p.exists() else None
+def params_from(name):
+    """The tuned point an arm borrowed, blank when it used its own, so the group can disclose it."""
+    fs = name.split(":")[-1]
+    return hgb_key(fs) if "hgb" in name and fs in UNTUNED else ""
+
+
+def frozen_configs():
+    """The tuned settings for every hold-out fit, or a stop naming what is missing. There is no default to fall back on."""
+    pp, pc = C.RES / "baselines" / "best_params.json", C.RES / "neural" / "best_config.json"
+    gone = [str(p) for p in (pp, pc) if not p.exists()]
+    best = json.loads(pp.read_text()) if pp.exists() else {}
+    cfg = json.loads(pc.read_text()) if pc.exists() else {}
+    if pp.exists(): gone += [f"{pp.name}: {k}" for k in sorted({hgb_key(fs) for fs in HOLD_FS}) if not best.get(k)]
+    if pc.exists() and not cfg.get("cnn"): gone.append(f"{pc.name}: cnn")
+    if gone: raise SystemExit("cannot train hold-out models, missing:\n  " + "\n  ".join(gone))
+    return {fs: best[hgb_key(fs)] for fs in HOLD_FS}, cfg["cnn"]
+
+
+def holdout_frames(tr, va):
+    """Train and validation without the late lot: the only rows a hold-out model may see."""
+    return tr[tr.lot != "late"].reset_index(drop=True), va[va.lot != "late"].reset_index(drop=True)
+
+
+def table_jobs(tr, trh):
+    """(saved stem, featureset, training rows) for every table model: hold-out arms on trh, the full-data reference on tr."""
+    return [(f"hgb__{fs}", fs, trh) for fs in HOLD_FS] + [(f"full_hgb__{fs}", fs, tr) for fs in UNTUNED]
+
+
+def read_needs(tr, va):
+    """Every file the --score path loads, plus the image folders it reads after the test read."""
+    hd = C.MODELS / "holdout"
+    return ([hd / f"hgb__{fs}.joblib" for fs in HOLD_FS] + [hd / f"full_hgb__{fs}.joblib" for fs in UNTUNED]
+            + [d / f"cnn_seed{s}.pt" for d in (hd, C.MODELS) for s in C.SEEDS]
+            + [hd / "routing.json", hd / "gate_table.joblib", hd / "gate_image.joblib", C.MODELS / "hgb_all106.joblib", C.MODELS / "baselines" / "hgb__shape16.joblib", C.cache_path()]
+            + [C.pred_path("cnn", "image", s, "test") for s in C.SEEDS]
+            + sorted({Path(p).parent for p in pd.concat([tr.path, va.path])}))
+
+
+def preflight(paths):
+    """Names everything missing and stops, before a test read is spent."""
+    gone = [str(p) for p in paths if not p.exists()]
+    if gone: raise SystemExit("cannot read test, missing:\n  " + "\n  ".join(gone))
+
+
+def control_row(k, P, late_te, ref):
+    """Largest stage 7 against stage 9 gap on the grains both hold. A record only: the read is spent, so it never stops the stage."""
+    ref = ref.set_index("grain_id")
+    keep = late_te.grain_id.isin(ref.index).to_numpy()
+    if not keep.any(): return dict(seed=k, n=0, max_abs_diff=np.nan, argmax_equal=False)
+    Pr = C.probs(ref.loc[late_te.grain_id[keep]].reset_index())
+    return dict(seed=k, n=int(keep.sum()), max_abs_diff=float(np.abs(P[keep] - Pr).max()), argmax_equal=bool((P[keep].argmax(1) == Pr.argmax(1)).all()))
 
 
 # ---- grey-world correction -----------------------------------------------------------
@@ -118,24 +165,21 @@ def mask_means(img):
 
 # ---- training ------------------------------------------------------------------------
 def train():
+    params, cfg = frozen_configs()                  # first line: no fit on a missing setting
     B, N = _load("05_baselines.py"), _load("06_neural.py")
     tr, va = C.load_split("train"), C.load_split("val")
-    trh, vah = tr[tr.lot != "late"].reset_index(drop=True), va[va.lot != "late"].reset_index(drop=True)
+    trh, vah = holdout_frames(tr, va)
     print(f"hold-out train {len(trh)} val {len(vah)} (late dropped: {len(tr) - len(trh)} + {len(va) - len(vah)})", flush=True)
     hd = hold_dir()
-    for fs in HOLD_FS:
-        pipe = B.build("hgb", hgb_params(fs)).fit(*C.xy(trh, fs))
-        joblib.dump({"pipe": pipe, "cols": C.features(fs), "params": hgb_params(fs)}, hd / f"hgb__{fs}.joblib")
-    for fs in ("sizefree7", "sizefree22"):          # full-data reference
-        pipe = B.build("hgb", hgb_params(fs)).fit(*C.xy(tr, fs))
-        joblib.dump({"pipe": pipe, "cols": C.features(fs), "params": hgb_params(fs)}, hd / f"full_hgb__{fs}.joblib")
-    cfg = cnn_cfg() or N.DEFAULT_CNN
+    for stem, fs, rows in table_jobs(tr, trh):
+        pipe = B.build("hgb", params[fs]).fit(*C.xy(rows, fs))
+        joblib.dump({"pipe": pipe, "cols": C.features(fs), "params": params[fs], "params_from": hgb_key(fs), "train_ids": rows.grain_id.tolist()}, hd / f"{stem}.joblib")
     stats = N.chan_stats(trh)
     emb = {}
     for s in C.SEEDS:
         m, hist, mean, std = N.train_cnn(cfg, s, trh, vah, N.EP_CNN, N.PAT_CNN, f"holdout_cnn_seed{s}", stats=stats)
         import torch
-        torch.save({"state": m.state_dict(), "cfg": {"width": cfg["width"], "dropout": cfg["dropout"]}, "mean": mean, "std": std}, hd / f"cnn_seed{s}.pt")
+        torch.save({"state": m.state_dict(), "cfg": {"width": cfg["width"], "dropout": cfg["dropout"]}, "mean": mean, "std": std, "train_ids": trh.grain_id.tolist()}, hd / f"cnn_seed{s}.pt")
         Pv, Ev = N.cnn_eval(m, mean, std, vah)
         if s == 0:
             _, Et = N.cnn_eval(m, mean, std, trh)
@@ -181,6 +225,7 @@ def score():
     hd = hold_dir()
     out = C.stage_dir("robustness")
     tr, va = C.load_split("train"), C.load_split("val")
+    preflight(read_needs(tr, va))                     # names every missing file before the read is spent
     te = C.load_split("test")                         # the single gated test read of this stage
     print(f"test read: {len(te)} grains", flush=True)
     allsplit = pd.concat([tr, va, te], ignore_index=True).drop_duplicates("grain_id")   # smoke: te is validation again
@@ -194,11 +239,11 @@ def score():
 
     def add(name, P):
         P_ref[name] = P
-        rows.extend(late_rows(name, P, y, is_te))
+        rows.extend(r | {"params_from": params_from(name)} for r in late_rows(name, P, y, is_te))
 
     for fs in HOLD_FS:
         add(f"holdout_hgb:{fs}", joblib.load(hd / f"hgb__{fs}.joblib")["pipe"].predict_proba(late[C.features(fs)]))
-    for fs in ("sizefree7", "sizefree22"):
+    for fs in UNTUNED:
         add(f"full_hgb:{fs}", joblib.load(hd / f"full_hgb__{fs}.joblib")["pipe"].predict_proba(late[C.features(fs)]))
     add("full_hgb:all106", joblib.load(C.MODELS / "hgb_all106.joblib")["pipe"].predict_proba(late[C.ALL106]))
     add("full_hgb:shape16", joblib.load(C.MODELS / "baselines" / "hgb__shape16.joblib")["pipe"].predict_proba(late[C.features("shape16")]))
@@ -241,7 +286,7 @@ def grey_world(late_te, tr, va, out):
         m = (samp.y == k).to_numpy()
         la = np.log(samp.loc[m, "AREA"].to_numpy(np.float64))
         r = [float(np.corrcoef(G[m, c], la)[0, 1]) for c in range(3)]
-        cr.append(dict(cls=C.CLASSES[k], n=int(m.sum()), r_R=r[0], r_G=r[1], r_B=r[2], max_abs_r=max(abs(x) for x in r), passes_abs_lt_0_1=max(abs(x) for x in r) < 0.1))
+        cr.append(dict(**{"class": C.CLASSES[k]}, n=int(m.sum()), r_R=r[0], r_G=r[1], r_B=r[2], max_abs_r=max(abs(x) for x in r), passes_abs_lt_0_1=max(abs(x) for x in r) < 0.1))
     pd.DataFrame(cr).to_csv(out / "greyworld_gain_vs_area.csv", index=False); C.wrote(out / "greyworld_gain_vs_area.csv")
 
     # 1b. table means vs mask means on a stratified 5000-grain train sample
@@ -275,9 +320,7 @@ def grey_world(late_te, tr, va, out):
             if variant == "raw_same_path":
                 ref = C.load_preds("cnn", "image", k, "test")
                 if ref is not None:
-                    ref = ref.set_index("grain_id").loc[late_te.grain_id]
-                    Pr = C.probs(ref.reset_index())
-                    ctl.append(dict(seed=k, n=len(y), max_abs_diff=float(np.abs(P - Pr).max()), argmax_equal=bool((P.argmax(1) == Pr.argmax(1)).all())))
+                    ctl.append(control_row(k, P, late_te, ref))
     pd.DataFrame(res).to_csv(out / "greyworld_results.csv", index=False); C.wrote(out / "greyworld_results.csv")
     pd.DataFrame(ctl).to_csv(out / "greyworld_control.csv", index=False); C.wrote(out / "greyworld_control.csv")
     print(pd.DataFrame(res).round(4).to_string(index=False)); print(pd.DataFrame(ctl).to_string(index=False))

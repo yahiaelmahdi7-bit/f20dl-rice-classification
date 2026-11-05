@@ -15,3 +15,9 @@ The mean-colour model is fitted on table means and scored on image-computed mean
 
 ## Fix 3
 A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` trained on train, which holds 2,298 of the 3,283 late grains, so score them on the late test subset only and write no `late_all` row for them. Hold-out models never saw a late grain and keep both rows. The tint arms use a model fitted on train and the frozen CNNs, so score them on the late test subset only. In smoke mode the late test subset is the validation stand-in, so pick it by `grain_id`, not by the split label. Stop if a scored grain is in train. Sample per class without `groupby().apply`, because pandas 3 drops the `y` column there and `samp.y` fails.
+
+## Fix 4
+- `--train`: `frozen_configs()` runs first and stops, naming any missing `best_params.json`, `best_config.json` or needed key. There are no default settings. `sizefree7` and `sizefree22` take the `hgb:all106` point by design.
+- Saved hold-out models carry `train_ids`, and joblib models `params_from`. `late_recall.csv` gains `params_from`, so the borrowed point is disclosed in a committed file.
+- `--score`: `preflight` stops before the read on a missing file or image folder. The unchanged-image control records the largest difference on grains both stages hold and never stops the stage.
+- `greyworld_gain_vs_area.csv` column `cls` is now `class`.
