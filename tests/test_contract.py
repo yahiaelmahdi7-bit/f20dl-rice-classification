@@ -137,6 +137,9 @@
 # ## Fix 8 (harden before go, C5)
 # - `tests/test_data.py`, `tests/test_foundation.py`, `tests/test_harden_seal.py`: the three tests that read the old `smoke` recipe now read the runner's smoke list and the Makefile targets. Smoke starts with stage 0 and goes through the runner; stage 3 runs before stage 2 and each stage once; overfit, baselines, neural, controls and freeze are in that order; `all` stops after freeze unless `READS=yes`, which adds three `next --spend-read`; `smoke` clears its four folders; the `controls` check follows `RES`.
 # - `tests/test_models.py`: `test_controls_target_text` reads the order overfit, baselines, neural, controls, freeze from the runner's list, since `all` no longer lists targets.
+#
+# ## Fix 9 (harden before go, C3 disclosures)
+# - `tests/test_harden_seal.py`: `test_disclosures_count_the_ledger_and_name_it` plants a ledger and a `code_lock.json` with two changes; the extra-read row counts the ledger, the code-change row counts the lock file and names it, and with no changes in the lock the row is absent.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """The contract between stages. Reads code and CSV files only, fits no model.
 

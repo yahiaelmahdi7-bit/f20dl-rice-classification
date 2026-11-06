@@ -55,8 +55,12 @@
 # ## Fix 5 (harden before go, D8, D9)
 # - `report.py` writes `results/DISCLOSURES.csv`, columns `item, what, evidence_file`: facts, not prose. Fixed rows: old smoke overlap (evidence `results/smoke_overlap.csv`); `val_calibration` and `val_routes` in-sample; hyperparameters picked on validation holding late grains; shuffled-label scores away from 20%; `02_eda` class counts include test; image gate is seed 0 for all three; near-upright is the group's own reading; Perceptron and kNN scores uncalibrated. If `results/test_reads_disclosed.csv` exists and has rows, one row counts the extra reads and names that file as evidence, and one counts rows whose `reason` starts with `code-changed`. The ledger is not copied. A missing ledger or `run_log.csv` is no error.
 # - `MANIFEST.csv` gains a row for every new output: validation and test tables by lot, angle and angle and lot, `mean_colour_check.csv`, `results/smoke_overlap.csv`, `DISCLOSURES.csv`. The `run_log.csv` row comes with the runner. An `output_file` starting `results/` is read from the repo root, so the committed overlap file is found in smoke too. Handoff row 16 fails if any `exists` is False.
+#
+# ## Fix 6 (harden before go, C3 disclosures)
+# - `disclosures()`: the "code changed after lock" row is counted from the `changes` list in `C.RES/code_lock.json` (evidence file `results/code_lock.json`), not from the reasons in the read ledger. The "extra read" row still counts the ledger rows.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
+import json
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -108,7 +112,7 @@ DISCLOSURES = [
     ("near-upright", "the near-upright band is the group's own reading of the angle table", "compare/val_by_angle.csv"),
     ("perceptron scores", "Perceptron and kNN scores are not calibrated probabilities; they keep the predicted class only", "baselines/val_results.csv"),
 ]
-LEDGER, CODE_CHANGED = "test_reads_disclosed.csv", "code-changed"
+LEDGER, CODE_LOCK = "test_reads_disclosed.csv", "code_lock.json"
 
 
 def read(p):
@@ -183,13 +187,14 @@ def late_recall_figure(late):
 
 
 def disclosures():
-    """The fixed rows, then one row for extra reads and one for code-changed reasons, counted from the ledger if it exists."""
+    """The fixed rows, then one row for extra reads, counted from the ledger, and one for code changes, counted from the code lock, if they exist."""
     rows = list(DISCLOSURES)
     L = read(C.RES / LEDGER)
     if L is not None and len(L):
         rows.append(("extra read", f"{len(L)} extra read(s) logged; see the ledger for caller, time and reason", f"results/{LEDGER}"))
-        cc = L[L.reason.astype(str).str.startswith(CODE_CHANGED)] if "reason" in L else L.iloc[0:0]
-        if len(cc): rows.append(("code changed after lock", f"{len(cc)} read(s) after a logged code change", f"results/{LEDGER}"))
+    lock = C.RES / CODE_LOCK
+    cc = json.loads(lock.read_text()).get("changes", []) if lock.exists() else []
+    if cc: rows.append(("code changed after lock", f"{len(cc)} logged code change(s) after the lock; see the lock file for time and reason", f"results/{CODE_LOCK}"))
     return pd.DataFrame(rows, columns=["item", "what", "evidence_file"])
 
 

@@ -137,6 +137,9 @@
 # ## Fix 8 (harden before go, C5)
 # - `tests/test_data.py`, `tests/test_foundation.py`, `tests/test_harden_seal.py`: the three tests that read the old `smoke` recipe now read the runner's smoke list and the Makefile targets. Smoke starts with stage 0 and goes through the runner; stage 3 runs before stage 2 and each stage once; overfit, baselines, neural, controls and freeze are in that order; `all` stops after freeze unless `READS=yes`, which adds three `next --spend-read`; `smoke` clears its four folders; the `controls` check follows `RES`.
 # - `tests/test_models.py`: `test_controls_target_text` reads the order overfit, baselines, neural, controls, freeze from the runner's list, since `all` no longer lists targets.
+#
+# ## Fix 9 (harden before go, C3 disclosures)
+# - `tests/test_harden_seal.py`: `test_disclosures_count_the_ledger_and_name_it` plants a ledger and a `code_lock.json` with two changes; the extra-read row counts the ledger, the code-change row counts the lock file and names it, and with no changes in the lock the row is absent.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
@@ -531,10 +534,13 @@ def test_report_main_runs_with_run_log_and_ledger_missing(tmp_path, monkeypatch)
 def test_disclosures_count_the_ledger_and_name_it(tmp_path, monkeypatch):
     R = _report_in(tmp_path, monkeypatch)
     (tmp_path / "res").mkdir()
-    pd.DataFrame({"caller": ["07", "07"], "time": ["t1", "t2"], "frozen_hash": ["h", "h"], "reason": ["crash", "code-changed: fix"]}).to_csv(tmp_path / "res" / "test_reads_disclosed.csv", index=False)
+    pd.DataFrame({"caller": ["07", "07"], "time": ["t1", "t2"], "frozen_hash": ["h", "h"], "reason": ["crash", "output folder was missing"]}).to_csv(tmp_path / "res" / "test_reads_disclosed.csv", index=False)
     D = R.disclosures().set_index("item")
     assert D.loc["extra read", "what"].startswith("2 extra read") and D.loc["extra read", "evidence_file"] == "results/test_reads_disclosed.csv"
-    assert D.loc["code changed after lock", "what"].startswith("1 read")
+    assert "code changed after lock" not in D.index
+    (tmp_path / "res" / "code_lock.json").write_text(json.dumps({"digest": "d", "time": "t", "changes": [{"reason": "a"}, {"reason": "b"}]}))
+    D = R.disclosures().set_index("item")
+    assert D.loc["code changed after lock", "what"].startswith("2 logged") and D.loc["code changed after lock", "evidence_file"] == "results/code_lock.json"
 
 
 def test_every_evidence_file_and_new_output_is_in_the_manifest():
