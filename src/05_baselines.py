@@ -68,6 +68,12 @@
 #
 # ## Fix 4
 # `--control` takes its labels from `C.shuffled_labels` and calls `C.control_gate` on `control.csv` once every row is saved.
+#
+# ## Fix 9 (harden before go)
+# - Add `perceptron` and `knn` to `GRIDS`, so each runs on the four feature sets. The job count goes from 21 to 29 (7 models x 4 feature sets, plus `nb:distinct91`). Grids: perceptron `alpha` 1e-5, 1e-4, 1e-3; knn `n_neighbors` 3, 5, 11, 21; one point each in smoke (`alpha` 1e-4, `n_neighbors` 5).
+# - `build` makes `perceptron` from `C.SoftmaxPerceptron` and `knn` from scikit-learn's `KNeighborsClassifier`, behind the same imputer and scaler as the other models.
+# - The perceptron's scores are not calibrated. They keep the predicted class, which is all stage 7 uses; routing uses only `hgb:all106` and the CNN.
+# - Each kNN file is about 44 MB, in the git-ignored `models/baselines/`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 5: table baselines tuned on validation macro-F1; saves models and validation predictions."""
 import argparse, itertools, json, os
@@ -75,6 +81,7 @@ import joblib, numpy as np, pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier as HGB
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 import matplotlib
 matplotlib.use("Agg")
@@ -87,10 +94,13 @@ GRIDS = {
     "tree": {"max_depth": [5, 10, 20, None], "min_samples_leaf": [1, 5, 20]},
     "logreg": {"C": [0.01, 0.1, 1, 10, 100]},
     "hgb": {"learning_rate": [0.05, 0.1], "max_iter": [150, 300], "max_leaf_nodes": [31, 63]},
+    "perceptron": {"alpha": [1e-5, 1e-4, 1e-3]},
+    "knn": {"n_neighbors": [3, 5, 11, 21]},
 }
 if C.SMOKE:
     GRIDS = {"nb": {"var_smoothing": [1e-9, 1e-5]}, "gmm": {"n_components": [1, 2]}, "tree": {"max_depth": [5], "min_samples_leaf": [5]},
-             "logreg": {"C": [1]}, "hgb": {"learning_rate": [0.1], "max_iter": [30], "max_leaf_nodes": [31]}}
+             "logreg": {"C": [1]}, "hgb": {"learning_rate": [0.1], "max_iter": [30], "max_leaf_nodes": [31]},
+             "perceptron": {"alpha": [1e-4]}, "knn": {"n_neighbors": [5]}}
 FSETS = ["shape16", "colour90", "all106", "selected"]
 JOBS = [(m, f) for f in FSETS for m in GRIDS] + [("nb", "distinct91")]
 
@@ -104,7 +114,8 @@ def build(m, p):
     est = {"nb": lambda: GaussianNB(**p), "gmm": lambda: C.ClassGMM(pca=20, seed=C.SEED, **p),
            "tree": lambda: DecisionTreeClassifier(random_state=C.SEED, **p),
            "logreg": lambda: LogisticRegression(max_iter=300, **p),
-           "hgb": lambda: HGB(random_state=C.SEED, early_stopping=False, **p)}[m]()
+           "hgb": lambda: HGB(random_state=C.SEED, early_stopping=False, **p),
+           "perceptron": lambda: C.SoftmaxPerceptron(seed=C.SEED, **p), "knn": lambda: KNeighborsClassifier(**p)}[m]()
     return C.Pipeline([("imp", C.SimpleImputer(strategy="median")), ("sc", C.StandardScaler()), ("m", est)])
 
 

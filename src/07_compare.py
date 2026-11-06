@@ -68,6 +68,9 @@
 # ## Fix 8
 # - `read_test` is the one gated read. An infinite cell becomes a missing one, which every pipeline imputes, and the count is printed. Left in, the first imputer raises right after the read. Stage 5 still stops on an infinite train or validation cell, before any read.
 # - `tables` is everything after the predictions, split out with no change in behaviour, so a test can drive the real metrics, recall, confusion, spread and McNemar code on made-up predictions.
+#
+# ## Fix 9 (harden before go)
+# - `BASE` gains `perceptron` and `knn`, so `model_list`, `read_needs` and the freeze hash cover both on the four feature sets. Stage 7 reports accuracy, F1 and counts for them, and no probability metric.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 7: compare every model on one split with intervals and paired tests. --split test is one gated test read."""
 import argparse, json
@@ -78,7 +81,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import common as C
 
-BASE = ["hgb", "nb", "gmm", "tree", "logreg"]
+BASE = ["hgb", "nb", "gmm", "tree", "logreg", "perceptron", "knn"]
 BASE_FS = ["selected", "shape16", "colour90", "all106"]
 NBOOT = 2000
 

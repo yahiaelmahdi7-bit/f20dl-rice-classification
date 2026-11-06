@@ -95,6 +95,10 @@
 # - Comment in `common.py` listing what stays different in smoke: slice size, epochs and grids; the shuffled-label band prints instead of stopping; the overfit verdict is not judged.
 # - `Makefile`: `smoke` gains `06_neural.py --overfit-test`, `05_baselines.py --control` and `06_neural.py --control`, so the control check in freeze and in `--train` has files to read.
 # - `tests/test_harden_seal.py`: real mode gives today's exact paths; under `RICE_SMOKE=1` `FROZEN`, `TEST_READS` and `MODELS` sit in smoke folders; a smoke read creates nothing outside them.
+#
+# ## Fix 10 (harden before go, D1)
+# - `common.py`: add `SoftmaxPerceptron`, a scikit-learn perceptron (L2 penalty `alpha`) whose margins pass through a softmax to give scores. The scores are uncalibrated and only keep the predicted class. It lives in `common.py` because a class pickled from a stage file runs as `__main__` and cannot be loaded by stage 7.
+# - `tests/test_harden_seal.py`: dump and reload in a fresh process gives equal predictions; the job count is 29; smoke grids have one point for the two new models.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Shared paths, seeds, feature sets, split gate, image cache, nets and helpers."""
 import csv, hashlib, json, os, re, sys, time
@@ -542,6 +546,7 @@ def floor_for(conf, correct, target):
 from sklearn.base import BaseEstimator, ClassifierMixin  # noqa: E402
 from sklearn.decomposition import PCA  # noqa: E402
 from sklearn.impute import SimpleImputer  # noqa: E402
+from sklearn.linear_model import Perceptron  # noqa: E402
 from sklearn.mixture import GaussianMixture  # noqa: E402
 from sklearn.pipeline import Pipeline  # noqa: E402
 from sklearn.preprocessing import StandardScaler  # noqa: E402
@@ -573,6 +578,26 @@ class ClassGMM(BaseEstimator, ClassifierMixin):
         L = self.loglik(X) + self.logprior_
         L = L - L.max(1, keepdims=True)
         e = np.exp(L)
+        return e / e.sum(1, keepdims=True)
+
+    def predict(self, X):
+        return self.classes_[self.predict_proba(X).argmax(1)]
+
+
+class SoftmaxPerceptron(BaseEstimator, ClassifierMixin):
+    """Perceptron whose margins go through a softmax. The scores are not calibrated: they only keep the predicted class."""
+    def __init__(self, alpha=1e-4, seed=0):
+        self.alpha, self.seed = alpha, seed
+
+    def fit(self, X, y):
+        self.m_ = Perceptron(penalty="l2", alpha=self.alpha, random_state=self.seed).fit(X, y)
+        self.classes_ = self.m_.classes_
+        return self
+
+    def predict_proba(self, X):
+        z = self.m_.decision_function(X)
+        z = z - z.max(1, keepdims=True)
+        e = np.exp(z)
         return e / e.sum(1, keepdims=True)
 
     def predict(self, X):

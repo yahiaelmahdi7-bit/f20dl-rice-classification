@@ -240,3 +240,42 @@ def test_smoke_runs_overfit_and_both_controls_before_freeze():
 def test_smoke_runs_each_stage_once_and_stage_3_before_2():
     L = smoke_lines()
     assert len(L) == len(set(L)) and L.index("src/03_features.py") < L.index("src/02_eda.py")
+
+
+def test_perceptron_reloads_in_a_fresh_process_with_equal_predictions(tmp_path):
+    import joblib
+    import numpy as np
+    rng = np.random.default_rng(0)
+    X, y = rng.normal(size=(200, 4)) + np.repeat(np.arange(5), 40)[:, None], np.repeat(np.arange(5), 40)
+    m = C.SoftmaxPerceptron(alpha=1e-4).fit(X, y)
+    P = m.predict_proba(X)
+    assert np.allclose(P.sum(1), 1) and (m.predict(X) == P.argmax(1)).all()
+    joblib.dump({"pipe": m}, tmp_path / "p.joblib")
+    np.save(tmp_path / "X.npy", X)
+    code = "import sys, joblib, numpy as np; sys.path.insert(0, 'src'); m = joblib.load(sys.argv[1] + '/p.joblib')['pipe']; np.save(sys.argv[1] + '/P.npy', m.predict_proba(np.load(sys.argv[1] + '/X.npy')))"
+    subprocess.run([sys.executable, "-c", code, str(tmp_path)], cwd=ROOT, check=True)
+    assert np.array_equal(np.load(tmp_path / "P.npy"), P)
+
+
+def stage5():
+    return importlib.import_module("05_baselines")
+
+
+def test_stage5_has_29_jobs_and_the_two_new_grids():
+    B = stage5()
+    assert len(B.JOBS) == 29 and {("perceptron", "all106"), ("knn", "selected"), ("nb", "distinct91")} <= set(B.JOBS)
+    assert len(B.points("perceptron")) == 3 and len(B.points("knn")) == 4
+
+
+def test_stage5_builds_the_two_new_models_behind_the_shared_preprocessing():
+    B = stage5()
+    for m in ("perceptron", "knn"):
+        assert [n for n, _ in B.build(m, B.points(m)[0]).steps] == ["imp", "sc", "m"]
+
+
+def test_stage7_scores_the_two_new_models_on_every_feature_set():
+    s = importlib.import_module("07_compare")
+    L = s.model_list()
+    for m in ("perceptron", "knn"):
+        assert {fs for mm, fs, _ in L if mm == m} == set(s.BASE_FS)
+    assert len(L) == 7 * 4 + 1 + 2

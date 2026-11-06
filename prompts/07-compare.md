@@ -26,3 +26,6 @@ Add macro precision and macro recall to every metrics row. Add per-class precisi
 ## Fix 8
 - `read_test` is the one gated read. An infinite cell becomes a missing one, which every pipeline imputes, and the count is printed. Left in, the first imputer raises right after the read. Stage 5 still stops on an infinite train or validation cell, before any read.
 - `tables` is everything after the predictions, split out with no change in behaviour, so a test can drive the real metrics, recall, confusion, spread and McNemar code on made-up predictions.
+
+## Fix 9 (harden before go)
+- `BASE` gains `perceptron` and `knn`, so `model_list`, `read_needs` and the freeze hash cover both on the four feature sets. Stage 7 reports accuracy, F1 and counts for them, and no probability metric.

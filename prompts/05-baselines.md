@@ -26,3 +26,9 @@ Save each job as it finishes: model files first, then its `best_params.json` ent
 
 ## Fix 4
 `--control` takes its labels from `C.shuffled_labels` and calls `C.control_gate` on `control.csv` once every row is saved.
+
+## Fix 9 (harden before go)
+- Add `perceptron` and `knn` to `GRIDS`, so each runs on the four feature sets. The job count goes from 21 to 29 (7 models x 4 feature sets, plus `nb:distinct91`). Grids: perceptron `alpha` 1e-5, 1e-4, 1e-3; knn `n_neighbors` 3, 5, 11, 21; one point each in smoke (`alpha` 1e-4, `n_neighbors` 5).
+- `build` makes `perceptron` from `C.SoftmaxPerceptron` and `knn` from scikit-learn's `KNeighborsClassifier`, behind the same imputer and scaler as the other models.
+- The perceptron's scores are not calibrated. They keep the predicted class, which is all stage 7 uses; routing uses only `hgb:all106` and the CNN.
+- Each kNN file is about 44 MB, in the git-ignored `models/baselines/`.

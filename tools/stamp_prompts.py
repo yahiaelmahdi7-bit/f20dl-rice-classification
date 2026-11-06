@@ -95,6 +95,10 @@
 # - Comment in `common.py` listing what stays different in smoke: slice size, epochs and grids; the shuffled-label band prints instead of stopping; the overfit verdict is not judged.
 # - `Makefile`: `smoke` gains `06_neural.py --overfit-test`, `05_baselines.py --control` and `06_neural.py --control`, so the control check in freeze and in `--train` has files to read.
 # - `tests/test_harden_seal.py`: real mode gives today's exact paths; under `RICE_SMOKE=1` `FROZEN`, `TEST_READS` and `MODELS` sit in smoke folders; a smoke read creates nothing outside them.
+#
+# ## Fix 10 (harden before go, D1)
+# - `common.py`: add `SoftmaxPerceptron`, a scikit-learn perceptron (L2 penalty `alpha`) whose margins pass through a softmax to give scores. The scores are uncalibrated and only keep the predicted class. It lives in `common.py` because a class pickled from a stage file runs as `__main__` and cannot be loaded by stage 7.
+# - `tests/test_harden_seal.py`: dump and reload in a fresh process gives equal predictions; the job count is 29; smoke grids have one point for the two new models.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Copy each stage prompt into the header of the file it generated. Idempotent."""
 import sys
