@@ -139,6 +139,12 @@
 #
 # ## Fix 18 (harden before go, coverage review)
 # - Tests only, no code change, for real-run lines no smoke row reaches: the CNN stops after `patience` bad epochs and returns the best epoch's weights; `predict.py` takes the cnn route when only the image side clears its floor, and exits 2 with no argument and on an unreadable image; `--rescore` reports a model it cannot score; the row 7 check names each stage whose control failed.
+#
+# ## Fix 19 (harden before go, fault drills)
+# - `tools/run_order.py`: `read_state` calls a read done when the row's last log entry passed and no read came after that entry's end, comparing the `time` in `test_reads.csv` with the log's `end`. Both use the same format. It no longer compares the number of log rows with the number of reads: a read killed with its runner, or a stray read through `make`, leaves a read with no log row, so the row stayed spent, incomplete for good after a rerun passed. `n_reads` goes, nothing else calls it.
+# - `tools/run_order.py`: `pending` yields a read row that is not done even when an earlier attempt passed, so `go` stops on it. Before this, a rerun that failed after an earlier pass let `next` walk on and spend the next read.
+# - `tools/run_order.py`: the stale lock line flushes, so a killed runner cannot lose it.
+# - `tests/test_run_order.py`: fake reads write the same time format as `load_split`, because a raw number sorts before any date and would pass the new comparison whatever the order. New tests: a stray read then a passing rerun ends done with no further read; a rerun that fails after an earlier pass stops `next` and runs nothing after it; a read later than the last passing entry is spent, incomplete even with its ledger row in place.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Fail if any generated file's prompt record is missing or differs from the prompt files."""
 import sys

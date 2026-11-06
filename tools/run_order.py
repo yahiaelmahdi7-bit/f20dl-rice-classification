@@ -139,6 +139,12 @@
 #
 # ## Fix 18 (harden before go, coverage review)
 # - Tests only, no code change, for real-run lines no smoke row reaches: the CNN stops after `patience` bad epochs and returns the best epoch's weights; `predict.py` takes the cnn route when only the image side clears its floor, and exits 2 with no argument and on an unreadable image; `--rescore` reports a model it cannot score; the row 7 check names each stage whose control failed.
+#
+# ## Fix 19 (harden before go, fault drills)
+# - `tools/run_order.py`: `read_state` calls a read done when the row's last log entry passed and no read came after that entry's end, comparing the `time` in `test_reads.csv` with the log's `end`. Both use the same format. It no longer compares the number of log rows with the number of reads: a read killed with its runner, or a stray read through `make`, leaves a read with no log row, so the row stayed spent, incomplete for good after a rerun passed. `n_reads` goes, nothing else calls it.
+# - `tools/run_order.py`: `pending` yields a read row that is not done even when an earlier attempt passed, so `go` stops on it. Before this, a rerun that failed after an earlier pass let `next` walk on and spend the next read.
+# - `tools/run_order.py`: the stale lock line flushes, so a killed runner cannot lose it.
+# - `tests/test_run_order.py`: fake reads write the same time format as `load_split`, because a raw number sorts before any date and would pass the new comparison whatever the order. New tests: a stray read then a passing rerun ends done with no further read; a rerun that fails after an earlier pass stops `next` and runs nothing after it; a read later than the last passing entry is spent, incomplete even with its ledger row in place.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Run the post-go order of handoff 5.2 from one list, with a check per row, a log, a lock and a code lock. No stage logic lives here."""
 import argparse, csv, glob, hashlib, io, json, os, shutil, subprocess, sys, time
@@ -277,10 +283,6 @@ def reads():
     return pd.read_csv(p, dtype=str) if p.exists() else pd.DataFrame(columns=READ_KEY)
 
 
-def n_reads(caller):
-    return int((reads().caller == caller).sum())
-
-
 def ledger():
     p = C.RES / "test_reads_disclosed.csv"
     return pd.read_csv(p, dtype=str) if p.exists() else pd.DataFrame(columns=LEDGER_COLS)
@@ -321,10 +323,11 @@ def append_log(entry):
 def read_state(row, entries):
     """'' for a row with no read, 'unspent', 'done' or 'spent, incomplete', from test_reads.csv alone for whether a read happened."""
     if not row.read: return ""
-    n = n_reads(row.read)
-    if n == 0: return "unspent"
+    r = reads()
+    t = r[r.caller == row.read].time
+    if t.empty: return "unspent"
     mine = [e for e in entries if e["row"] == row.steps[0][0]]
-    return "done" if mine and passed(mine[-1]) and len(mine) >= n else "spent, incomplete"
+    return "done" if mine and passed(mine[-1]) and t.iloc[-1] <= mine[-1]["end"] else "spent, incomplete"      # same time format in both files
 
 
 def extra_reads():
@@ -352,7 +355,7 @@ def acquire_lock():
         pids = [int(x) for x in p.read_text().split() if x.isdigit()]
         live = [i for i in pids if i != os.getpid() and running(i)]
         if live: raise Stop(f"another runner holds {p} (pid {live[0]})")
-        print(f"cleared a stale lock (pid {pids}, not running)")
+        print(f"cleared a stale lock (pid {pids}, not running)", flush=True)
     p.write_text(str(os.getpid()))
     return p
 
@@ -462,7 +465,7 @@ def pending(R, entries, wedge):
         state = read_state(row, entries)
         if state == "done": continue
         for sub, argv in row.steps:
-            if sub not in done or state == "unspent": yield row, sub, argv
+            if sub not in done or state: yield row, sub, argv      # a read row that is not done stays pending, even after an earlier pass
 
 
 def go(R, a, limit=None, one=False):

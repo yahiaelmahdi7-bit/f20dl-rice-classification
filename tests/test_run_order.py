@@ -149,7 +149,7 @@
 # - `tests/test_run_order.py`: row 4 reads the full-size epoch; a clean read leaves an empty ledger; a kill between a rerun's read and its ledger row recovers through `rerun-read`; every row from 5 on is locked and the reads run under `caffeinate`; a check that raises is logged as a failure; a stage left by a killed runner keeps the lock; smoke skips power and disk.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """tools/run_order.py driven by a fake row list with planted failures. Commands are `python -c` one-liners; no stage runs."""
-import importlib.util, json, os, subprocess, sys
+import importlib.util, json, os, subprocess, sys, time
 from pathlib import Path
 import pandas as pd, pytest
 
@@ -315,7 +315,7 @@ def test_smoke_start_checks_skip_power_and_disk(env, monkeypatch):
 def read_cmd(env, ok=True):
     """Appends one read to test_reads.csv (a new caller's first read, or a further one), as load_split does."""
     code = (f"import os; p={str(C.TEST_READS)!r}; new=not os.path.exists(p); f=open(p,'a'); "
-            f"new and f.write('caller,time,frozen_hash\\n'); import time; f.write('07_compare.py,%s,h\\n' % time.time()); f.close()")
+            f"new and f.write('caller,time,frozen_hash\\n'); import time; f.write('07_compare.py,%s,h\\n' % time.strftime('%Y-%m-%dT%H:%M:%S')); f.close()")
     return py(code)
 
 
@@ -382,6 +382,51 @@ def test_a_kill_between_a_rerun_and_its_ledger_row_recovers_through_rerun_read(e
     d = pd.read_csv(env / "res" / "test_reads_disclosed.csv", dtype=str)
     assert len(d) == 2 and set(d.reason) == {"killed during a rerun"} and d.time.iloc[0] == "t2"
     assert RO.main(["next", "--spend-read"]) == 0 and len(C.TEST_READS.read_text().splitlines()) == 4
+
+
+def add_read(when):
+    with open(C.TEST_READS, "a") as f: f.write(f"07_compare.py,{when},h\n")
+
+
+def test_a_stray_read_then_a_passing_rerun_ends_done_with_no_further_read(env, monkeypatch, capsys):
+    (env / "res" / "out.csv").write_text("x")
+    rows(monkeypatch, [read_row(env)])
+    assert RO.main(["next", "--spend-read"]) == 0
+    add_read(time.strftime("%Y-%m-%dT%H:%M:%S"))                                   # a read outside the runner has no log row
+    assert RO.main(["next", "--spend-read"]) == 1 and "disagree" in capsys.readouterr().err
+    assert RO.main(["rerun-read", "12", "--reason", "stray read"]) == 0
+    assert len(C.TEST_READS.read_text().splitlines()) == 4
+    capsys.readouterr()
+    RO.main(["status"])
+    assert "done" in capsys.readouterr().out.splitlines()[-1]
+    assert RO.main(["next", "--spend-read"]) == 0 and len(C.TEST_READS.read_text().splitlines()) == 4
+
+
+def test_a_rerun_that_fails_after_a_pass_stops_next_and_runs_nothing_after_it(env, monkeypatch, capsys):
+    out = env / "res" / "out.csv"
+    out.write_text("x")
+    rows(monkeypatch, [read_row(env), RO.Row("B", "b", [("B", touch(env, "b"))], lambda s: "")])
+    assert RO.main(["next", "--spend-read"]) == 0
+    out.unlink()
+    assert RO.main(["rerun-read", "12", "--reason", "second look"]) == 1
+    capsys.readouterr()
+    RO.main(["status"])
+    assert "read 12: spent, incomplete" in capsys.readouterr().out
+    assert RO.main(["next", "--spend-read"]) == 1 and "rerun-read 12" in capsys.readouterr().err
+    assert runs(env, "b") == 0 and len(C.TEST_READS.read_text().splitlines()) == 3
+
+
+def test_a_read_later_than_the_last_pass_is_incomplete_even_when_disclosed(env, monkeypatch, capsys):
+    (env / "res" / "out.csv").write_text("x")
+    rows(monkeypatch, [read_row(env)])
+    assert RO.main(["next", "--spend-read"]) == 0
+    later = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time() + 3600))
+    add_read(later)                                                                # killed after the ledger row, before the log row
+    with open(env / "res" / "test_reads_disclosed.csv", "a") as f: f.write(f"07_compare.py,{later},h,killed\n")
+    capsys.readouterr()
+    RO.main(["status"])
+    assert "read 12: spent, incomplete" in capsys.readouterr().out
+    assert RO.main(["next", "--spend-read"]) == 1 and "rerun-read 12" in capsys.readouterr().err
 
 
 def test_rerun_read_is_refused_for_an_unspent_read(env, monkeypatch, capsys):
