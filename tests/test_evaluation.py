@@ -37,6 +37,8 @@
 # - Keep comments short and factual, stating what a block does. No invented numbers: every value in an output comes from a computation in this run.
 #
 # **Fix prompt, wording correction (no code or data change).** This corrects the text above and the stage prompts; the original lines stay as the record. The 15 `ALLdaub4*` columns are not exact copies. Each is highly correlated with its mean column, Pearson 0.99997 to 0.999999, at about half its value, and none is identical (`results/eda/copy_columns.csv`). Read "copies" as "near-duplicates", and `distinct91` as `all106` minus those 15 near-duplicates. The Jasmine late lot is not "same shape": against early Jasmine, median length is x1.35, width x1.32, area x1.81 and tint x2.64, and `EXTENT` is x1.15 and not uniform across the lot (`results/eda/jasmine_lots.csv`). No cause is stated. Overall test accuracy does not measure this shift, because late grains are spread across all three splits; the late-lot holdout does.
+#
+# **Fix prompt, smoke sentence (harden before go).** This replaces the smoke bullet above; the original line stays as the record. Smoke mode (`RICE_SMOKE=1`) uses a stratified slice of train and validation grains only, 1 epoch and small grids, skips the global asserts, and writes to `results/smoke/`, `figures/smoke/`, `models/smoke/` and `data/derived/smoke/`. It drives the real test gate: a smoke `test` read needs a permitted caller and the frozen hash, and is logged to `results/smoke/test_reads.csv`. Smoke's `test` split is its own slice split. What stays different: slice size, epochs and grids; the shuffled-label band prints instead of stopping; the overfit verdict is not judged.
 # --- prompts/BUILD.md ---
 # # Build instructions (this file is the prompt given to the build agent)
 #
@@ -270,7 +272,7 @@ def test_only_holdout_rows_cover_every_late_grain():
 @pytest.fixture
 def fz(env, monkeypatch):
     f = load("tools/freeze.py")
-    for n, d in (("RES", "results"), ("MODELS", "models")):
+    for n, d in (("RES", "results"), ("MODELS", "models"), ("DEFAULT_MODELS", "models")):
         (env / d).mkdir(exist_ok=True)
         monkeypatch.setattr(C, n, env / d)
     monkeypatch.setattr(C, "ROOT", env)
@@ -306,9 +308,11 @@ def test_freeze_refuses_a_control_with_a_row_missing(fz):
     assert fz.main() == 1 and not C.FROZEN.exists()
 
 
-def test_freeze_skips_controls_in_smoke(fz, monkeypatch, capsys):
+def test_freeze_checks_controls_in_smoke_too(fz, monkeypatch):
     monkeypatch.setattr(C, "SMOKE", True)
-    assert fz.main() == 0 and "controls not checked" in capsys.readouterr().out
+    assert fz.main() == 1 and not C.FROZEN.exists()
+    controls()
+    assert fz.main() == 0 and C.FROZEN.exists()
 
 
 def rows_for(y, conf=0.9):
@@ -737,15 +741,6 @@ def test_a_log_with_no_rows_does_not_stop_a_freeze(fz, text):
     assert fz.main() == 0 and C.FROZEN.exists()
 
 
-def test_smoke_freezes_beside_a_real_log_and_leaves_the_real_file(fz, monkeypatch):
-    controls()
-    assert fz.main() == 0
-    before = C.FROZEN.read_bytes()
-    logged()
-    monkeypatch.setattr(C, "SMOKE", True)
-    assert fz.main() == 0 and (C.RES / "frozen.json").exists() and C.FROZEN.read_bytes() == before
-
-
 @pytest.fixture
 def rd(fz, monkeypatch):
     """A clean freeze that a real read can reach, on two made-up grains. Every path is under tmp_path."""
@@ -801,10 +796,12 @@ def test_the_per_batch_gate_hashes_nothing(rd, monkeypatch):
     assert run_as("src/07_compare.py", "import common as C\nout = C._gate()")["out"][1] == frozen()["hash"]
 
 
-def test_a_smoke_read_checks_nothing(rd, monkeypatch):
+def test_a_smoke_read_goes_through_the_gate_and_the_log(rd, monkeypatch):
     monkeypatch.setattr(C, "SMOKE", True)
-    monkeypatch.setattr(C, "digest", lambda p: pytest.fail("smoke hashed a file"))
-    assert list(C.load_split("test").grain_id) == ["a"] and not C.TEST_READS.exists()
+    with pytest.raises(PermissionError):
+        run_as("src/02_eda.py")
+    assert not C.TEST_READS.exists()
+    assert list(run_as("src/07_compare.py")["out"].grain_id) == ["b"] and len(pd.read_csv(C.TEST_READS)) == 1
 
 
 def stage9_ready(s, monkeypatch, base=0.2, neural=("cnn", "mlp"), write=True):
@@ -824,11 +821,12 @@ def test_stage9_train_stops_on_the_controls_before_any_fit(env, monkeypatch, kw,
     assert "cannot train hold-out, controls" in msg and word in msg
 
 
-def test_stage9_controls_pass_when_clean_and_smoke_reads_none(env, monkeypatch):
+def test_stage9_controls_pass_when_clean_and_smoke_checks_them_too(env, monkeypatch):
     s = load("src/09_robustness.py")
     stage9_ready(s, monkeypatch)
     assert s.controls_stand() is None
-    (C.RES / "baselines" / "control.csv").unlink()
     monkeypatch.setattr(C, "SMOKE", True)
-    monkeypatch.setattr(s, "_load", lambda *a: pytest.fail("smoke loaded freeze"))
     assert s.controls_stand() is None
+    (C.RES / "baselines" / "control.csv").unlink()
+    with pytest.raises(SystemExit, match="cannot train hold-out, controls"):
+        s.controls_stand()

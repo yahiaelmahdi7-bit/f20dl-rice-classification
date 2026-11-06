@@ -37,6 +37,8 @@
 # - Keep comments short and factual, stating what a block does. No invented numbers: every value in an output comes from a computation in this run.
 #
 # **Fix prompt, wording correction (no code or data change).** This corrects the text above and the stage prompts; the original lines stay as the record. The 15 `ALLdaub4*` columns are not exact copies. Each is highly correlated with its mean column, Pearson 0.99997 to 0.999999, at about half its value, and none is identical (`results/eda/copy_columns.csv`). Read "copies" as "near-duplicates", and `distinct91` as `all106` minus those 15 near-duplicates. The Jasmine late lot is not "same shape": against early Jasmine, median length is x1.35, width x1.32, area x1.81 and tint x2.64, and `EXTENT` is x1.15 and not uniform across the lot (`results/eda/jasmine_lots.csv`). No cause is stated. Overall test accuracy does not measure this shift, because late grains are spread across all three splits; the late-lot holdout does.
+#
+# **Fix prompt, smoke sentence (harden before go).** This replaces the smoke bullet above; the original line stays as the record. Smoke mode (`RICE_SMOKE=1`) uses a stratified slice of train and validation grains only, 1 epoch and small grids, skips the global asserts, and writes to `results/smoke/`, `figures/smoke/`, `models/smoke/` and `data/derived/smoke/`. It drives the real test gate: a smoke `test` read needs a permitted caller and the frozen hash, and is logged to `results/smoke/test_reads.csv`. Smoke's `test` split is its own slice split. What stays different: slice size, epochs and grids; the shuffled-label band prints instead of stopping; the overfit verdict is not judged.
 # --- prompts/10-predict.md ---
 # # Stage 10
 #

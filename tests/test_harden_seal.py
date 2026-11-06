@@ -37,6 +37,8 @@
 # - Keep comments short and factual, stating what a block does. No invented numbers: every value in an output comes from a computation in this run.
 #
 # **Fix prompt, wording correction (no code or data change).** This corrects the text above and the stage prompts; the original lines stay as the record. The 15 `ALLdaub4*` columns are not exact copies. Each is highly correlated with its mean column, Pearson 0.99997 to 0.999999, at about half its value, and none is identical (`results/eda/copy_columns.csv`). Read "copies" as "near-duplicates", and `distinct91` as `all106` minus those 15 near-duplicates. The Jasmine late lot is not "same shape": against early Jasmine, median length is x1.35, width x1.32, area x1.81 and tint x2.64, and `EXTENT` is x1.15 and not uniform across the lot (`results/eda/jasmine_lots.csv`). No cause is stated. Overall test accuracy does not measure this shift, because late grains are spread across all three splits; the late-lot holdout does.
+#
+# **Fix prompt, smoke sentence (harden before go).** This replaces the smoke bullet above; the original line stays as the record. Smoke mode (`RICE_SMOKE=1`) uses a stratified slice of train and validation grains only, 1 epoch and small grids, skips the global asserts, and writes to `results/smoke/`, `figures/smoke/`, `models/smoke/` and `data/derived/smoke/`. It drives the real test gate: a smoke `test` read needs a permitted caller and the frozen hash, and is logged to `results/smoke/test_reads.csv`. Smoke's `test` split is its own slice split. What stays different: slice size, epochs and grids; the shuffled-label band prints instead of stopping; the overfit verdict is not judged.
 # --- prompts/BUILD.md ---
 # # Build instructions (this file is the prompt given to the build agent)
 #
@@ -124,6 +126,10 @@
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
 import importlib
+import json
+import os
+import subprocess
+import sys
 import pandas as pd
 import pytest
 import common as C
@@ -175,3 +181,44 @@ def test_main_restricts_the_pool_before_it_slices():
     c = main_calls()
     assert c["sealed_pool"] < min(v for k, v in c.items() if k.endswith(".sample"))
     assert c["check_slice_classes"] < min(v for k, v in c.items() if k.endswith(".to_csv"))
+
+
+def paths(smoke):
+    """FROZEN, TEST_READS, MODELS and DEFAULT_MODELS as a fresh process sees them."""
+    env = {k: v for k, v in os.environ.items() if k not in ("RICE_SMOKE", "RICE_MODELS_DIR")} | ({"RICE_SMOKE": "1"} if smoke else {})
+    code = "import sys; sys.path.insert(0, 'src'); import common as C; print([str(p) for p in (C.FROZEN, C.TEST_READS, C.MODELS, C.DEFAULT_MODELS)])"
+    out = subprocess.run([sys.executable, "-c", code], cwd=ROOT, env=env, capture_output=True, text=True, check=True).stdout
+    return [p.replace(str(ROOT) + "/", "") for p in ast.literal_eval(out)]
+
+
+def test_real_mode_keeps_todays_exact_paths():
+    assert paths(False) == ["results/frozen.json", "results/test_reads.csv", "models", "models"]
+
+
+def test_smoke_freeze_file_log_and_models_sit_in_smoke_folders():
+    assert paths(True) == ["results/smoke/frozen.json", "results/smoke/test_reads.csv", "models/smoke", "models/smoke"]
+
+
+def test_a_smoke_read_writes_only_inside_the_smoke_folders(tmp_path, monkeypatch):
+    smoke = tmp_path / "results" / "smoke"
+    smoke.mkdir(parents=True)
+    pd.DataFrame({"grain_id": ["a", "b"], "y": [0, 1], "split": ["val", "test"]}).to_parquet(tmp_path / "grains.parquet")
+    (smoke / "frozen.json").write_text(json.dumps({"hash": "h"}))
+    for n, v in (("SMOKE", True), ("ROOT", tmp_path), ("DERIVED", tmp_path), ("FROZEN", smoke / "frozen.json"), ("TEST_READS", smoke / "test_reads.csv"),
+                 ("MODELS", tmp_path / "models" / "smoke"), ("DEFAULT_MODELS", tmp_path / "models" / "smoke")):
+        monkeypatch.setattr(C, n, v)
+    from conftest import run_as
+    assert list(run_as("src/07_compare.py")["out"].grain_id) == ["b"]
+    made = sorted(str(p.relative_to(tmp_path)) for p in tmp_path.rglob("*") if p.is_file())
+    assert made == ["grains.parquet", "results/smoke/frozen.json", "results/smoke/test_reads.csv"]
+
+
+def test_a_smoke_read_by_an_unlisted_caller_is_refused_and_logs_nothing(tmp_path, monkeypatch):
+    pd.DataFrame({"grain_id": ["b"], "y": [1], "split": ["test"]}).to_parquet(tmp_path / "grains.parquet")
+    (tmp_path / "frozen.json").write_text(json.dumps({"hash": "h"}))
+    for n, v in (("SMOKE", True), ("DERIVED", tmp_path), ("FROZEN", tmp_path / "frozen.json"), ("TEST_READS", tmp_path / "test_reads.csv")):
+        monkeypatch.setattr(C, n, v)
+    from conftest import run_as
+    with pytest.raises(PermissionError):
+        run_as("src/02_eda.py")
+    assert not (tmp_path / "test_reads.csv").exists()

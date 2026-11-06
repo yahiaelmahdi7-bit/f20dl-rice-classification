@@ -45,3 +45,11 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 - `tools/freeze.py`: once `test_reads.csv` holds a read, freeze refuses and leaves `frozen.json` as it is, because later reads need the hash they were logged under. Any other stop, a crash included, first removes the older `frozen.json`, so a refused freeze shuts the gate. A models folder moved by `RICE_MODELS_DIR` is refused.
 - `common.py`: `digest` hashes a file for freeze and the read alike. `_unchanged` runs in `load_split` after `_gate` and before the log row, and refuses a redirected models folder or a hashed file that has changed or gone, so no read is logged under a hash its files no longer match. It sits outside `_gate` because `_gate` also runs per image batch.
 - `Makefile`: `holdout-train` moves before `freeze` in `all`, and `09_robustness.py --train` before `tools/freeze.py` in `smoke`, because freeze now hashes the hold-out files.
+
+## Fix 9 (harden before go)
+- `common.py`: `FROZEN` and `TEST_READS` become `RES / "frozen.json"` and `RES / "test_reads.csv"`. In a real run `RES` is `results/`, so both paths are unchanged. New `DEFAULT_MODELS = ROOT / "models" / _s`, used by `MODELS`, `_unchanged` and `tools/freeze.py`, so smoke's own folder passes the models check and `RICE_MODELS_DIR` is still refused.
+- `common.py`: `load_split("test")` and `read_images` lose their smoke branches. Smoke now goes through the real gate, the frozen-hash check and the read log, all inside the smoke folders. Smoke's `test` is its own slice split, which holds no real test grain after stage 1's sealed slice.
+- `tools/freeze.py`: `main` writes `C.FROZEN`; `has_reads` and the models check lose their smoke exemptions; the "controls not checked" smoke skip goes, so smoke freeze checks the controls like a real run.
+- Comment in `common.py` listing what stays different in smoke: slice size, epochs and grids; the shuffled-label band prints instead of stopping; the overfit verdict is not judged.
+- `Makefile`: `smoke` gains `06_neural.py --overfit-test`, `05_baselines.py --control` and `06_neural.py --control`, so the control check in freeze and in `--train` has files to read.
+- `tests/test_harden_seal.py`: real mode gives today's exact paths; under `RICE_SMOKE=1` `FROZEN`, `TEST_READS` and `MODELS` sit in smoke folders; a smoke read creates nothing outside them.

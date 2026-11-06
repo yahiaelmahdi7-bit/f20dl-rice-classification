@@ -37,6 +37,8 @@
 # - Keep comments short and factual, stating what a block does. No invented numbers: every value in an output comes from a computation in this run.
 #
 # **Fix prompt, wording correction (no code or data change).** This corrects the text above and the stage prompts; the original lines stay as the record. The 15 `ALLdaub4*` columns are not exact copies. Each is highly correlated with its mean column, Pearson 0.99997 to 0.999999, at about half its value, and none is identical (`results/eda/copy_columns.csv`). Read "copies" as "near-duplicates", and `distinct91` as `all106` minus those 15 near-duplicates. The Jasmine late lot is not "same shape": against early Jasmine, median length is x1.35, width x1.32, area x1.81 and tint x2.64, and `EXTENT` is x1.15 and not uniform across the lot (`results/eda/jasmine_lots.csv`). No cause is stated. Overall test accuracy does not measure this shift, because late grains are spread across all three splits; the late-lot holdout does.
+#
+# **Fix prompt, smoke sentence (harden before go).** This replaces the smoke bullet above; the original line stays as the record. Smoke mode (`RICE_SMOKE=1`) uses a stratified slice of train and validation grains only, 1 epoch and small grids, skips the global asserts, and writes to `results/smoke/`, `figures/smoke/`, `models/smoke/` and `data/derived/smoke/`. It drives the real test gate: a smoke `test` read needs a permitted caller and the frozen hash, and is logged to `results/smoke/test_reads.csv`. Smoke's `test` split is its own slice split. What stays different: slice size, epochs and grids; the shuffled-label band prints instead of stopping; the overfit verdict is not judged.
 # --- prompts/09-robustness.md ---
 # # Stage 9
 #
@@ -77,6 +79,9 @@
 # ## Fix 8
 # - `controls_stand` runs freeze's control check at the start of `--train`. Hold-out training now comes before freeze, so a run that skipped `make controls` would spend 1.98 h before freeze refused. Smoke skips it, as freeze does, because smoke runs no `--control`.
 # - `_load` takes a folder, so stage 9 can load `tools/freeze.py` without running it.
+#
+# ## Fix 9 (harden before go)
+# - `controls_stand` loses its smoke skip. Smoke now runs `--control` for stages 5 and 6, so the same check runs there as in a real run.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 9: late-lot robustness. --train fits hold-out models without the late lot; --score reads the test split once."""
 import argparse, importlib.util, json
@@ -228,8 +233,7 @@ def fit_tables(B, jobs, params, hd):
 
 
 def controls_stand():
-    """Hold-out training costs 1.98 h and freeze would refuse a failed control after it, so the same check runs first. Smoke runs no --control, as in freeze."""
-    if C.SMOKE: return
+    """Hold-out training costs 1.98 h and freeze would refuse a failed control after it, so the same check runs first. """
     bad = _load("freeze.py", SRC.parent / "tools").control_faults()
     if bad: raise SystemExit("cannot train hold-out, controls:\n  " + "\n  ".join(bad))
 

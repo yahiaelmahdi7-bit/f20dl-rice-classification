@@ -37,3 +37,6 @@ A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` 
 ## Fix 8
 - `controls_stand` runs freeze's control check at the start of `--train`. Hold-out training now comes before freeze, so a run that skipped `make controls` would spend 1.98 h before freeze refused. Smoke skips it, as freeze does, because smoke runs no `--control`.
 - `_load` takes a folder, so stage 9 can load `tools/freeze.py` without running it.
+
+## Fix 9 (harden before go)
+- `controls_stand` loses its smoke skip. Smoke now runs `--control` for stages 5 and 6, so the same check runs there as in a real run.
