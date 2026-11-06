@@ -161,8 +161,11 @@ smoke: get-data  ## every stage 0-10 and report on a 2,000-grain slice
 	$(SM) $(PY) src/03_features.py
 	$(SM) $(PY) src/02_eda.py
 	$(SM) $(PY) src/04_cluster.py
+	$(SM) $(PY) src/06_neural.py --overfit-test
 	$(SM) $(PY) src/05_baselines.py
 	$(SM) $(PY) src/06_neural.py
+	$(SM) $(PY) src/05_baselines.py --control
+	$(SM) $(PY) src/06_neural.py --control
 	$(SM) $(PY) src/07_compare.py --split val
 	$(SM) $(PY) src/08_routing.py --fit
 	$(SM) $(PY) src/09_robustness.py --train

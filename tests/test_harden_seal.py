@@ -222,3 +222,21 @@ def test_a_smoke_read_by_an_unlisted_caller_is_refused_and_logs_nothing(tmp_path
     with pytest.raises(PermissionError):
         run_as("src/02_eda.py")
     assert not (tmp_path / "test_reads.csv").exists()
+
+
+def smoke_lines():
+    text = (ROOT / "Makefile").read_text()
+    body = text.split("\nsmoke:", 1)[1].split("\n\n", 1)[0].splitlines()[1:]
+    return [l.strip().replace("$(SM) $(PY) ", "") for l in body if l.startswith("\t")]
+
+
+def test_smoke_runs_overfit_and_both_controls_before_freeze():
+    L = smoke_lines()
+    need = ["src/06_neural.py --overfit-test", "src/05_baselines.py", "src/06_neural.py", "src/05_baselines.py --control", "src/06_neural.py --control", "tools/freeze.py"]
+    at = [L.index(n) for n in need]
+    assert at == sorted(at) and L.index("src/06_neural.py --overfit-test") < L.index("src/05_baselines.py")
+
+
+def test_smoke_runs_each_stage_once_and_stage_3_before_2():
+    L = smoke_lines()
+    assert len(L) == len(set(L)) and L.index("src/03_features.py") < L.index("src/02_eda.py")
