@@ -35,6 +35,8 @@
 # - Smoke mode: env `RICE_SMOKE=1`. Uses a stratified 2,000-grain slice, 1 epoch, small grids, skips global asserts, lets validation stand in for test with no frozen hash or read log, and writes to `results/smoke/` and `figures/smoke/`.
 # - Every script is rerunnable and overwrites only its own outputs. Raw data is never modified.
 # - Keep comments short and factual, stating what a block does. No invented numbers: every value in an output comes from a computation in this run.
+#
+# **Fix prompt, wording correction (no code or data change).** This corrects the text above and the stage prompts; the original lines stay as the record. The 15 `ALLdaub4*` columns are not exact copies. Each is highly correlated with its mean column, Pearson 0.99997 to 0.999999, at about half its value, and none is identical (`results/eda/copy_columns.csv`). Read "copies" as "near-duplicates", and `distinct91` as `all106` minus those 15 near-duplicates. The Jasmine late lot is not "same shape": against early Jasmine, median length is x1.35, width x1.32, area x1.81 and tint x2.64, and `EXTENT` is x1.15 and not uniform across the lot (`results/eda/jasmine_lots.csv`). No cause is stated. Overall test accuracy does not measure this shift, because late grains are spread across all three splits; the late-lot holdout does.
 # --- prompts/BUILD.md ---
 # # Build instructions (this file is the prompt given to the build agent)
 #
