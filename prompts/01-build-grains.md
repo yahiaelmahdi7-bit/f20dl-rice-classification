@@ -20,3 +20,7 @@ Write `results/quality/cleaning_log.csv`, one row per check: `check, scope, rows
 ## Fix 3
 - Safe writes. `data/derived/grains.parquet` and the image memmap are written to `.tmp` names in the same folder. Only when both are complete is the memmap renamed into place, then the parquet. A crash before that leaves both old files untouched, and a new parquet is never beside an old memmap. The measures cache (`measures.parquet`) is written the same way. File contents are unchanged.
 - `--subset N` without `RICE_SMOKE=1` exits before writing anything. Outside smoke mode it would overwrite the committed `data/splits.csv` and the full-size derived files with a subset.
+
+## Fix 9
+- `--subset N` slices only from images whose id (`cls-file_no`) sits in `train` or `val` of the committed `data/splits.csv`. An allow-list, not a block-list: `splits.csv` holds 74,703 of 75,000 grains, and a grain dropped as a duplicate can be the twin of a test grain, so blocking test ids alone would not seal the slice. The slice fraction is taken from the allowed pool, so the slice keeps N images. Reason: the old slice held 298 real test grains (`results/smoke_overlap.csv`).
+- After the slice is split, stage 1 stops if any class lacks grains in the slice's train, val or test, so the smaller pool cannot silently lose one. The `full` path is not touched.

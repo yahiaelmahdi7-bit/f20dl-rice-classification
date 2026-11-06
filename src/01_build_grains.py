@@ -60,6 +60,10 @@
 # ## Fix 3
 # - Safe writes. `data/derived/grains.parquet` and the image memmap are written to `.tmp` names in the same folder. Only when both are complete is the memmap renamed into place, then the parquet. A crash before that leaves both old files untouched, and a new parquet is never beside an old memmap. The measures cache (`measures.parquet`) is written the same way. File contents are unchanged.
 # - `--subset N` without `RICE_SMOKE=1` exits before writing anything. Outside smoke mode it would overwrite the committed `data/splits.csv` and the full-size derived files with a subset.
+#
+# ## Fix 9
+# - `--subset N` slices only from images whose id (`cls-file_no`) sits in `train` or `val` of the committed `data/splits.csv`. An allow-list, not a block-list: `splits.csv` holds 74,703 of 75,000 grains, and a grain dropped as a duplicate can be the twin of a test grain, so blocking test ids alone would not seal the slice. The slice fraction is taken from the allowed pool, so the slice keeps N images. Reason: the old slice held 298 real test grains (`results/smoke_overlap.csv`).
+# - After the slice is split, stage 1 stops if any class lacks grains in the slice's train, val or test, so the smaller pool cannot silently lose one. The `full` path is not touched.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 1: measure images, link them one-to-one to table rows, drop duplicates, split, cache images."""
 import argparse, glob, os, re, sys
@@ -116,6 +120,7 @@ def list_images():
     d = pd.DataFrame({"path": ps})
     d["cls"] = d.path.map(lambda p: os.path.basename(os.path.dirname(p)))
     d["file_no"] = d.path.str.extract(r"\((\d+)\)\.jpg$")[0].astype(int)
+    d["gid"] = d.cls + "-" + d.file_no.astype(str)
     d["lot"] = np.where((d.cls == "Jasmine") & (d.file_no >= C.LATE_FROM), "late", "main")
     return d
 
@@ -139,6 +144,23 @@ def require_smoke_for_subset(full, smoke):
     """--subset outside smoke mode would overwrite data/splits.csv and the full-size derived files."""
     if not full and not smoke:
         raise SystemExit("--subset needs RICE_SMOKE=1: otherwise it would overwrite data/splits.csv and the full derived files")
+
+
+def allowed_ids(splits):
+    """Ids in train or val of the committed splits. An allow-list: splits.csv lacks the duplicates stage 1 dropped, and one can be the twin of a test grain."""
+    return set(splits.loc[splits["split"].isin(["train", "val"]), "grain_id"])
+
+
+def sealed_pool(imgs, ok):
+    """Images whose id (cls-file_no) is in the allowed set."""
+    return imgs[imgs["gid"].isin(ok)]
+
+
+def check_slice_classes(g):
+    """Every class must have grains in the slice's train, val and test."""
+    have = set(zip(g["class"], g["split"]))
+    miss = [(c, s) for c in C.CLASSES for s in ("train", "val", "test") if (c, s) not in have]
+    if miss: raise SystemExit(f"slice has no grains for {miss}")
 
 
 def atomic_parquet(df, path):
@@ -272,6 +294,7 @@ def main():
     imgs = list_images()
     print(f"table {msc.shape}, images {len(imgs)}")
     if not full:
+        imgs = sealed_pool(imgs, allowed_ids(pd.read_csv(C.ROOT / "data" / "splits.csv")))
         imgs = imgs.groupby(["cls", "lot"], group_keys=False).sample(frac=a.subset / len(imgs), random_state=C.SEED)
         imgs = imgs.sort_values("path").reset_index(drop=True)
     else:
@@ -306,6 +329,7 @@ def main():
     if full:
         assert (n_links, drops, len(g), n_late) == (75000, 297, 74703, 3283), "stage 1 asserts failed"
     g["split"] = make_splits(g)
+    if not full: check_slice_classes(g)
     sp = g[["grain_id", "class", "lot", "file_no", "msc_row", "split"]]
     if C.SPLITS.exists() and full:
         old = pd.read_csv(C.SPLITS)
