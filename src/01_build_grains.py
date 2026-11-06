@@ -294,7 +294,8 @@ def main():
     imgs = list_images()
     print(f"table {msc.shape}, images {len(imgs)}")
     if not full:
-        imgs = sealed_pool(imgs, allowed_ids(pd.read_csv(C.ROOT / "data" / "splits.csv")))
+        ok = allowed_ids(pd.read_csv(C.ROOT / "data" / "splits.csv"))
+        imgs = sealed_pool(imgs, ok)
         imgs = imgs.groupby(["cls", "lot"], group_keys=False).sample(frac=a.subset / len(imgs), random_state=C.SEED)
         imgs = imgs.sort_values("path").reset_index(drop=True)
     else:
