@@ -106,6 +106,15 @@
 #
 # ## Fix 12 (harden before go, D8)
 # - `common.py`: `ARTEFACTS` lists `results/DISCLOSURES.csv`, written by `report.py`, columns `item what evidence_file`.
+#
+# ## Fix 13 (harden before go, C1 to C4)
+# - New `tools/run_order.py`: the order of handoff 5.2 as one list (rows 1 to 16, row 6 in sub-steps 6a MLP and 6b to 6d one CNN seed each, row 3 wedge off unless `--wedge`, new row 10a `07_compare.py --split val --rescore` before freeze, row 15 one `make predict` per `--images` path). Each row has an id, a name, its commands, a `read` caller for rows 12 to 14, and a check function. Commands are the Makefile targets; the runner holds the order and the checks and no stage logic. The smoke list has no row 1 (row 1 is `make smoke`), starts with its own slice rows for stages 0, 1, 3, 2, 4 in that order, then rows 2 to 16, with `make smoke-predict` for row 15. Subcommands: `status`, `next`, `through N`, `table`, `rerun-read N --reason`.
+# - Rules: stops at the first failed check; skips sub-steps logged as passed; rows 12 to 14 run only one at a time through `next --spend-read` and are never retried; `through N` stops before an unspent read row; long rows run under `caffeinate -i`. Start checks run once per invocation: AC power, at least 20 GiB free, the python exists, the raw zips match `data/raw/SHA256SUMS` (not in smoke).
+# - Safe state (C2a): a PID lockfile `run_order.lock` in `C.RES` stops a second runner and a lock left by a dead process is cleared and said so. `run_log.csv` columns `row command commit start end seconds exit_code check peak_memory_mb`, each row written in one append and fsynced; a row counts as passed only as a complete line with exit 0 and check `pass`; a torn line stops the runner. Whether a read is spent comes from `test_reads.csv` alone.
+# - After the log row (C2b): a read counts as spent when `test_reads.csv` grows. If the process dies or the check fails the runner stops, `status` shows `read N: spent, incomplete` and `next` refuses. `rerun-read N --reason` runs the same command again, copies every extra read missing from `test_reads_disclosed.csv` (columns `caller time frozen_hash reason`) into it, and logs the row. At every start the extra reads in `test_reads.csv` (every read after a caller's first) and the ledger rows must agree on caller, time and hash, or the runner stops.
+# - Code lock (C3): `code_lock.json` in `C.RES` records `C.code_digest` of `src/*.py` except `report.py`, plus `tools/freeze.py`, `tools/run_order.py` and the Makefile, at the first locked step (row 5 on). A later step refuses if the digest moved unless given `--code-changed REASON`, which is added to `changes` in the lock file and updates the digest.
+# - `results/run_log.csv` (C4) is tracked through `C.RES`. `common.ARTEFACTS` lists it, `test_reads_disclosed.csv` and `code_lock.json` with their writer and columns.
+# - `tests/test_run_order.py`: see `prompts/BUILD.md`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Fail if any generated file's prompt record is missing or differs from the prompt files."""
 import sys

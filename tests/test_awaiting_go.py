@@ -130,6 +130,9 @@
 #
 # ## Fix 6 (harden before go, D10)
 # - `tests/test_rescore.py`: stage 7 `--rescore` on made-up probabilities. Clean models and float noise pass; an infinite cell reaches the model as missing; a class flip at a clear margin is caught and a flip between a true near-tie is not; a model with no saved validation predictions is caught; a truncated joblib in the freeze parts list is caught; nothing is saved; `--rescore` with `--split test` is refused.
+#
+# ## Fix 7 (harden before go, C1 to C3)
+# - `tests/test_run_order.py`: `tools/run_order.py` driven by a fake row list of `python -c` commands with planted faults. It stops at the first failed check and resumes without repeating passed rows; a nonzero exit fails a row; a torn log line (short, or cut before its newline) stops the runner with nothing run; a second runner with a live lock is refused and a dead process's lock is cleared; a failed start check runs nothing; raw checksums catch a changed file and pass a clean one. Read rows need `--spend-read`, `through` stops before them, a spent read that fails its check is never retried and `status` shows `read 12: spent, incomplete`, a read left by a dead runner counts as spent, `rerun-read` needs a reason and a spent read, runs again and copies the extra read into the ledger, and the start refuses an extra read that is not in the ledger. The code lock records, refuses a changed file until given a reason, ignores `report.py` and a stamp block, and covers the Makefile. The real row list equals the handoff 5.2 list plus 10a, the smoke list has no row 1 and runs stage 3 before 2, the wedge row is off unless asked, row 15 without images stops, and `table` prints every row.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Tests that fit a model or need predictions. Written, not run, until training is approved."""
 import os, subprocess, sys
