@@ -133,6 +133,9 @@
 # - `tools/run_order.py`: power and disk are start checks of a real run only. A marker's `make smoke` is not refused on battery. The python check uses `shutil.which`, so `PY=python3` works.
 # - `tools/run_order.py`: the log and the table print the python as `$PY`, because `run_log.csv` is tracked and must hold no machine path. Row 15 with no images prints `make predict IMG=path, one per case`.
 # - `Makefile`: `all` depends on `get-data` and `data` again, because the real row list starts after stage 4. With `READS=yes` it ends on `through 16 --images "$(IMG)"`, so predict and report run.
+#
+# ## Fix 17 (harden before go, smoke row 16)
+# - `common.py`: `wilson` returns exactly 0 as the low end when `k == 0` and exactly 1 as the high end when `k == n`. The formula reaches those ends only up to rounding: the smoke run gave `3.47e-18` at `k = 0`, n = 88, which put the point outside its own interval and into a saved table.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Fail if any generated file's prompt record is missing or differs from the prompt files."""
 import sys

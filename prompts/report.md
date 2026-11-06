@@ -24,3 +24,6 @@ Write `src/report.py`, run by `make report`, reading only saved CSVs and predict
 - `DISCLOSURES`: the old smoke overlap row says the throwaway smoke models were fitted on those grains and scored them, and that no real model or choice used those models. The counts stay in `results/smoke_overlap.csv`.
 - `DISCLOSURES`: the shuffled-label row gives the measured reason: a simple model can give a whole tight class one shuffled label, so the stop is `C.CONTROL_CEILING`, not `C.CHANCE_BAND`. Both values come from `common.py`.
 - Every `evidence_file` is a path from the repo root.
+
+## Fix 9 (harden before go, smoke row 16)
+- `report.py`: `gaps(point, lo, hi)` returns the two error-bar lengths, each floored at 0. Both interval figures use it, for drawing only, so the saved tables keep their values. A bootstrap percentile interval can miss its point, and a bar length cannot be negative.

@@ -66,6 +66,9 @@
 # - `DISCLOSURES`: the old smoke overlap row says the throwaway smoke models were fitted on those grains and scored them, and that no real model or choice used those models. The counts stay in `results/smoke_overlap.csv`.
 # - `DISCLOSURES`: the shuffled-label row gives the measured reason: a simple model can give a whole tight class one shuffled label, so the stop is `C.CONTROL_CEILING`, not `C.CHANCE_BAND`. Both values come from `common.py`.
 # - Every `evidence_file` is a path from the repo root.
+#
+# ## Fix 9 (harden before go, smoke row 16)
+# - `report.py`: `gaps(point, lo, hi)` returns the two error-bar lengths, each floored at 0. Both interval figures use it, for drawing only, so the saved tables keep their values. A bootstrap percentile interval can miss its point, and a bar length cannot be negative.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import json
@@ -150,6 +153,11 @@ def summary():
     return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(columns=["split", "model", "featureset", "accuracy", "macro_f1", "macro_precision", "macro_recall"])
 
 
+def gaps(point, lo, hi):
+    """Error-bar lengths, floored at 0 for drawing only: a bootstrap interval can miss its point."""
+    return [(point - lo).clip(lower=0), (hi - point).clip(lower=0)]
+
+
 def figure(S):
     T = S[S.split == "test"] if (S.split == "test").any() else S
     if T.empty or "acc_lo" not in T:
@@ -158,7 +166,7 @@ def figure(S):
     T = T.sort_values("accuracy")
     lab = T.model + ":" + T.featureset
     fig, ax = plt.subplots(figsize=(7, 0.32 * len(T) + 1.5))
-    ax.errorbar(T.accuracy, range(len(T)), xerr=[T.accuracy - T.acc_lo, T.acc_hi - T.accuracy], fmt="o", capsize=3)
+    ax.errorbar(T.accuracy, range(len(T)), xerr=gaps(T.accuracy, T.acc_lo, T.acc_hi), fmt="o", capsize=3)
     ax.set_yticks(range(len(T)), lab)
     ax.set(xlabel=f"Accuracy with 95% bootstrap interval (n={int(T.n.iloc[0])})", title="Model comparison")
     C.savefig(fig, "summary_comparison")
@@ -190,7 +198,7 @@ def late_recall_figure(late):
         d = late[late.subset == subset].set_index("model").reindex(models)
         y = np.arange(len(models)) + (j - 0.5) * 0.25
         ok = d.recall.notna().to_numpy()
-        ax.errorbar(d.recall[ok], y[ok], xerr=[(d.recall - d.ci_low)[ok], (d.ci_high - d.recall)[ok]], fmt=mark, capsize=2, label=subset)
+        ax.errorbar(d.recall[ok], y[ok], xerr=gaps(d.recall[ok], d.ci_low[ok], d.ci_high[ok]), fmt=mark, capsize=2, label=subset)
     ax.set_yticks(range(len(models)), models, fontsize=7)
     ax.set(xlabel="Recall on late-lot grains with 95% interval", title="Late-lot recall")
     ax.legend(fontsize=7)

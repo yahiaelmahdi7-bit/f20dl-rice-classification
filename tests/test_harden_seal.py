@@ -474,6 +474,28 @@ def test_report_draws_learning_curve_and_late_recall_figures_with_an_empty_cell(
     assert (tmp_path / "report_learning_curves.png").stat().st_size > 0 and (tmp_path / "report_late_lot_recall.png").stat().st_size > 0
 
 
+def test_wilson_ends_are_exact_and_every_interval_holds_its_point():
+    for n in range(1, 300):
+        assert C.wilson(0, n)[0] == 0.0 and C.wilson(n, n)[1] == 1.0
+        for k in range(n + 1):
+            lo, hi = C.wilson(k, n)
+            assert 0.0 <= lo <= k / n <= hi <= 1.0
+
+
+def test_report_figures_draw_an_interval_that_misses_its_point(tmp_path, monkeypatch):
+    import pandas as pd
+    R = _report()
+    monkeypatch.setattr(C, "FIG", tmp_path)
+    late = pd.DataFrame({"model": ["holdout_cnn"], "subset": ["late_all"], "n": [88], "recall": [0.0], "ci_low": [3.469446951953614e-18],
+                         "ci_high": [.0418]})      # the row that stopped smoke at row 16
+    S = pd.DataFrame({"split": ["test"], "model": ["hgb"], "featureset": ["all106"], "n": [100], "accuracy": [.90], "acc_lo": [.91], "acc_hi": [.95]})
+    R.late_recall_figure(late)
+    R.figure(S)
+    assert (tmp_path / "report_late_lot_recall.png").stat().st_size > 0 and (tmp_path / "summary_comparison.png").stat().st_size > 0
+    low, high = R.gaps(S.accuracy, S.acc_lo, S.acc_hi)
+    assert low.iloc[0] == 0 and abs(high.iloc[0] - .05) < 1e-12 and S.acc_lo.iloc[0] == .91      # drawing only: the table value stays
+
+
 def test_report_figures_draw_nothing_from_a_missing_or_empty_file(tmp_path, monkeypatch):
     import pandas as pd
     R = _report()
