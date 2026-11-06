@@ -99,6 +99,10 @@
 # ## Fix 10 (harden before go, D1)
 # - `common.py`: add `SoftmaxPerceptron`, a scikit-learn perceptron (L2 penalty `alpha`) whose margins pass through a softmax to give scores. The scores are uncalibrated and only keep the predicted class. It lives in `common.py` because a class pickled from a stage file runs as `__main__` and cannot be loaded by stage 7.
 # - `tests/test_harden_seal.py`: dump and reload in a fresh process gives equal predictions; the job count is 29; smoke grids have one point for the two new models.
+#
+# ## Fix 11 (harden before go, D7)
+# - `common.py`: add `code_digest(files)`, a sha256 over the text of the files with the block between `# === AI-GENERATED CODE: PROMPT RECORD START ===` and `# === AI-GENERATED CODE: PROMPT RECORD END ===` removed. `make stamp` rewrites that block, so it must not move the digest; any other edit must. It works the same for Python files and the Makefile.
+# - `tests/test_harden_seal.py`: a restamp leaves the digest unchanged; a one-character edit moves it; a hold-out checkpoint made under an older digest retrains.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Leak audit: do any grains, table rows, files or pixels sit in more than one split?
 

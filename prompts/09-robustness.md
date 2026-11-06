@@ -40,3 +40,6 @@ A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` 
 
 ## Fix 9 (harden before go)
 - `controls_stand` loses its smoke skip. Smoke now runs `--control` for stages 5 and 6, so the same check runs there as in a real run.
+
+## Fix 10 (harden before go, D7)
+The `run` record of a hold-out CNN gains `code`, the `C.code_digest` of `src/06_neural.py`, `src/common.py` and `src/09_robustness.py`, the code that shapes those weights. A checkpoint made by older code no longer matches and is retrained.

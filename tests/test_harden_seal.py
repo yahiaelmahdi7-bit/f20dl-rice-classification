@@ -124,6 +124,7 @@
 # - `tests/test_harden_seal.py`: model-free tests for the seal fixes and the real gate in smoke. Stage 1 `--subset` keeps only train and val ids and stops on a class missing from a slice split. Real mode keeps today's exact paths; under `RICE_SMOKE=1` the freeze file, the read log and the models folder sit in smoke folders; a smoke read creates nothing outside them. Hand-worked frames only, no fit.
 # - `tests/test_awaiting_go.py`: `test_stage7_tables_reproduce_from_saved_predictions` moves to validation. It rebuilds the `val_*` tables (metrics, recall, confusion, seed spread, McNemar, by lot, by angle, by angle and lot) from the saved validation predictions through the same `tables()` and compares them with the files stage 7 wrote. It touches no sealed label and adds nothing to the read path. After this no `@GO` test loads a test predictions file; `test_no_go_test_loads_a_test_predictions_file` pins that.
 # - `tests/test_harden_seal.py`: `report.py` draws the learning-curve and late-lot recall figures from small made-up CSV frames, leaves a model's missing `late_all` cell empty, and draws nothing from a missing or empty file.
+# - `tests/test_harden_seal.py`: `C.code_digest` does not move when the prompt-record block is rewritten and does move on a one-character edit, for a Python file and a Makefile alike; a hold-out CNN file whose `run` holds an older code digest is retrained.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
@@ -434,3 +435,37 @@ def test_report_figures_draw_nothing_from_a_missing_or_empty_file(tmp_path, monk
                    (R.late_recall_figure, pd.DataFrame(columns=["model"]))):
         f(arg)
     assert not list(tmp_path.glob("*.png"))
+
+
+def test_code_digest_ignores_the_prompt_record_block_and_sees_an_edit(tmp_path):
+    body = "x = 1\n"
+    for name, mark in (("a.py", "#"), ("Makefile", "#")):
+        f = tmp_path / name
+        f.write_text(f"{mark} === AI-GENERATED CODE: PROMPT RECORD START ===\n{mark} old\n{mark} === AI-GENERATED CODE: PROMPT RECORD END ===\n{body}")
+        d = C.code_digest([f])
+        f.write_text(f"{mark} === AI-GENERATED CODE: PROMPT RECORD START ===\n{mark} newer, longer record\n{mark} === AI-GENERATED CODE: PROMPT RECORD END ===\n{body}")
+        assert C.code_digest([f]) == d                       # restamp: unchanged
+        f.write_text(f.read_text().replace("x = 1", "x = 2"))
+        assert C.code_digest([f]) != d                       # one-character edit: moved
+
+
+def test_holdout_cnn_retrains_when_the_code_digest_changed(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    spec = importlib.util.spec_from_file_location("rob_d7", ROOT / "src/09_robustness.py")
+    s = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(s)
+    trained = []
+
+    class Net:
+        def state_dict(self): return {}
+
+    N = SimpleNamespace(EP_CNN=5, PAT_CNN=2, train_cnn=lambda *a, **k: (trained.append(1), (Net(), [], 0.5, 0.2))[1])
+    monkeypatch.setattr(C, "load_cnn", lambda p: ("from file", 0.5, 0.2))
+    cfg, rows, p = {"width": 8, "dropout": 0.1}, pd.DataFrame({"grain_id": ["a", "b"]}), tmp_path / "c.pt"
+    monkeypatch.setattr(C, "code_digest", lambda files: "old")
+    s.holdout_cnn(N, 0, cfg, rows, rows, None, p)
+    s.holdout_cnn(N, 0, cfg, rows, rows, None, p)
+    assert len(trained) == 1                                 # same code: reused
+    monkeypatch.setattr(C, "code_digest", lambda files: "new")
+    s.holdout_cnn(N, 0, cfg, rows, rows, None, p)
+    assert len(trained) == 2                                 # older code: retrained

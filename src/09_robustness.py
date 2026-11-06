@@ -82,6 +82,9 @@
 #
 # ## Fix 9 (harden before go)
 # - `controls_stand` loses its smoke skip. Smoke now runs `--control` for stages 5 and 6, so the same check runs there as in a real run.
+#
+# ## Fix 10 (harden before go, D7)
+# The `run` record of a hold-out CNN gains `code`, the `C.code_digest` of `src/06_neural.py`, `src/common.py` and `src/09_robustness.py`, the code that shapes those weights. A checkpoint made by older code no longer matches and is retrained.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 9: late-lot robustness. --train fits hold-out models without the late lot; --score reads the test split once."""
 import argparse, importlib.util, json
@@ -192,6 +195,9 @@ def mask_means(img):
     return (img[m] if m is not None and m.any() else img.reshape(-1, 3)).astype(np.float64).mean(0)
 
 
+CODE_FILES = [C.ROOT / "src" / n for n in ("06_neural.py", "common.py", "09_robustness.py")]
+
+
 # ---- training ------------------------------------------------------------------------
 def same_run(ck, run, ids):
     """A saved seed counts only if it came from these settings and these rows."""
@@ -215,7 +221,7 @@ def cnn_record(m, cfg, run, mean, std, ids):
 
 def holdout_cnn(N, s, cfg, trh, vah, stats, path):
     """One seed's hold-out CNN. A file from this same run is reused, so a crash after the CNN loop does not cost the 1.98 h again."""
-    run, ids = {**cfg, "epochs": N.EP_CNN, "patience": N.PAT_CNN}, trh.grain_id.tolist()
+    run, ids = {**cfg, "epochs": N.EP_CNN, "patience": N.PAT_CNN, "code": C.code_digest(CODE_FILES)}, trh.grain_id.tolist()
     if reusable(path, run, ids):
         print(f"reusing {path.name}: same settings, same training rows", flush=True)
         return C.load_cnn(path)
