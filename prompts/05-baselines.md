@@ -32,3 +32,6 @@ Save each job as it finishes: model files first, then its `best_params.json` ent
 - `build` makes `perceptron` from `C.SoftmaxPerceptron` and `knn` from scikit-learn's `KNeighborsClassifier`, behind the same imputer and scaler as the other models.
 - The perceptron's scores are not calibrated. They keep the predicted class, which is all stage 7 uses; routing uses only `hgb:all106` and the CNN.
 - Each kNN file is about 44 MB, in the git-ignored `models/baselines/`.
+
+## Fix 10 (harden before go)
+- The depth-4 tree on `all106` is also saved as model `tree4`: an imputer and the tree in `models/baselines/tree4__all106.joblib` (same `pipe`, `cols`, `params` keys as every baseline), with its validation predictions saved through `C.save_preds`. It is a fixed teaching model, not a tuned job, so it adds no row to `JOBS` (still 29) and no control row. The text and figure of the tree are unchanged.

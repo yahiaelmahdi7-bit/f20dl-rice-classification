@@ -278,4 +278,31 @@ def test_stage7_scores_the_two_new_models_on_every_feature_set():
     L = s.model_list()
     for m in ("perceptron", "knn"):
         assert {fs for mm, fs, _ in L if mm == m} == set(s.BASE_FS)
-    assert len(L) == 7 * 4 + 1 + 2
+    assert len(L) == 7 * 4 + 1 + 1 + 2
+
+
+def test_tree4_is_a_scored_model_but_not_a_job(tmp_path, monkeypatch):
+    import joblib
+    import numpy as np
+    import pandas as pd
+    B, s = stage5(), importlib.import_module("07_compare")
+    assert not any(m == "tree4" for m, _ in B.JOBS) and len(B.JOBS) == 29
+    assert ("tree4", "all106", (0,)) in s.model_list()
+    assert s.model_file("tree4", "all106", 0) in s.read_needs()
+    rng = np.random.default_rng(1)
+    n = 60
+    va = pd.DataFrame(rng.normal(size=(n, len(C.ALL106))), columns=C.ALL106)
+    va["y"] = np.repeat(np.arange(5), 12)
+    va["grain_id"] = np.arange(n)
+    tr = va.copy(); tr.iloc[::7, 3] = np.nan
+    imp = C.SimpleImputer(strategy="median").fit(tr[C.ALL106])
+    t4 = B.DecisionTreeClassifier(max_depth=4, random_state=0).fit(imp.transform(tr[C.ALL106]), tr.y)
+    monkeypatch.setattr(C, "MODELS", tmp_path)
+    (tmp_path / "baselines").mkdir()
+    saved = {}
+    monkeypatch.setattr(C, "save_preds", lambda *a: saved.setdefault("a", a))
+    B.save_tree4(imp, t4, va)
+    obj = joblib.load(tmp_path / "baselines" / "tree4__all106.joblib")
+    assert set(obj) == {"pipe", "cols", "params"} and obj["cols"] == C.ALL106
+    P = obj["pipe"].predict_proba(va[obj["cols"]])
+    assert np.array_equal(P, saved["a"][-1]) and saved["a"][:4] == ("tree4", "all106", 0, "val")

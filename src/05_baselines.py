@@ -74,6 +74,9 @@
 # - `build` makes `perceptron` from `C.SoftmaxPerceptron` and `knn` from scikit-learn's `KNeighborsClassifier`, behind the same imputer and scaler as the other models.
 # - The perceptron's scores are not calibrated. They keep the predicted class, which is all stage 7 uses; routing uses only `hgb:all106` and the CNN.
 # - Each kNN file is about 44 MB, in the git-ignored `models/baselines/`.
+#
+# ## Fix 10 (harden before go)
+# - The depth-4 tree on `all106` is also saved as model `tree4`: an imputer and the tree in `models/baselines/tree4__all106.joblib` (same `pipe`, `cols`, `params` keys as every baseline), with its validation predictions saved through `C.save_preds`. It is a fixed teaching model, not a tuned job, so it adds no row to `JOBS` (still 29) and no control row. The text and figure of the tree are unchanged.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 5: table baselines tuned on validation macro-F1; saves models and validation predictions."""
 import argparse, itertools, json, os
@@ -171,6 +174,13 @@ def tune_jobs(jobs, tr, va, out):
         merge_csv(out / "val_results.csv", pd.DataFrame([res]), ["model", "featureset"])
 
 
+def save_tree4(imp, t4, va):
+    """The depth-4 tree as a scored model: stage 7 scores it with every other model. A fixed teaching model, not a job."""
+    C.save_preds("tree4", "all106", 0, "val", va.grain_id, va.y.to_numpy(), t4.predict_proba(imp.transform(va[C.ALL106])))
+    joblib.dump({"pipe": C.Pipeline([("imp", imp), ("m", t4)]), "cols": C.features("all106"), "params": {"max_depth": 4}},
+                C.MODELS / "baselines" / "tree4__all106.joblib")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only")
@@ -197,6 +207,7 @@ def main():
     # depth-4 tree on all106 for the practical-applications discussion
     imp = C.SimpleImputer(strategy="median").fit(tr[C.ALL106])
     t4 = DecisionTreeClassifier(max_depth=4, random_state=C.SEED).fit(imp.transform(tr[C.ALL106]), tr.y)
+    save_tree4(imp, t4, va)
     (out / "tree_depth4.txt").write_text(export_text(t4, feature_names=C.ALL106))
     C.wrote(out / "tree_depth4.txt")
     fig, ax = plt.subplots(figsize=(16, 7))

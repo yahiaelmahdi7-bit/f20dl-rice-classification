@@ -71,6 +71,9 @@
 #
 # ## Fix 9 (harden before go)
 # - `BASE` gains `perceptron` and `knn`, so `model_list`, `read_needs` and the freeze hash cover both on the four feature sets. Stage 7 reports accuracy, F1 and counts for them, and no probability metric.
+#
+# ## Fix 10 (harden before go)
+# - `model_list` gains `("tree4", "all106", (0,))` after the `BASE` models, so `tree4` is scored on validation and in read 1 with every other model, `read_needs` lists its file, and the freeze hash covers it. `model_file` already maps it to `models/baselines/tree4__all106.joblib`. It is not part of `BASE`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 7: compare every model on one split with intervals and paired tests. --split test is one gated test read."""
 import argparse, json
@@ -89,7 +92,7 @@ NBOOT = 2000
 def model_list():
     """(model, featureset, seeds) for everything that can be scored."""
     L = [(m, fs, (0,)) for fs in BASE_FS for m in BASE] + [("nb", "distinct91", (0,))]
-    return L + [("mlp", "all106", C.SEEDS), ("cnn", "image", C.SEEDS)]
+    return L + [("tree4", "all106", (0,)), ("mlp", "all106", C.SEEDS), ("cnn", "image", C.SEEDS)]
 
 
 def model_file(m, fs, k):

@@ -29,3 +29,6 @@ Add macro precision and macro recall to every metrics row. Add per-class precisi
 
 ## Fix 9 (harden before go)
 - `BASE` gains `perceptron` and `knn`, so `model_list`, `read_needs` and the freeze hash cover both on the four feature sets. Stage 7 reports accuracy, F1 and counts for them, and no probability metric.
+
+## Fix 10 (harden before go)
+- `model_list` gains `("tree4", "all106", (0,))` after the `BASE` models, so `tree4` is scored on validation and in read 1 with every other model, `read_needs` lists its file, and the freeze hash covers it. `model_file` already maps it to `models/baselines/tree4__all106.joblib`. It is not part of `BASE`.
