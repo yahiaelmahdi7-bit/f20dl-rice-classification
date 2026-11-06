@@ -126,6 +126,7 @@
 # - `tests/test_harden_seal.py`: `report.py` draws the learning-curve and late-lot recall figures from small made-up CSV frames, leaves a model's missing `late_all` cell empty, and draws nothing from a missing or empty file.
 # - `tests/test_harden_seal.py`: `C.code_digest` does not move when the prompt-record block is rewritten and does move on a one-character edit, for a Python file and a Makefile alike; a hold-out CNN file whose `run` holds an older code digest is retrained.
 # - `tests/test_harden_seal.py`: `report.main()` runs with `test_reads_disclosed.csv` missing and writes `DISCLOSURES.csv` and `MANIFEST.csv`; with a ledger of two rows, one carrying a `code-changed` reason, the extra-read rows count it and name it; every disclosure evidence file and every new output has a `MANIFEST.csv` row.
+# - `tests/test_awaiting_go.py`: `GO` is `skipif(RICE_GO != "1")`, so plain `pytest` still skips every `@GO` test. The `@GO` tests read `C.RES` and `C.MODELS`, so smoke can run them. The part of the read-log test that walks git history runs in real mode only, because smoke folders are git-ignored. `tests/test_harden_seal.py`: with `RICE_GO` unset every `@GO` test is skipped, and no `@GO` test names `ROOT / "results"` or `ROOT / "models"`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
@@ -508,3 +509,13 @@ def test_every_evidence_file_and_new_output_is_in_the_manifest():
             "compare/val_by_lot.csv", "compare/val_by_angle.csv", "compare/val_by_angle_lot.csv", "robustness/mean_colour_check.csv"}
     assert need <= listed
     assert {e for _, _, e in R.DISCLOSURES} <= listed | {"routing/val_routes.csv", "eda/class_balance.csv", "baselines/control.csv", "routing/val_calibration.csv"}
+
+
+def test_go_tests_skip_without_rice_go_and_read_the_mode_folders():
+    text = (ROOT / "tests" / "test_awaiting_go.py").read_text().split("PROMPT RECORD END ===", 1)[-1]
+    assert 'os.environ.get("RICE_GO") != "1"' in text and "skipif" in text
+    body = "\n".join(b.split("\n\n\n")[0] for b in text.split("\n@GO\n")[1:] if "def test_predict" not in b.split("\n")[0])
+    assert 'ROOT / "results"' not in body and 'ROOT / "models"' not in body
+    if os.environ.get("RICE_GO") != "1":
+        import test_awaiting_go as T
+        assert T.GO.mark.name == "skipif" and T.GO.mark.args[0] is True

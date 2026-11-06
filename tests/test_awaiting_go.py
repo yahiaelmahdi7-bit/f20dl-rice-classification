@@ -126,13 +126,14 @@
 # - `tests/test_harden_seal.py`: `report.py` draws the learning-curve and late-lot recall figures from small made-up CSV frames, leaves a model's missing `late_all` cell empty, and draws nothing from a missing or empty file.
 # - `tests/test_harden_seal.py`: `C.code_digest` does not move when the prompt-record block is rewritten and does move on a one-character edit, for a Python file and a Makefile alike; a hold-out CNN file whose `run` holds an older code digest is retrained.
 # - `tests/test_harden_seal.py`: `report.main()` runs with `test_reads_disclosed.csv` missing and writes `DISCLOSURES.csv` and `MANIFEST.csv`; with a ledger of two rows, one carrying a `code-changed` reason, the extra-read rows count it and name it; every disclosure evidence file and every new output has a `MANIFEST.csv` row.
+# - `tests/test_awaiting_go.py`: `GO` is `skipif(RICE_GO != "1")`, so plain `pytest` still skips every `@GO` test. The `@GO` tests read `C.RES` and `C.MODELS`, so smoke can run them. The part of the read-log test that walks git history runs in real mode only, because smoke folders are git-ignored. `tests/test_harden_seal.py`: with `RICE_GO` unset every `@GO` test is skipped, and no `@GO` test names `ROOT / "results"` or `ROOT / "models"`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Tests that fit a model or need predictions. Written, not run, until training is approved."""
-import subprocess, sys
+import os, subprocess, sys
 import pytest
 from conftest import ROOT
 
-GO = pytest.mark.skip(reason="awaits go")
+GO = pytest.mark.skipif(os.environ.get("RICE_GO") != "1", reason="awaits go")
 
 
 def _predict(*args):
@@ -167,7 +168,8 @@ def test_predict_exit_3_names_missing_model(tmp_path):
 def test_unchanged_image_control_matches_stage7():
     """Grey-world control with gain 1 must reproduce the stage-7 test predictions."""
     import pandas as pd
-    d = pd.read_csv(ROOT / "results" / "robustness" / "greyworld_control.csv")
+    import common as C
+    d = pd.read_csv(C.RES / "robustness" / "greyworld_control.csv")
     assert d.argmax_equal.all() and d.max_abs_diff.max() < 1e-2
 
 
@@ -175,7 +177,7 @@ def test_unchanged_image_control_matches_stage7():
 def test_holdout_training_excludes_late_lot():
     import joblib, torch
     import common as C
-    hold = ROOT / "models" / "holdout"
+    hold = C.MODELS / "holdout"
     g = C.load_grains()
     late = set(g.loc[g.lot == "late", "grain_id"])
     assert late, "no late grains to check against"
@@ -194,11 +196,12 @@ def test_every_read_is_kept_under_one_hash_and_extras_are_disclosed():
     from collections import Counter
     import pandas as pd
     import common as C
-    git = lambda *a: subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, check=True).stdout
-    revs = git("log", "--reverse", "--format=%H", "--", "results/test_reads.csv").split()
-    assert revs, "commit results/test_reads.csv after each read"
-    seen = [git("show", f"{r}:results/test_reads.csv") for r in revs] + [C.TEST_READS.read_text()]
-    assert all(b.startswith(a) for a, b in zip(seen, seen[1:])), "a logged read was removed or edited"
+    if not C.SMOKE:        # git history exists for the real log only: smoke folders are git-ignored
+        git = lambda *a: subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, check=True).stdout
+        revs = git("log", "--reverse", "--format=%H", "--", "results/test_reads.csv").split()
+        assert revs, "commit results/test_reads.csv after each read"
+        seen = [git("show", f"{r}:results/test_reads.csv") for r in revs] + [C.TEST_READS.read_text()]
+        assert all(b.startswith(a) for a, b in zip(seen, seen[1:])), "a logged read was removed or edited"
     log = pd.read_csv(C.TEST_READS, dtype=str)
     assert {"07_compare.py", "08_routing.py", "09_robustness.py"} <= set(log.caller), "a stage has no read logged"
     assert log.frozen_hash.nunique() == 1, "reads ran under more than one freeze"
@@ -206,7 +209,7 @@ def test_every_read_is_kept_under_one_hash_and_extras_are_disclosed():
     key = ["caller", "time", "frozen_hash"]
     extra = Counter(log[log.groupby("caller").cumcount() > 0][key].itertuples(index=False, name=None))
     told = Counter()
-    p = ROOT / "results" / "test_reads_disclosed.csv"
+    p = C.RES / "test_reads_disclosed.csv"
     if p.exists():
         d = pd.read_csv(p, dtype=str)
         assert d.reason.fillna("").str.strip().ne("").all(), "a disclosed read gives no reason"
@@ -258,12 +261,13 @@ def test_every_control_stayed_below_the_ceiling():
     import pandas as pd
     import common as C
     for stage in ("baselines", "neural"):
-        d = pd.read_csv(ROOT / "results" / stage / "control.csv")
+        d = pd.read_csv(C.RES / stage / "control.csv")
         assert (d.val_accuracy < C.CONTROL_CEILING).all()
 
 
 @GO
 def test_hgb_beats_chance_on_validation():
     import pandas as pd
-    d = pd.read_csv(ROOT / "results" / "baselines" / "val_results.csv")
+    import common as C
+    d = pd.read_csv(C.RES / "baselines" / "val_results.csv")
     assert d.val_accuracy.max() > 0.5
