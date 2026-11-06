@@ -306,3 +306,24 @@ def test_tree4_is_a_scored_model_but_not_a_job(tmp_path, monkeypatch):
     assert set(obj) == {"pipe", "cols", "params"} and obj["cols"] == C.ALL106
     P = obj["pipe"].predict_proba(va[obj["cols"]])
     assert np.array_equal(P, saved["a"][-1]) and saved["a"][:4] == ("tree4", "all106", 0, "val")
+
+
+def test_val_results_has_fit_seconds_as_last_column(tmp_path, monkeypatch):
+    import numpy as np
+    import pandas as pd
+    B = stage5()
+
+    class Stub:
+        def fit(self, X, y): return self
+        def predict(self, X): return np.zeros(len(X), dtype=int)
+        def predict_proba(self, X): return np.full((len(X), 5), 0.2)
+    cols = C.features("shape16")
+    f = pd.DataFrame(np.ones((10, len(cols))), columns=cols)
+    f["grain_id"], f["y"] = [f"g{i}" for i in range(10)], np.arange(10) % 5
+    monkeypatch.setattr(B, "build", lambda m, p: Stub())
+    monkeypatch.setattr(C, "save_preds", lambda *a, **k: None)
+    monkeypatch.setattr(B.joblib, "dump", lambda *a, **k: None)
+    monkeypatch.setattr(C, "MODELS", tmp_path)
+    B.tune_jobs([("nb", "shape16")], f, f, tmp_path)
+    r = pd.read_csv(tmp_path / "val_results.csv")
+    assert list(r.columns)[-1] == "fit_seconds" and (r.fit_seconds >= 0).all() and r.fit_seconds.notna().all()

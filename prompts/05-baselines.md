@@ -35,3 +35,6 @@ Save each job as it finishes: model files first, then its `best_params.json` ent
 
 ## Fix 10 (harden before go)
 - The depth-4 tree on `all106` is also saved as model `tree4`: an imputer and the tree in `models/baselines/tree4__all106.joblib` (same `pipe`, `cols`, `params` keys as every baseline), with its validation predictions saved through `C.save_preds`. It is a fixed teaching model, not a tuned job, so it adds no row to `JOBS` (still 29) and no control row. The text and figure of the tree are unchanged.
+
+## Fix 11 (harden before go)
+- `val_results.csv` gains a last column `fit_seconds`: wall-clock seconds for fitting the chosen grid point's pipeline (imputer, scaler and model) on train. It is the cost the report quotes beside each model's score.

@@ -77,9 +77,12 @@
 #
 # ## Fix 10 (harden before go)
 # - The depth-4 tree on `all106` is also saved as model `tree4`: an imputer and the tree in `models/baselines/tree4__all106.joblib` (same `pipe`, `cols`, `params` keys as every baseline), with its validation predictions saved through `C.save_preds`. It is a fixed teaching model, not a tuned job, so it adds no row to `JOBS` (still 29) and no control row. The text and figure of the tree are unchanged.
+#
+# ## Fix 11 (harden before go)
+# - `val_results.csv` gains a last column `fit_seconds`: wall-clock seconds for fitting the chosen grid point's pipeline (imputer, scaler and model) on train. It is the cost the report quotes beside each model's score.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 5: table baselines tuned on validation macro-F1; saves models and validation predictions."""
-import argparse, itertools, json, os
+import argparse, itertools, json, os, time
 import joblib, numpy as np, pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier as HGB
 from sklearn.linear_model import LogisticRegression
@@ -154,12 +157,14 @@ def tune_jobs(jobs, tr, va, out):
         Xva, yva = C.xy(va, fs)
         top, grid_rows = None, []
         for p in points(m):
+            t0 = time.perf_counter()
             pipe = build(m, p).fit(Xtr, ytr)
+            secs = time.perf_counter() - t0
             pr = pipe.predict(Xva)
             f1 = C.macro_f1(yva, pr)
             grid_rows.append({"model": m, "featureset": fs, "params": json.dumps(p), "val_macro_f1": f1})
-            if top is None or f1 > top[0]: top = (f1, p, pipe, pr)
-        f1, p, pipe, pr = top
+            if top is None or f1 > top[0]: top = (f1, p, pipe, pr, secs)
+        f1, p, pipe, pr, secs = top
         P = pipe.predict_proba(Xva)
         C.save_preds(m, fs, 0, "val", va.grain_id, yva, P)
         obj = {"pipe": pipe, "cols": C.features(fs), "params": p}
@@ -167,7 +172,7 @@ def tune_jobs(jobs, tr, va, out):
         if (m, fs) == ("hgb", "all106"): joblib.dump(obj, C.MODELS / "hgb_all106.joblib")
         best[f"{m}:{fs}"] = p
         res = {"model": m, "featureset": fs, "val_accuracy": float((pr == yva).mean()), "val_macro_f1": f1,
-               "val_macro_precision": float(C.macro_precision(yva, pr)), "val_macro_recall": float(C.macro_recall(yva, pr)), "params": json.dumps(p)}
+               "val_macro_precision": float(C.macro_precision(yva, pr)), "val_macro_recall": float(C.macro_recall(yva, pr)), "params": json.dumps(p), "fit_seconds": float(secs)}
         print(res, flush=True)
         save_best(best_path, best)
         merge_csv(out / "grid.csv", pd.DataFrame(grid_rows), ["model", "featureset"])

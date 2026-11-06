@@ -222,7 +222,7 @@ ARTEFACTS = {
         "results/checks/recheck_features.csv": _a("recheck_r2.py", "", _RECHECK),
         "results/checks/recheck_summary.csv": _a("recheck_r2.py", "", "check rows failed max_abs_diff passes"),
         "results/baselines/grid.csv": _a(_S5, _S5, "model featureset params val_macro_f1"),
-        "results/baselines/val_results.csv": _a(_S5, f"{_S5} report.py", "model featureset val_accuracy val_macro_f1 val_macro_precision val_macro_recall params"),
+        "results/baselines/val_results.csv": _a(_S5, f"{_S5} report.py", "model featureset val_accuracy val_macro_f1 val_macro_precision val_macro_recall params fit_seconds"),
         "results/baselines/control.csv": _a(_S5, f"{_S5} freeze.py", "model featureset val_accuracy"),
         "results/baselines/best_params.json": _a(_S5, f"{_S5} {_S9} freeze.py"),
         "results/baselines/tree_depth4.txt": _a(_S5),
