@@ -48,8 +48,12 @@
 # `SUMMARY.csv` gains `macro_precision` and `macro_recall`, read from the stage 5 and 7 outputs.
 #
 # ## Fix 3: `SUMMARY.csv` and `MANIFEST.csv` are written to `C.RES` in every mode. In `MANIFEST.csv`, the dictionary, validity and outliers row points at `quality/`, and the two shuffled-label rows point at `baselines/control.csv` and `neural/control.csv`.
+#
+# ## Fix 4 (harden before go)
+# - `report.py` adds two figures from saved CSVs only. `learning_curve_figure(curves)` plots train and validation loss per epoch for every `tag` in `results/neural/curves.csv` (`report_learning_curves.png`). `late_recall_figure(late)` plots recall with its interval per model for the `late_all` and `late_test` subsets of `results/robustness/late_recall.csv` (`report_late_lot_recall.png`). A model with only one of the two subsets draws only that point, an empty cell stays empty, and a missing or empty file prints a skip line and draws nothing. `main` calls both after `figure(S)`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
+import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
@@ -118,6 +122,39 @@ def figure(S):
     C.savefig(fig, "summary_comparison")
 
 
+def learning_curve_figure(curves):
+    """Train and validation loss per epoch, one line per run tag. Saved CSV only."""
+    if curves is None or curves.empty:
+        print("no learning curves yet; figure skipped")
+        return
+    fig, ax = plt.subplots(figsize=(7, 4))
+    for i, (tag, d) in enumerate(curves.groupby("tag", sort=True)):
+        d = d.sort_values("epoch")
+        ax.plot(d.epoch, d.train_loss, color=f"C{i % 10}", ls="--", lw=1)
+        ax.plot(d.epoch, d.val_loss, color=f"C{i % 10}", lw=1.4, label=str(tag))
+    ax.set(xlabel="Epoch", ylabel="Loss", title="Learning curves (solid: validation, dashed: train)")
+    if curves.tag.nunique() <= 12: ax.legend(fontsize=6, ncol=2)
+    C.savefig(fig, "report_learning_curves")
+
+
+def late_recall_figure(late):
+    """Recall on late-lot grains per model, hold-out arms against models that saw part of the lot. A missing cell stays empty."""
+    if late is None or late.empty:
+        print("no late-lot recall yet; figure skipped")
+        return
+    models = sorted(late.model.unique())
+    fig, ax = plt.subplots(figsize=(7, 0.35 * len(models) + 1.5))
+    for j, (subset, mark) in enumerate([("late_all", "o"), ("late_test", "s")]):
+        d = late[late.subset == subset].set_index("model").reindex(models)
+        y = np.arange(len(models)) + (j - 0.5) * 0.25
+        ok = d.recall.notna().to_numpy()
+        ax.errorbar(d.recall[ok], y[ok], xerr=[(d.recall - d.ci_low)[ok], (d.ci_high - d.recall)[ok]], fmt=mark, capsize=2, label=subset)
+    ax.set_yticks(range(len(models)), models, fontsize=7)
+    ax.set(xlabel="Recall on late-lot grains with 95% interval", title="Late-lot recall")
+    ax.legend(fontsize=7)
+    C.savefig(fig, "report_late_lot_recall")
+
+
 def main():
     S = summary()
     p = C.RES / "SUMMARY.csv"
@@ -128,6 +165,8 @@ def main():
     mp = p.with_name("MANIFEST.csv")
     M.to_csv(mp, index=False); C.wrote(mp)
     figure(S)
+    learning_curve_figure(read(C.RES / "neural" / "curves.csv"))
+    late_recall_figure(read(C.RES / "robustness" / "late_recall.csv"))
 
 
 if __name__ == "__main__":

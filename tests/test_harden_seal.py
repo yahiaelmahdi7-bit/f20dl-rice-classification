@@ -123,6 +123,7 @@
 # ## Fix 5 (harden before go)
 # - `tests/test_harden_seal.py`: model-free tests for the seal fixes and the real gate in smoke. Stage 1 `--subset` keeps only train and val ids and stops on a class missing from a slice split. Real mode keeps today's exact paths; under `RICE_SMOKE=1` the freeze file, the read log and the models folder sit in smoke folders; a smoke read creates nothing outside them. Hand-worked frames only, no fit.
 # - `tests/test_awaiting_go.py`: `test_stage7_tables_reproduce_from_saved_predictions` moves to validation. It rebuilds the `val_*` tables (metrics, recall, confusion, seed spread, McNemar, by lot, by angle, by angle and lot) from the saved validation predictions through the same `tables()` and compares them with the files stage 7 wrote. It touches no sealed label and adds nothing to the read path. After this no `@GO` test loads a test predictions file; `test_no_go_test_loads_a_test_predictions_file` pins that.
+# - `tests/test_harden_seal.py`: `report.py` draws the learning-curve and late-lot recall figures from small made-up CSV frames, leaves a model's missing `late_all` cell empty, and draws nothing from a missing or empty file.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
@@ -406,3 +407,30 @@ def test_stage7_main_passes_the_read_frame_and_reads_once(tmp_path, monkeypatch)
     monkeypatch.setattr(s, "tables", lambda preds, sp, out, rows=None: seen.update(rows=rows, sp=sp))
     s.main()
     assert seen["reads"] == [1] and seen["rows"] is frame and seen["sp"] == "test"
+
+
+def _report():
+    return importlib.import_module("report")
+
+
+def test_report_draws_learning_curve_and_late_recall_figures_with_an_empty_cell(tmp_path, monkeypatch):
+    import pandas as pd
+    R = _report()
+    monkeypatch.setattr(C, "FIG", tmp_path)
+    curves = pd.DataFrame({"tag": ["cnn_s0"] * 3 + ["mlp_s0"] * 2, "epoch": [1, 2, 3, 1, 2], "train_loss": [1.0, .5, .3, 1.2, .8],
+                           "val_loss": [1.1, .6, .5, 1.3, .9], "val_acc": [.5, .7, .8, .4, .6], "seconds": 1.0})
+    late = pd.DataFrame({"model": ["holdout_cnn", "holdout_cnn", "full_hgb"], "subset": ["late_all", "late_test", "late_test"], "n": [10, 5, 5],
+                         "recall": [.9, .8, .7], "ci_low": [.7, .5, .4], "ci_high": [.97, .95, .9]})      # full_hgb has no late_all cell
+    R.learning_curve_figure(curves)
+    R.late_recall_figure(late)
+    assert (tmp_path / "report_learning_curves.png").stat().st_size > 0 and (tmp_path / "report_late_lot_recall.png").stat().st_size > 0
+
+
+def test_report_figures_draw_nothing_from_a_missing_or_empty_file(tmp_path, monkeypatch):
+    import pandas as pd
+    R = _report()
+    monkeypatch.setattr(C, "FIG", tmp_path)
+    for f, arg in ((R.learning_curve_figure, None), (R.learning_curve_figure, pd.DataFrame(columns=["tag"])), (R.late_recall_figure, None),
+                   (R.late_recall_figure, pd.DataFrame(columns=["model"]))):
+        f(arg)
+    assert not list(tmp_path.glob("*.png"))
