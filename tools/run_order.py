@@ -136,6 +136,9 @@
 #
 # ## Fix 17 (harden before go, smoke row 16)
 # - `common.py`: `wilson` returns exactly 0 as the low end when `k == 0` and exactly 1 as the high end when `k == n`. The formula reaches those ends only up to rounding: the smoke run gave `3.47e-18` at `k = 0`, n = 88, which put the point outside its own interval and into a saved table.
+#
+# ## Fix 18 (harden before go, coverage review)
+# - Tests only, no code change, for real-run lines no smoke row reaches: the CNN stops after `patience` bad epochs and returns the best epoch's weights; `predict.py` takes the cnn route when only the image side clears its floor, and exits 2 with no argument and on an unreadable image; `--rescore` reports a model it cannot score; the row 7 check names each stage whose control failed.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Run the post-go order of handoff 5.2 from one list, with a check per row, a log, a lock and a code lock. No stage logic lives here."""
 import argparse, csv, glob, hashlib, io, json, os, shutil, subprocess, sys, time

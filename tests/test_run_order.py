@@ -267,6 +267,16 @@ def test_epoch_check_reads_the_full_size_epoch_and_not_the_overfit_rows(env):
         assert RO.epoch_time("4") == verdict
 
 
+def test_control_check_names_each_stage_that_failed(env):
+    for stage, score in (("baselines", .50), ("neural", .95)):
+        (env / "res" / stage).mkdir()
+        pd.DataFrame({"model": ["m"], "val_accuracy": [score]}).to_csv(env / "res" / stage / "control.csv", index=False)
+    got = RO.controls_pass("7")
+    assert got.startswith("neural: CONTROL FAILED") and "baselines" not in got
+    (env / "res" / "baselines" / "control.csv").unlink()
+    assert "baselines: " in RO.controls_pass("7")
+
+
 def test_start_checks_stop_the_runner_before_any_row(env, monkeypatch, capsys):
     rows(monkeypatch, [RO.Row("A", "a", [("A", touch(env, "a"))], lambda s: "")])
     monkeypatch.setattr(RO, "start_checks", lambda smoke: ["not on AC power"])

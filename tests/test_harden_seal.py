@@ -496,6 +496,57 @@ def test_report_figures_draw_an_interval_that_misses_its_point(tmp_path, monkeyp
     assert low.iloc[0] == 0 and abs(high.iloc[0] - .05) < 1e-12 and S.acc_lo.iloc[0] == .91      # drawing only: the table value stays
 
 
+def test_cnn_stops_after_patience_and_returns_the_best_epochs_weights(monkeypatch):
+    import numpy as np, torch
+    N = importlib.import_module("06_neural")
+    d = pd.DataFrame({"y": [0, 1, 2, 3, 4, 0, 1, 2]})
+    losses, snaps = iter([1.0, .5, .7, .9]), []         # best at epoch 2, then two bad epochs; a fifth call runs dry and fails
+    def fake_val(model, mean, std, read, n):
+        snaps.append({k: v.detach().cpu().clone() for k, v in model.state_dict().items()})
+        p = np.exp(-next(losses))
+        P = np.full((n, 5), (1 - p) / 4)
+        P[np.arange(n), d.y.to_numpy()] = p
+        return P, None
+    monkeypatch.setattr(C, "run_cnn", fake_val)
+    monkeypatch.setattr(C, "read_images", lambda f: np.random.default_rng(0).integers(0, 255, (len(f), 128, 128, 3), dtype=np.uint8))
+    monkeypatch.setattr(N, "log_epoch", lambda *a, **k: None)
+    model, hist, _, _ = N.train_cnn(N.DEFAULT_CNN, 0, d, d, 10, 2, "t", aug=False, stats=(np.zeros(3, np.float32), np.ones(3, np.float32)))
+    got = {k: v.detach().cpu() for k, v in model.state_dict().items()}
+    same = lambda s: all(torch.equal(got[k], s[k]) for k in s)
+    assert len(hist) == 4 and same(snaps[1]) and not same(snaps[3])
+
+
+def test_predict_takes_the_cnn_route_when_only_the_image_side_clears_its_floor(tmp_path, monkeypatch, capsys):
+    import joblib, numpy as np
+    P = importlib.import_module("predict")
+    class Gate:
+        def unfamiliar(self, x): return [False]
+    for n in ("cnn_seed0.pt", "gate_image.joblib", "gate_table.joblib", "hgb_all106.joblib"): (tmp_path / n).touch()
+    (tmp_path / "routing.json").write_text(json.dumps({"cnn": {"temperature": 1.0, "floor": .9}, "hgb": {"temperature": 1.0, "floor": .9}}))
+    monkeypatch.setattr(C, "MODELS", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["predict.py", "x.jpg"])
+    monkeypatch.setattr(P, "load_image", lambda p: None)
+    monkeypatch.setattr(P, "table_row", lambda n: None)
+    monkeypatch.setattr(C, "load_cnn", lambda p: (None, 0, 1))
+    monkeypatch.setattr(C, "run_cnn", lambda *a: (np.array([[.02, .95, .01, .01, .01]]), None))
+    monkeypatch.setattr(C, "apply_temp", lambda p, t: p)
+    monkeypatch.setattr(joblib, "load", lambda p: Gate())
+    P.main()
+    out = capsys.readouterr().out
+    assert "route: cnn" in out and f"answer: {C.CLASSES[1]} (confidence 0.9500)" in out
+
+
+def test_predict_exits_2_with_no_argument_and_on_an_unreadable_image(tmp_path, monkeypatch):
+    P = importlib.import_module("predict")
+    monkeypatch.setattr(sys, "argv", ["predict.py"])
+    with pytest.raises(SystemExit) as e: P.main()
+    assert e.value.code == 2
+    bad = tmp_path / "not_an_image.png"
+    bad.write_text("words")
+    with pytest.raises(SystemExit) as e: P.load_image(bad)
+    assert e.value.code == 2
+
+
 def test_report_figures_draw_nothing_from_a_missing_or_empty_file(tmp_path, monkeypatch):
     import pandas as pd
     R = _report()

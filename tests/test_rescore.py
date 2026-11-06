@@ -224,6 +224,12 @@ def test_rescore_catches_a_model_with_no_saved_predictions(rs, monkeypatch):
     assert "no saved validation predictions" in rs.rescore(DF, [])[0]
 
 
+def test_rescore_reports_a_model_it_cannot_score(rs, monkeypatch):
+    def boom(*a): raise ValueError("planted")
+    monkeypatch.setattr(rs, "test_probs", boom)
+    assert rs.rescore(DF, []) == ["hgb:all106:seed0: cannot score (ValueError: planted)"]
+
+
 def test_rescore_catches_a_corrupted_weight_file(rs, monkeypatch, tmp_path):
     import joblib
     fresh(monkeypatch, rs, P)
