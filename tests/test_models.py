@@ -143,6 +143,10 @@
 #
 # ## Fix 10 (harden before go, C4)
 # - `tests/test_harden_seal.py`: the manifest test also needs the rows for `run_log.csv`, `test_reads_disclosed.csv` and `code_lock.json`, and every runner output listed in `ARTEFACTS` has a manifest row.
+#
+# ## Fix 11 (harden before go, integrator review)
+# - `tests/test_harden_seal.py`: `code_digest` on a real stamped file ignores an edit at the end of its record; `all` ends on `through 16` and depends on `get-data` and `data`; the overlap and control disclosures state the facts as found.
+# - `tests/test_run_order.py`: row 4 reads the full-size epoch; a clean read leaves an empty ledger; a kill between a rerun's read and its ledger row recovers through `rerun-read`; every row from 5 on is locked and the reads run under `caffeinate`; a check that raises is logged as a failure; a stage left by a killed runner keeps the lock; smoke skips power and disk.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Models team fixes to stages 5, 6 and predict. No model is fitted: helpers run on made-up rows, main() is read as text."""
 import ast, csv, importlib, importlib.util, io, json, re
@@ -336,7 +340,7 @@ def test_controls_target_text():
     overfit = re.search(r"^overfit:(.*)\n((?:\t.*\n)+)", mk, re.M)
     assert overfit.group(1).partition("##")[0].strip() == ""                    # the sanity check waits on nothing trained
     assert "06_neural.py --overfit-test" in overfit.group(2) and "best_config" not in overfit.group(2)
-    assert re.search(r"^all:\s*##", mk, re.M)                                    # the order lives in the runner, not in prerequisites
+    assert re.search(r"^all: get-data data\s*##", mk, re.M)                      # stages 0 to 4, then the order lives in the runner
     spec = importlib.util.spec_from_file_location("ro_tool", ROOT / "tools" / "run_order.py")
     ro = importlib.util.module_from_spec(spec); spec.loader.exec_module(ro)
     ids = [r.id for r in ro.rows_for(False)]

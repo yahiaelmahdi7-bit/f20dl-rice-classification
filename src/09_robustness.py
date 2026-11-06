@@ -239,7 +239,7 @@ def fit_tables(B, jobs, params, hd):
 
 
 def controls_stand():
-    """Hold-out training costs 1.98 h and freeze would refuse a failed control after it, so the same check runs first. """
+    """Hold-out training costs 1.98 h and freeze would refuse a failed control after it, so the same check runs first."""
     bad = _load("freeze.py", SRC.parent / "tools").control_faults()
     if bad: raise SystemExit("cannot train hold-out, controls:\n  " + "\n  ".join(bad))
 

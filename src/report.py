@@ -61,6 +61,11 @@
 #
 # ## Fix 7 (harden before go, C4)
 # - `MANIFEST.csv` gains three rows, all stage 11: `run_log.csv` (time and memory per runner row), `test_reads_disclosed.csv` (extra test reads, with reasons) and `code_lock.json` (the code digest and any logged code change).
+#
+# ## Fix 8 (harden before go, integrator review)
+# - `DISCLOSURES`: the old smoke overlap row says the throwaway smoke models were fitted on those grains and scored them, and that no real model or choice used those models. The counts stay in `results/smoke_overlap.csv`.
+# - `DISCLOSURES`: the shuffled-label row gives the measured reason: a simple model can give a whole tight class one shuffled label, so the stop is `C.CONTROL_CEILING`, not `C.CHANCE_BAND`. Both values come from `common.py`.
+# - Every `evidence_file` is a path from the repo root.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import json
@@ -107,16 +112,16 @@ MANIFEST = [
 COLS = ["requirement", "stage", "output_file", "covers_R2", "covers_R3", "covers_R4", "generative_task", "discriminative_task"]
 
 
-# (item, what, evidence_file). Facts, not prose. Evidence paths under results/ are relative to the repo root.
+# (item, what, evidence_file). Facts, not prose. Evidence paths are from the repo root.
 DISCLOSURES = [
-    ("old smoke overlap", "an early smoke run drew its slice from rows that overlap the real test split; counts by slice split only, no labels, and nothing was fitted on them", "results/smoke_overlap.csv"),
-    ("in-sample calibration and routes", "val_calibration and val_routes are in-sample: temperature, floors and cuts were set on the same validation rows", "routing/val_calibration.csv"),
-    ("validation holds late grains", "hyperparameters were picked on validation, which holds late-lot grains", "baselines/val_results.csv"),
-    ("shuffled-label scores", "control scores sit away from 20% because class shares and lot structure are not equal", "baselines/control.csv"),
-    ("eda counts include test", "02_eda class counts include test rows, as counts only", "eda/class_balance.csv"),
-    ("image gate seed", "the image familiarity gate uses seed 0 for all three CNN seeds", "routing/val_routes.csv"),
-    ("near-upright", "the near-upright band is the group's own reading of the angle table", "compare/val_by_angle.csv"),
-    ("perceptron scores", "Perceptron and kNN scores are not calibrated probabilities; they keep the predicted class only", "baselines/val_results.csv"),
+    ("old smoke overlap", "the old smoke slice held real test grains, counted by slice split in the evidence file; its throwaway smoke models were fitted on them and scored them, and no real model or choice used those models; the slice now comes from real train and validation grains only", "results/smoke_overlap.csv"),
+    ("in-sample calibration and routes", "val_calibration and val_routes are in-sample: temperature, floors and cuts were set on the same validation rows", "results/routing/val_calibration.csv"),
+    ("validation holds late grains", "hyperparameters were picked on validation, which holds late-lot grains", "results/baselines/val_results.csv"),
+    ("shuffled-label scores", f"a clean shuffled-label score can sit far from 20%: a simple model can give a whole tight class one shuffled label, so the stop is the {C.CONTROL_CEILING:.0%} ceiling and not the {C.CHANCE_BAND[0]:.0%} to {C.CHANCE_BAND[1]:.0%} band", "results/baselines/control.csv"),
+    ("eda counts include test", "02_eda class counts include test rows, as counts only", "results/eda/class_balance.csv"),
+    ("image gate seed", "the image familiarity gate uses seed 0 for all three CNN seeds", "results/routing/val_routes.csv"),
+    ("near-upright", "the near-upright band is the group's own reading of the angle table", "results/compare/val_by_angle.csv"),
+    ("perceptron scores", "Perceptron and kNN scores are not calibrated probabilities; they keep the predicted class only", "results/baselines/val_results.csv"),
 ]
 LEDGER, CODE_LOCK = "test_reads_disclosed.csv", "code_lock.json"
 

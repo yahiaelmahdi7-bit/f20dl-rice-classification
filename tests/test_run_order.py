@@ -143,6 +143,10 @@
 #
 # ## Fix 10 (harden before go, C4)
 # - `tests/test_harden_seal.py`: the manifest test also needs the rows for `run_log.csv`, `test_reads_disclosed.csv` and `code_lock.json`, and every runner output listed in `ARTEFACTS` has a manifest row.
+#
+# ## Fix 11 (harden before go, integrator review)
+# - `tests/test_harden_seal.py`: `code_digest` on a real stamped file ignores an edit at the end of its record; `all` ends on `through 16` and depends on `get-data` and `data`; the overlap and control disclosures state the facts as found.
+# - `tests/test_run_order.py`: row 4 reads the full-size epoch; a clean read leaves an empty ledger; a kill between a rerun's read and its ledger row recovers through `rerun-read`; every row from 5 on is locked and the reads run under `caffeinate`; a check that raises is logged as a failure; a stage left by a killed runner keeps the lock; smoke skips power and disk.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """tools/run_order.py driven by a fake row list with planted failures. Commands are `python -c` one-liners; no stage runs."""
 import importlib.util, json, os, subprocess, sys
@@ -242,6 +246,27 @@ def test_a_second_runner_is_refused_and_a_stale_lock_is_cleared(env, monkeypatch
     assert not lock.exists()
 
 
+def test_a_stage_left_by_a_killed_runner_keeps_the_lock(env, monkeypatch, capsys):
+    rows(monkeypatch, [RO.Row("A", "a", [("A", touch(env, "a"))], lambda s: "")])
+    dead = subprocess.Popen([sys.executable, "-c", "pass"]); dead.wait()
+    (env / "res" / "run_order.lock").write_text(f"{dead.pid} {os.getppid()}")      # the runner is gone, its stage is not
+    assert RO.main(["through", "A"]) == 1 and runs(env, "a") == 0 and "another runner" in capsys.readouterr().err
+
+
+def test_a_check_that_raises_fails_the_row_and_is_logged(env, monkeypatch):
+    def boom(sub): raise ValueError("planted")
+    rows(monkeypatch, [RO.Row("A", "a", [("A", touch(env, "a"))], boom)])
+    assert RO.main(["through", "A"]) == 1 and log(env).check.iloc[0] == "fail: check raised ValueError: planted"
+
+
+def test_epoch_check_reads_the_full_size_epoch_and_not_the_overfit_rows(env):
+    p = env / "res" / "neural" / "epoch_times.csv"
+    p.parent.mkdir()
+    for secs, verdict in ((200.0, "epoch took 200 s, the 96px fallback applies"), (114.8, "")):
+        pd.DataFrame({"tag": ["time_epoch", "overfit"], "seconds": [secs, 0.4], "n_train": [52292, 256]}).to_csv(p, index=False)
+        assert RO.epoch_time("4") == verdict
+
+
 def test_start_checks_stop_the_runner_before_any_row(env, monkeypatch, capsys):
     rows(monkeypatch, [RO.Row("A", "a", [("A", touch(env, "a"))], lambda s: "")])
     monkeypatch.setattr(RO, "start_checks", lambda smoke: ["not on AC power"])
@@ -263,6 +288,18 @@ def test_raw_checksums_catch_a_changed_file_and_pass_a_clean_one(env, monkeypatc
     assert real.start_checks(False) == []
     (raw / "z.zip").write_bytes(b"changed")
     assert any("checksum" in b for b in real.start_checks(False))
+
+
+def test_smoke_start_checks_skip_power_and_disk(env, monkeypatch):
+    class Out: stdout = "Now drawing from 'Battery Power'"
+    real = importlib.util.module_from_spec(spec); spec.loader.exec_module(real)
+    real.ROOT, real.MIN_FREE_GIB, real.PY = env, 10**9, sys.executable
+    monkeypatch.setattr(real.subprocess, "run", lambda *a, **k: Out)
+    assert real.start_checks(True) == []
+    bad = real.start_checks(False)
+    assert "not on AC power" in bad and any("GiB free" in b for b in bad)
+    real.PY = "no-such-python"
+    assert real.start_checks(True) == ["no-such-python not found"]
 
 
 def read_cmd(env, ok=True):
@@ -314,6 +351,27 @@ def test_rerun_read_runs_again_discloses_the_extra_read_and_goes_on(env, monkeyp
     RO.main(["status"])
     assert "done" in capsys.readouterr().out.splitlines()[-1]
     assert RO.main(["next", "--spend-read"]) == 0 and len(C.TEST_READS.read_text().splitlines()) == 3      # nothing pending, no third read
+
+
+def test_a_clean_read_leaves_an_empty_ledger(env, monkeypatch):
+    (env / "res" / "out.csv").write_text("x")
+    rows(monkeypatch, [read_row(env)])
+    assert RO.main(["next", "--spend-read"]) == 0
+    d = pd.read_csv(env / "res" / "test_reads_disclosed.csv")
+    assert list(d.columns) == RO.LEDGER_COLS and d.empty
+    assert RO.main(["status"]) == 0 and RO.main(["next", "--spend-read"]) == 0 and len(C.TEST_READS.read_text().splitlines()) == 2
+
+
+def test_a_kill_between_a_rerun_and_its_ledger_row_recovers_through_rerun_read(env, monkeypatch, capsys):
+    (env / "res" / "out.csv").write_text("x")
+    rows(monkeypatch, [read_row(env)])
+    C.TEST_READS.write_text("caller,time,frozen_hash\n07_compare.py,t1,h\n07_compare.py,t2,h\n")        # read 1, then a rerun killed before its ledger row
+    assert RO.main(["next", "--spend-read"]) == 1 and "rerun-read" in capsys.readouterr().err
+    assert len(C.TEST_READS.read_text().splitlines()) == 3
+    assert RO.main(["rerun-read", "12", "--reason", "killed during a rerun"]) == 0
+    d = pd.read_csv(env / "res" / "test_reads_disclosed.csv", dtype=str)
+    assert len(d) == 2 and set(d.reason) == {"killed during a rerun"} and d.time.iloc[0] == "t2"
+    assert RO.main(["next", "--spend-read"]) == 0 and len(C.TEST_READS.read_text().splitlines()) == 4
 
 
 def test_rerun_read_is_refused_for_an_unspent_read(env, monkeypatch, capsys):
@@ -382,6 +440,13 @@ def test_row_order_is_the_handoff_list_plus_10a():
     assert [r.id for r in R if r.lock][0] == "5"
 
 
+def test_every_row_from_the_first_lock_on_is_locked_and_the_reads_stay_awake():
+    R = RO.rows_for(False, images=["a.jpg"])
+    ids = [r.id for r in R]
+    assert [r.id for r in R if r.lock] == ids[ids.index("5"):]
+    assert {"8", "9", "10a", "12", "13", "14"} <= {r.id for r in R if r.long}
+
+
 def test_wedge_is_off_unless_asked():
     assert [r.id for r in RO.rows_for(False) if r.off] == ["3"]
     assert [r.id for r in RO.rows_for(False, wedge=True) if r.off] == []
@@ -404,3 +469,4 @@ def test_table_prints_every_row(capsys):
     RO.main(["table"])
     out = capsys.readouterr().out.splitlines()
     assert len(out) == 2 + len(HANDOFF_52) and any(l.startswith("| 10a |") for l in out)
+    assert "$PY src/07_compare.py --split val --rescore" in "\n".join(out) and RO.PY not in "\n".join(out) and "make predict IMG=path" in "\n".join(out)

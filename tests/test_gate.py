@@ -143,6 +143,10 @@
 #
 # ## Fix 10 (harden before go, C4)
 # - `tests/test_harden_seal.py`: the manifest test also needs the rows for `run_log.csv`, `test_reads_disclosed.csv` and `code_lock.json`, and every runner output listed in `ARTEFACTS` has a manifest row.
+#
+# ## Fix 11 (harden before go, integrator review)
+# - `tests/test_harden_seal.py`: `code_digest` on a real stamped file ignores an edit at the end of its record; `all` ends on `through 16` and depends on `get-data` and `data`; the overlap and control disclosures state the facts as found.
+# - `tests/test_run_order.py`: row 4 reads the full-size epoch; a clean read leaves an empty ledger; a kill between a rerun's read and its ledger row recovers through `rerun-read`; every row from 5 on is locked and the reads run under `caffeinate`; a check that raises is logged as a failure; a stage left by a killed runner keeps the lock; smoke skips power and disk.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 import json
 import numpy as np

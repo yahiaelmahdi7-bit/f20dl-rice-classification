@@ -122,6 +122,17 @@
 #
 # ## Fix 15 (harden before go, C4)
 # - `common.py`: `ARTEFACTS` lists `results/run_log.csv` (writer `run_order.py`, columns `row command commit start end seconds exit_code check peak_memory_mb`), `results/test_reads_disclosed.csv` (writer `run_order.py`, columns `caller time frozen_hash reason`) and `results/code_lock.json` (writer `run_order.py`, keys `digest time changes`).
+#
+# ## Fix 16 (harden before go, integrator review)
+# - `common.py`: `code_digest` cuts the stamped block by whole lines only, anchored at line start and end. The prompts quote both markers mid-line, so a match that stops at the first quoted marker leaves most of the record in the digest, and `make stamp` would move it.
+# - `tools/run_order.py`: row 4 reads the epoch with the most training grains, because the overfit rows of row 2 are the last lines of `epoch_times.csv` and take under a second.
+# - `tools/run_order.py`: a read row creates `test_reads_disclosed.csv` with its header before it runs, so a run with no extra read still has the ledger the manifest lists, and row 16 passes.
+# - `tools/run_order.py`: `rerun-read` copies any extra read missing from the ledger before it checks the two files agree, so a kill during a rerun can be recovered. `next` and `through` still stop on a disagreement.
+# - `tools/run_order.py`: rows 15 and 16 take the code lock. Rows 8, 9, 10a and the three reads run under `caffeinate -i`.
+# - `tools/run_order.py`: a check that raises counts as a failed check, so its row is still logged. The lock file also holds the pid of the running step, so a stage left running by a killed runner keeps the lock.
+# - `tools/run_order.py`: power and disk are start checks of a real run only. A marker's `make smoke` is not refused on battery. The python check uses `shutil.which`, so `PY=python3` works.
+# - `tools/run_order.py`: the log and the table print the python as `$PY`, because `run_log.csv` is tracked and must hold no machine path. Row 15 with no images prints `make predict IMG=path, one per case`.
+# - `Makefile`: `all` depends on `get-data` and `data` again, because the real row list starts after stage 4. With `READS=yes` it ends on `through 16 --images "$(IMG)"`, so predict and report run.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Run the post-go order of handoff 5.2 from one list, with a check per row, a log, a lock and a code lock. No stage logic lives here."""
 import argparse, csv, glob, hashlib, io, json, os, shutil, subprocess, sys, time
@@ -161,6 +172,11 @@ def make(target, *extra):
     return ["make", target, f"PY={PY}", *extra]
 
 
+def shown(argv):
+    """A command as the log and the table print it: no machine paths, because run_log.csv is tracked."""
+    return " ".join("$PY" if a == PY else a for a in argv if not a.startswith("PY="))
+
+
 def src(script, *args):
     return [PY, f"src/{script}", *args]
 
@@ -182,7 +198,8 @@ def models_exist(_sub):
 def epoch_time(_):
     p = C.RES / "neural" / "epoch_times.csv"
     if not p.exists(): return "no epoch_times.csv"
-    s = float(pd.read_csv(p).seconds.iloc[-1])
+    d = pd.read_csv(p)
+    s = float(d[d.n_train == d.n_train.max()].seconds.iloc[-1])      # row 2's overfit epochs come last and take under a second
     return "" if s < 180 else f"epoch took {s:.0f} s, the 96px fallback applies"
 
 
@@ -234,18 +251,18 @@ def rows_for(smoke, images=(), wedge=False):
           Row("5", "Table models", [("5", make("baselines"))], exists("baselines/best_params.json"), long=True, lock=True),
           Row("6", "MLP and SmallCNN", [("6a", src("06_neural.py", "--only", "mlp")), *[(f"6{c}", src("06_neural.py", "--only", "cnn", "--seeds", str(k))) for c, k in zip("bcd", range(3))]], models_exist, long=True, lock=True),
           Row("7", "Shuffled-label controls", [("7", make("controls"))], controls_pass, long=True, lock=True),
-          Row("8", "Validation compare", [("8", make("val-compare"))], exists("compare/val_metrics.csv"), lock=True),
-          Row("9", "Fit routing", [("9", make("fit"))], exists("routing/val_routes.csv"), lock=True),
+          Row("8", "Validation compare", [("8", make("val-compare"))], exists("compare/val_metrics.csv"), long=True, lock=True),
+          Row("9", "Fit routing", [("9", make("fit"))], exists("routing/val_routes.csv"), long=True, lock=True),
           Row("10", "Hold-out training", [("10", make("holdout-train"))], freeze_parts, long=True, lock=True),
-          Row("10a", "Full-size load proof", [("10a", src("07_compare.py", "--split", "val", "--rescore"))], ok, lock=True),
+          Row("10a", "Full-size load proof", [("10a", src("07_compare.py", "--split", "val", "--rescore"))], ok, long=True, lock=True),
           Row("11", "Freeze", [("11", make("freeze"))], frozen, lock=True),
-          Row("12", "Compare", [("12", make("compare"))], read_made("07_compare.py", "compare/test_metrics.csv"), read="07_compare.py", lock=True),
-          Row("13", "Score", [("13", make("score"))], read_made("08_routing.py", "routing/test_routes.csv"), read="08_routing.py", lock=True),
-          Row("14", "Robustness", [("14", make("robustness"))], read_made("09_robustness.py", "robustness/late_recall.csv"), read="09_robustness.py", lock=True)]
+          Row("12", "Compare", [("12", make("compare"))], read_made("07_compare.py", "compare/test_metrics.csv"), read="07_compare.py", long=True, lock=True),
+          Row("13", "Score", [("13", make("score"))], read_made("08_routing.py", "routing/test_routes.csv"), read="08_routing.py", long=True, lock=True),
+          Row("14", "Robustness", [("14", make("robustness"))], read_made("09_robustness.py", "robustness/late_recall.csv"), read="09_robustness.py", long=True, lock=True)]
     if smoke: pred = [("15", make("smoke-predict"))]
     elif images: pred = [(f"15{c}", make("predict", f"IMG={i}")) for c, i in zip("abc", images)]
     else: pred = [("15", None)]
-    return R + [Row("15", "Predict", pred, lambda _: ""), Row("16", "Report", [("16", make("report"))], manifest)]
+    return R + [Row("15", "Predict", pred, ok, lock=True), Row("16", "Report", [("16", make("report"))], manifest, lock=True)]
 
 
 # ---- the two logs and the lock ----------------------------------------------------
@@ -312,22 +329,24 @@ def extra_reads():
 def ledger_agrees():
     told = Counter(ledger()[READ_KEY].itertuples(index=False, name=None))
     if extra_reads() != told:
-        raise Stop(f"test_reads.csv and test_reads_disclosed.csv disagree: not disclosed {list(extra_reads() - told)}, disclosed but not an extra read {list(told - extra_reads())}")
+        raise Stop(f"test_reads.csv and test_reads_disclosed.csv disagree: not disclosed {list(extra_reads() - told)}, disclosed but not an extra read {list(told - extra_reads())}. A read killed before its ledger row is recorded by rerun-read")
+
+
+def running(pid):
+    try: os.kill(pid, 0)
+    except ProcessLookupError: return False
+    except PermissionError: pass
+    return True
 
 
 def acquire_lock():
     p = C.RES / "run_order.lock"
     p.parent.mkdir(parents=True, exist_ok=True)
     if p.exists():
-        try: pid = int(p.read_text().strip())
-        except ValueError: pid = 0
-        alive = False
-        if pid:
-            try: os.kill(pid, 0); alive = True
-            except ProcessLookupError: pass
-            except PermissionError: alive = True
-        if alive and pid != os.getpid(): raise Stop(f"another runner holds {p} (pid {pid})")
-        print(f"cleared a stale lock (pid {pid}, not running)")
+        pids = [int(x) for x in p.read_text().split() if x.isdigit()]
+        live = [i for i in pids if i != os.getpid() and running(i)]
+        if live: raise Stop(f"another runner holds {p} (pid {live[0]})")
+        print(f"cleared a stale lock (pid {pids}, not running)")
     p.write_text(str(os.getpid()))
     return p
 
@@ -349,25 +368,24 @@ def check_lock(code_changed):
 
 
 def start_checks(smoke):
-    """Once per invocation: power, disk, python, raw data. Returns the problems."""
-    bad = []
+    """Once per invocation. Returns the problems. Smoke checks the python only: it is short, and a marker's run must not be refused on battery."""
+    bad = [] if shutil.which(PY) else [f"{PY} not found"]
+    if smoke: return bad
     try:
         out = subprocess.run(["pmset", "-g", "batt"], capture_output=True, text=True).stdout
         if "AC Power" not in out: bad.append("not on AC power")
     except OSError: pass
     free = shutil.disk_usage(ROOT).free / 2**30
     if free < MIN_FREE_GIB: bad.append(f"{free:.1f} GiB free, need {MIN_FREE_GIB}")
-    if not Path(PY).exists(): bad.append(f"{PY} not found")
     sums = ROOT / "data" / "raw" / "SHA256SUMS"
-    if not smoke:
-        for l in sums.read_text().splitlines() if sums.exists() else ["missing SHA256SUMS"]:
-            h, _, name = l.partition("  ")
-            f = sums.parent / name
-            if not f.exists(): bad.append(f"raw {name} missing"); continue
-            s = hashlib.sha256()
-            with open(f, "rb") as fh:
-                for chunk in iter(lambda: fh.read(1 << 20), b""): s.update(chunk)
-            if s.hexdigest() != h: bad.append(f"raw {name} checksum differs")
+    for l in sums.read_text().splitlines() if sums.exists() else ["missing SHA256SUMS"]:
+        h, _, name = l.partition("  ")
+        f = sums.parent / name
+        if not f.exists(): bad.append(f"raw {name} missing"); continue
+        s = hashlib.sha256()
+        with open(f, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""): s.update(chunk)
+        if s.hexdigest() != h: bad.append(f"raw {name} checksum differs")
     return bad
 
 
@@ -384,19 +402,33 @@ def run_step(row, sub, argv, smoke):
     cmd = (["caffeinate", "-i"] if row.long and shutil.which("caffeinate") else []) + argv
     t0 = time.time()
     p = subprocess.Popen(cmd, cwd=ROOT, env=env)
+    (C.RES / "run_order.lock").write_text(f"{os.getpid()} {p.pid}")      # a stage left running by a killed runner keeps the lock
     _, status, ru = os.wait4(p.pid, 0)
     code = os.waitstatus_to_exitcode(status)
     mb = ru.ru_maxrss / (2**20 if sys.platform == "darwin" else 2**10)
     return code, t0, time.time(), mb
 
 
+def check_row(row, sub):
+    """A check that raises is a failed check, so its row is still logged."""
+    try: return row.check(sub) if row.check else ""
+    except Exception as e: return f"check raised {type(e).__name__}: {e}"
+
+
+def open_ledger():
+    """The header alone, before a read: an empty ledger says no read was repeated, and the manifest lists this file."""
+    p = C.RES / "test_reads_disclosed.csv"
+    if not p.exists(): p.write_text(",".join(LEDGER_COLS) + "\n")
+
+
 def attempt(row, sub, argv, smoke, reason=None):
     """Run one sub-step, copy any extra read into the ledger, check, log. True when it passed."""
+    if row.read: open_ledger()
     code, t0, t1, mb = run_step(row, sub, argv, smoke)
     if row.read and reason: disclose(row, reason)
-    why = f"exit code {code}" if code else (row.check(sub) if row.check else "")
+    why = f"exit code {code}" if code else check_row(row, sub)
     verdict = "pass" if not why else f"fail: {why}"
-    append_log({"row": sub, "command": " ".join(a for a in argv if not a.startswith("PY=")), "commit": commit(), "start": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(t0)),
+    append_log({"row": sub, "command": shown(argv), "commit": commit(), "start": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(t0)),
                 "end": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(t1)), "seconds": f"{t1 - t0:.1f}", "exit_code": code, "check": verdict, "peak_memory_mb": f"{mb:.0f}"})
     print(f"row {sub}: {verdict}", flush=True)
     return not why
@@ -409,11 +441,9 @@ def disclose(row, reason):
         if told[t] > 0: told[t] -= 1
         else: new.append([*t, reason])
     if not new: return
-    p = C.RES / "test_reads_disclosed.csv"
-    fresh = not p.exists()
-    with open(p, "a", newline="") as f:
+    open_ledger()
+    with open(C.RES / "test_reads_disclosed.csv", "a", newline="") as f:
         w = csv.writer(f, lineterminator="\n")
-        if fresh: w.writerow(LEDGER_COLS)
         w.writerows(new)
         f.flush(); os.fsync(f.fileno())
 
@@ -466,7 +496,7 @@ def status(R, a):
 def table(R):
     print("| # | Step | Command | Test read |\n|---|---|---|---|")
     for row in R:
-        cmd = "; ".join(" ".join(x for x in (argv or []) if not x.startswith("PY=")) for _, argv in row.steps)
+        cmd = "; ".join(shown(argv) if argv else "make predict IMG=path, one per case" for _, argv in row.steps)
         print(f"| {row.id} | {row.name}{' (off by default)' if row.off else ''} | `{cmd}` | {'Read ' + row.read if row.read else 'No'} |")
 
 
@@ -497,7 +527,7 @@ def main(argv=None):
                 row = next((r for r in R if r.id == a.arg), None)
                 if row is None or not row.read: raise Stop("rerun-read needs a row that spends a read (12, 13 or 14)")
                 if not a.reason: raise Stop("rerun-read needs --reason")
-                log_entries(); ledger_agrees()
+                log_entries(); disclose(row, a.reason); ledger_agrees()      # a rerun killed before its ledger row is recorded here
                 if read_state(row, log_entries()) == "unspent": raise Stop(f"read {row.id} is not spent; use `next --spend-read`")
                 if row.lock: check_lock(a.code_changed)
                 if not attempt(row, row.steps[0][0], row.steps[0][1], C.SMOKE, reason=a.reason): raise Stop(f"row {row.id} failed again")

@@ -19,3 +19,8 @@ Write `src/report.py`, run by `make report`, reading only saved CSVs and predict
 
 ## Fix 7 (harden before go, C4)
 - `MANIFEST.csv` gains three rows, all stage 11: `run_log.csv` (time and memory per runner row), `test_reads_disclosed.csv` (extra test reads, with reasons) and `code_lock.json` (the code digest and any logged code change).
+
+## Fix 8 (harden before go, integrator review)
+- `DISCLOSURES`: the old smoke overlap row says the throwaway smoke models were fitted on those grains and scored them, and that no real model or choice used those models. The counts stay in `results/smoke_overlap.csv`.
+- `DISCLOSURES`: the shuffled-label row gives the measured reason: a simple model can give a whole tight class one shuffled label, so the stop is `C.CONTROL_CEILING`, not `C.CHANCE_BAND`. Both values come from `common.py`.
+- Every `evidence_file` is a path from the repo root.

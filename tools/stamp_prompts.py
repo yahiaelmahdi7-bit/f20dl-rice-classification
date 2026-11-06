@@ -122,6 +122,17 @@
 #
 # ## Fix 15 (harden before go, C4)
 # - `common.py`: `ARTEFACTS` lists `results/run_log.csv` (writer `run_order.py`, columns `row command commit start end seconds exit_code check peak_memory_mb`), `results/test_reads_disclosed.csv` (writer `run_order.py`, columns `caller time frozen_hash reason`) and `results/code_lock.json` (writer `run_order.py`, keys `digest time changes`).
+#
+# ## Fix 16 (harden before go, integrator review)
+# - `common.py`: `code_digest` cuts the stamped block by whole lines only, anchored at line start and end. The prompts quote both markers mid-line, so a match that stops at the first quoted marker leaves most of the record in the digest, and `make stamp` would move it.
+# - `tools/run_order.py`: row 4 reads the epoch with the most training grains, because the overfit rows of row 2 are the last lines of `epoch_times.csv` and take under a second.
+# - `tools/run_order.py`: a read row creates `test_reads_disclosed.csv` with its header before it runs, so a run with no extra read still has the ledger the manifest lists, and row 16 passes.
+# - `tools/run_order.py`: `rerun-read` copies any extra read missing from the ledger before it checks the two files agree, so a kill during a rerun can be recovered. `next` and `through` still stop on a disagreement.
+# - `tools/run_order.py`: rows 15 and 16 take the code lock. Rows 8, 9, 10a and the three reads run under `caffeinate -i`.
+# - `tools/run_order.py`: a check that raises counts as a failed check, so its row is still logged. The lock file also holds the pid of the running step, so a stage left running by a killed runner keeps the lock.
+# - `tools/run_order.py`: power and disk are start checks of a real run only. A marker's `make smoke` is not refused on battery. The python check uses `shutil.which`, so `PY=python3` works.
+# - `tools/run_order.py`: the log and the table print the python as `$PY`, because `run_log.csv` is tracked and must hold no machine path. Row 15 with no images prints `make predict IMG=path, one per case`.
+# - `Makefile`: `all` depends on `get-data` and `data` again, because the real row list starts after stage 4. With `READS=yes` it ends on `through 16 --images "$(IMG)"`, so predict and report run.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Copy each stage prompt into the header of the file it generated. Idempotent."""
 import sys

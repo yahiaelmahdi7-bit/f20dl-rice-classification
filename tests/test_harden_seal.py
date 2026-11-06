@@ -143,6 +143,10 @@
 #
 # ## Fix 10 (harden before go, C4)
 # - `tests/test_harden_seal.py`: the manifest test also needs the rows for `run_log.csv`, `test_reads_disclosed.csv` and `code_lock.json`, and every runner output listed in `ARTEFACTS` has a manifest row.
+#
+# ## Fix 11 (harden before go, integrator review)
+# - `tests/test_harden_seal.py`: `code_digest` on a real stamped file ignores an edit at the end of its record; `all` ends on `through 16` and depends on `get-data` and `data`; the overlap and control disclosures state the facts as found.
+# - `tests/test_run_order.py`: row 4 reads the full-size epoch; a clean read leaves an empty ledger; a kill between a rerun's read and its ledger row recovers through `rerun-read`; every row from 5 on is locked and the reads run under `caffeinate`; a check that raises is logged as a failure; a stage left by a killed runner keeps the lock; smoke skips power and disk.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
@@ -275,7 +279,7 @@ def test_all_stops_after_freeze_unless_reads_is_yes():
     before, after = body.split("ifeq ($(READS),yes)")
     yes, no = after.split("endif")[0].split("else")
     assert "through 11" in before and "--spend-read" not in before
-    assert yes.count("next --spend-read") == 3 and "through 14" in yes
+    assert yes.count("next --spend-read") == 3 and 'through 16 --images "$(IMG)"' in yes
     assert "$(PY)" not in no and "stopped after freeze" in no
 
 
@@ -492,6 +496,20 @@ def test_code_digest_ignores_the_prompt_record_block_and_sees_an_edit(tmp_path):
         assert C.code_digest([f]) != d                       # one-character edit: moved
 
 
+def test_code_digest_ignores_any_edit_inside_a_real_stamped_record(tmp_path):
+    """On the real files: their records quote both markers mid-line, which a made-up block does not."""
+    end = "\n# === AI-GENERATED CODE: PROMPT RECORD END ===\n"
+    for name in ("src/common.py", "tools/run_order.py", "Makefile"):
+        text = (ROOT / name).read_text()
+        assert text.count("PROMPT RECORD END ===") > 1 and text.count(end) == 1
+        a, b = tmp_path / "a", tmp_path / "b"
+        a.write_text(text)
+        b.write_text(text.replace(end, "\n# ## Fix 99\n# - a new prompt line" + end))
+        assert C.code_digest([a]) == C.code_digest([b]), name
+        b.write_text(text + "x = 1\n")
+        assert C.code_digest([a]) != C.code_digest([b]), name
+
+
 def test_holdout_cnn_retrains_when_the_code_digest_changed(tmp_path, monkeypatch):
     from types import SimpleNamespace
     spec = importlib.util.spec_from_file_location("rob_d7", ROOT / "src/09_robustness.py")
@@ -555,7 +573,14 @@ def test_every_evidence_file_and_new_output_is_in_the_manifest():
     assert need <= listed
     for name in ("run_log.csv", "test_reads_disclosed.csv", "code_lock.json"):
         assert C.ARTEFACTS["files"][f"results/{name}"]["writers"] == ["run_order.py"]
-    assert {e for _, _, e in R.DISCLOSURES} <= listed | {"routing/val_routes.csv", "eda/class_balance.csv", "baselines/control.csv", "routing/val_calibration.csv"}
+    assert all(e.startswith("results/") for _, _, e in R.DISCLOSURES)         # one convention: from the repo root
+    assert {e.removeprefix("results/") for _, _, e in R.DISCLOSURES} <= {m.removeprefix("results/") for m in listed} | {"routing/val_routes.csv", "eda/class_balance.csv", "baselines/control.csv", "routing/val_calibration.csv", "baselines/val_results.csv"}
+
+
+def test_disclosures_state_the_overlap_and_the_control_as_found():
+    D = {i: w for i, w, _ in _report().DISCLOSURES}
+    assert "fitted on them" in D["old smoke overlap"] and "no real model" in D["old smoke overlap"] and "nothing was fitted" not in D["old smoke overlap"]
+    assert "class shares" not in D["shuffled-label scores"] and f"{C.CONTROL_CEILING:.0%} ceiling" in D["shuffled-label scores"]
 
 
 def test_go_tests_skip_without_rice_go_and_read_the_mode_folders():
