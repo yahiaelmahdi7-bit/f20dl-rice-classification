@@ -122,6 +122,7 @@
 #
 # ## Fix 5 (harden before go)
 # - `tests/test_harden_seal.py`: model-free tests for the seal fixes and the real gate in smoke. Stage 1 `--subset` keeps only train and val ids and stops on a class missing from a slice split. Real mode keeps today's exact paths; under `RICE_SMOKE=1` the freeze file, the read log and the models folder sit in smoke folders; a smoke read creates nothing outside them. Hand-worked frames only, no fit.
+# - `tests/test_awaiting_go.py`: `test_stage7_tables_reproduce_from_saved_predictions` moves to validation. It rebuilds the `val_*` tables (metrics, recall, confusion, seed spread, McNemar, by lot, by angle, by angle and lot) from the saved validation predictions through the same `tables()` and compares them with the files stage 7 wrote. It touches no sealed label and adds nothing to the read path. After this no `@GO` test loads a test predictions file; `test_no_go_test_loads_a_test_predictions_file` pins that.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Tests that fit a model or need predictions. Written, not run, until training is approved."""
 import subprocess, sys
@@ -212,20 +213,41 @@ def test_every_read_is_kept_under_one_hash_and_extras_are_disclosed():
 
 @GO
 def test_stage7_tables_reproduce_from_saved_predictions(tmp_path, monkeypatch):
-    """Plan step 8. Stage 7's real tables, rerun on the saved test predictions in a temporary folder, must match the files the read wrote. A read builds its tables from these same saved files, so the match is exact. Loads no test rows and logs no read."""
+    """Stage 7's real tables, rerun on the saved validation predictions in a temporary folder, must match the val files stage 7 wrote. Same code as the read uses, no sealed label, no read."""
     import importlib.util
     import common as C
     spec = importlib.util.spec_from_file_location("stage7", ROOT / "src" / "07_compare.py")
     s = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(s)
-    monkeypatch.setattr(C, "FIG", tmp_path)        # the read's own figure stays as it wrote it
-    preds = {(m, fs, k): C.load_preds(m, fs, k, "test") for m, fs, seeds in s.model_list() for k in seeds}
+    monkeypatch.setattr(C, "FIG", tmp_path)        # the stage's own figure stays as it wrote it
+    preds = {(m, fs, k): C.load_preds(m, fs, k, "val") for m, fs, seeds in s.model_list() for k in seeds}
     gone = [k for k, d in preds.items() if d is None]
     assert not gone, f"no saved predictions for {gone}"
-    s.tables(preds, "test", tmp_path)
-    for name in ("metrics", "recall", "confusion", "seed_spread", "mcnemar"):
-        f = f"test_{name}.csv"
+    s.tables(preds, "val", tmp_path)
+    for name in ("metrics", "recall", "confusion", "seed_spread", "mcnemar", "by_lot", "by_angle", "by_angle_lot"):
+        f = f"val_{name}.csv"
         assert (tmp_path / f).read_text() == (C.RES / "compare" / f).read_text(), f"{f} does not reproduce from the saved predictions"
+
+
+def _go_tests_loading_test_preds(text):
+    import re
+    out = []
+    for body in text.split("\n@GO\n")[1:]:
+        body = body.split("\n\n\n")[0]
+        if re.search(r"load_preds\([^)]*[\"']test[\"']", body) or "test_preds" in body: out.append(body.splitlines()[0])
+    return out
+
+
+def test_no_go_test_loads_a_test_predictions_file():
+    """The reproduce check runs on validation. Plain text check, so it holds before go too."""
+    text = (ROOT / "tests" / "test_awaiting_go.py").read_text().split("PROMPT RECORD END ===", 1)[-1]
+    assert _go_tests_loading_test_preds(text) == []
+
+
+def test_the_test_preds_check_fires_on_a_fault_and_stays_quiet_on_clean_text():
+    bad = '@GO\ndef test_x():\n    d = C.load_preds("hgb", "all106", 0, "test")\n\n\n'
+    ok = '@GO\ndef test_y():\n    d = C.load_preds("hgb", "all106", 0, "val")\n\n\n'
+    assert _go_tests_loading_test_preds("\n" + bad) == ["def test_x():"] and _go_tests_loading_test_preds("\n" + ok) == []
 
 
 @GO

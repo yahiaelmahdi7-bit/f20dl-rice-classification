@@ -122,6 +122,7 @@
 #
 # ## Fix 5 (harden before go)
 # - `tests/test_harden_seal.py`: model-free tests for the seal fixes and the real gate in smoke. Stage 1 `--subset` keeps only train and val ids and stops on a class missing from a slice split. Real mode keeps today's exact paths; under `RICE_SMOKE=1` the freeze file, the read log and the models folder sit in smoke folders; a smoke read creates nothing outside them. Hand-worked frames only, no fit.
+# - `tests/test_awaiting_go.py`: `test_stage7_tables_reproduce_from_saved_predictions` moves to validation. It rebuilds the `val_*` tables (metrics, recall, confusion, seed spread, McNemar, by lot, by angle, by angle and lot) from the saved validation predictions through the same `tables()` and compares them with the files stage 7 wrote. It touches no sealed label and adds nothing to the read path. After this no `@GO` test loads a test predictions file; `test_no_go_test_loads_a_test_predictions_file` pins that.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """The contract between stages. Reads code and CSV files only, fits no model.
 
