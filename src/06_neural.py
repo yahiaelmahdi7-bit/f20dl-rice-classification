@@ -87,6 +87,9 @@
 #
 # ## Fix 4
 # `--control` takes its labels from `C.shuffled_labels`, in `train_cnn` and on the MLP path, and calls `C.control_gate` on `control.csv` once the rows are merged. `in_18_22_band` stays in the file as a reported fact, read from `C.CHANCE_BAND`.
+#
+# ## Fix 5 (row 2 failed at go)
+# `--overfit-test` allows up to 150 epochs, held in `OVERFIT_EPOCHS`. The 200 grains and the 99% pass bar stay. This replaces the 30 of Fix 2. At go the real test reached 92% in 30 epochs: 200 grains at batch 128 is 2 updates an epoch, 60 in all, with the learning rate fading to zero. In a scratch run with no project writes it reached 99.0% and 99.5% at epochs 37 and 34 under a 150 limit, so the limit was too small for the batch size and the model was not at fault. The limit was set after seeing this failure, and the report discloses that. `train_cnn` is unchanged.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 6: MLP on all106 and SmallCNN on 128 px images; tuning, seeds, curves, embeddings."""
 import argparse, csv, itertools, json, os, time
@@ -94,6 +97,7 @@ import joblib, numpy as np, pandas as pd
 import torch, torch.nn as nn
 import common as C
 
+OVERFIT_EPOCHS = 150   # 200 grains at batch 128 is 2 updates an epoch; the plan's 30 gave 60 updates and stopped at 92%
 DEFAULT_CNN = {"width": 32, "lr": 1e-3, "dropout": 0.3}
 DEFAULT_MLP = {"hidden": [256, 128], "lr": 1e-3, "dropout": 0.2}
 MLP_GRID = [{"hidden": h, "lr": lr, "dropout": d} for h in ([100], [50, 50], [256, 128]) for lr in (1e-3, 3e-4) for d in (0.0, 0.2)]
@@ -275,14 +279,14 @@ def main():
     if a.overfit_test:
         sub = tr.sample(200, random_state=C.SEED).reset_index(drop=True)
         cfg = {**DEFAULT_CNN, "dropout": 0.0}
-        model, hist, mean, std = train_cnn(cfg, 0, sub, None, 30 if not C.SMOKE else 2, 99, "overfit", aug=False, stop_train_acc=0.99)
+        model, hist, mean, std = train_cnn(cfg, 0, sub, None, OVERFIT_EPOCHS if not C.SMOKE else 2, 99, "overfit", aug=False, stop_train_acc=0.99)
         P, _ = cnn_eval(model, mean, std, sub)
         acc = float((P.argmax(1) == sub.y.to_numpy()).mean())
         reached = [h["epoch"] for h in hist if h.get("train_acc", 0) >= 0.99]
         if C.SMOKE:
             print(f"overfit test: train accuracy on 200 grains = {acc:.4f} after {len(hist)} epochs; smoke path, no verdict")
             raise SystemExit(0)
-        print(f"overfit test: train accuracy on 200 grains = {acc:.4f}; first epoch at >= 0.99: {reached[0] if reached else 'never'} of up to 30 -> {'PASS' if reached else 'FAIL'}")
+        print(f"overfit test: train accuracy on 200 grains = {acc:.4f}; first epoch at >= 0.99: {reached[0] if reached else 'never'} of up to {OVERFIT_EPOCHS} -> {'PASS' if reached else 'FAIL'}")
         raise SystemExit(0 if reached else 1)
     if a.time_epoch:
         cfg = DEFAULT_CNN

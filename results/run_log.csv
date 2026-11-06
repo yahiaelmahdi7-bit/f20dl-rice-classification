@@ -1,0 +1,3 @@
+row,command,commit,start,end,seconds,exit_code,check,peak_memory_mb
+1,make smoke,94c691a,2026-11-06T14:47:24,2026-11-06T14:49:42,138.2,0,pass,1886
+2,make overfit,94c691a,2026-11-06T14:49:42,2026-11-06T14:49:58,15.7,2,fail: exit code 2,1113

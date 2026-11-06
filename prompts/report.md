@@ -27,3 +27,6 @@ Write `src/report.py`, run by `make report`, reading only saved CSVs and predict
 
 ## Fix 9 (harden before go, smoke row 16)
 - `report.py`: `gaps(point, lo, hi)` returns the two error-bar lengths, each floored at 0. Both interval figures use it, for drawing only, so the saved tables keep their values. A bootstrap percentile interval can miss its point, and a bar length cannot be negative.
+
+## Fix 10 (row 2 failed at go)
+`DISCLOSURES` gains a fixed `overfit test limit` row: the plan allowed 30 epochs, the first real run reached 92% against the 99% bar, and the limit was raised to 150 after that failure with the 200 grains and the bar unchanged. Evidence file `results/run_log.csv`.

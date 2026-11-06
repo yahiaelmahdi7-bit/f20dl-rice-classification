@@ -69,6 +69,9 @@
 #
 # ## Fix 9 (harden before go, smoke row 16)
 # - `report.py`: `gaps(point, lo, hi)` returns the two error-bar lengths, each floored at 0. Both interval figures use it, for drawing only, so the saved tables keep their values. A bootstrap percentile interval can miss its point, and a bar length cannot be negative.
+#
+# ## Fix 10 (row 2 failed at go)
+# `DISCLOSURES` gains a fixed `overfit test limit` row: the plan allowed 30 epochs, the first real run reached 92% against the 99% bar, and the limit was raised to 150 after that failure with the 200 grains and the bar unchanged. Evidence file `results/run_log.csv`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import json
@@ -121,6 +124,7 @@ DISCLOSURES = [
     ("in-sample calibration and routes", "val_calibration and val_routes are in-sample: temperature, floors and cuts were set on the same validation rows", "results/routing/val_calibration.csv"),
     ("validation holds late grains", "hyperparameters were picked on validation, which holds late-lot grains", "results/baselines/val_results.csv"),
     ("shuffled-label scores", f"a clean shuffled-label score can sit far from 20%: a simple model can give a whole tight class one shuffled label, so the stop is the {C.CONTROL_CEILING:.0%} ceiling and not the {C.CHANCE_BAND[0]:.0%} to {C.CHANCE_BAND[1]:.0%} band", "results/baselines/control.csv"),
+    ("overfit test limit", "the plan allowed 30 epochs for the overfit test; the first real run reached 92% against the 99% bar, because 200 grains at batch 128 gives only 60 updates in 30 epochs, so the limit was raised to 150 after that failure, with the 200 grains and the 99% bar unchanged", "results/run_log.csv"),
     ("eda counts include test", "02_eda class counts include test rows, as counts only", "results/eda/class_balance.csv"),
     ("image gate seed", "the image familiarity gate uses seed 0 for all three CNN seeds", "results/routing/val_routes.csv"),
     ("near-upright", "the near-upright band is the group's own reading of the angle table", "results/compare/val_by_angle.csv"),

@@ -45,3 +45,6 @@ Write `src/06_neural.py`. Options: `--only mlp|cnn`, `--seeds 0 1 2`, `--overfit
 
 ## Fix 4
 `--control` takes its labels from `C.shuffled_labels`, in `train_cnn` and on the MLP path, and calls `C.control_gate` on `control.csv` once the rows are merged. `in_18_22_band` stays in the file as a reported fact, read from `C.CHANCE_BAND`.
+
+## Fix 5 (row 2 failed at go)
+`--overfit-test` allows up to 150 epochs, held in `OVERFIT_EPOCHS`. The 200 grains and the 99% pass bar stay. This replaces the 30 of Fix 2. At go the real test reached 92% in 30 epochs: 200 grains at batch 128 is 2 updates an epoch, 60 in all, with the learning rate fading to zero. In a scratch run with no project writes it reached 99.0% and 99.5% at epochs 37 and 34 under a 150 limit, so the limit was too small for the batch size and the model was not at fault. The limit was set after seeing this failure, and the report discloses that. `train_cnn` is unchanged.

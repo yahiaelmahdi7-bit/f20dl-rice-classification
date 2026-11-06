@@ -377,3 +377,13 @@ def test_missing_file_exits_3_and_names_both_targets(tmp_path, capsys):
         P.need(tmp_path / "gate.joblib")
     err = capsys.readouterr().err
     assert e.value.code == 3 and "gate.joblib" in err and "make train" in err and "make fit" in err
+
+
+def test_overfit_limit_raised_and_bar_kept():
+    """Fix 5: the epoch limit moved to 150; the 200 grains and the 99% bar did not."""
+    s = (Path(__file__).resolve().parent.parent / "src" / "06_neural.py").read_text()
+    code = "\n".join(l for l in s.splitlines() if not l.startswith("#"))
+    assert "OVERFIT_EPOCHS = 150" in code
+    assert "tr.sample(200, random_state=C.SEED)" in code
+    assert "OVERFIT_EPOCHS if not C.SMOKE else 2" in code and "stop_train_acc=0.99" in code
+    assert 'h.get("train_acc", 0) >= 0.99' in code
