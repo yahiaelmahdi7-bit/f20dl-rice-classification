@@ -73,3 +73,7 @@ Stamp format: a comment block between `# === AI-GENERATED CODE: PROMPT RECORD ST
 - Code lock (C3): `code_lock.json` in `C.RES` records `C.code_digest` of `src/*.py` except `report.py`, plus `tools/freeze.py`, `tools/run_order.py` and the Makefile, at the first locked step (row 5 on). A later step refuses if the digest moved unless given `--code-changed REASON`, which is added to `changes` in the lock file and updates the digest.
 - `results/run_log.csv` (C4) is tracked through `C.RES`. `common.ARTEFACTS` lists it, `test_reads_disclosed.csv` and `code_lock.json` with their writer and columns.
 - `tests/test_run_order.py`: see `prompts/BUILD.md`.
+
+## Fix 14 (harden before go, C5)
+- `Makefile`: `all` calls the runner: `tools/run_order.py through 11`, then, only when `READS=yes`, three `next --spend-read` and `through 14`; otherwise it prints that it stopped after freeze. `smoke` clears `models/smoke`, `results/smoke`, `figures/smoke` and `data/derived/smoke`, then runs the runner under `RICE_SMOKE=1` with its own row list: `through 11`, three `next --spend-read`, `through 16`. It no longer depends on `get-data`, because the smoke list starts with stage 0. The smoke predict loop moves unchanged to a new target `smoke-predict`, which is row 15 of the smoke list; `report.py` is row 16.
+- `Makefile`: new variable `RES`, `results/smoke` when `RICE_SMOKE` is set and `results` otherwise. The `controls` check for `best_config.json` reads `$(RES)`, so it sees the smoke folder in smoke mode.

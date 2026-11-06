@@ -115,12 +115,17 @@
 # - Code lock (C3): `code_lock.json` in `C.RES` records `C.code_digest` of `src/*.py` except `report.py`, plus `tools/freeze.py`, `tools/run_order.py` and the Makefile, at the first locked step (row 5 on). A later step refuses if the digest moved unless given `--code-changed REASON`, which is added to `changes` in the lock file and updates the digest.
 # - `results/run_log.csv` (C4) is tracked through `C.RES`. `common.ARTEFACTS` lists it, `test_reads_disclosed.csv` and `code_lock.json` with their writer and columns.
 # - `tests/test_run_order.py`: see `prompts/BUILD.md`.
+#
+# ## Fix 14 (harden before go, C5)
+# - `Makefile`: `all` calls the runner: `tools/run_order.py through 11`, then, only when `READS=yes`, three `next --spend-read` and `through 14`; otherwise it prints that it stopped after freeze. `smoke` clears `models/smoke`, `results/smoke`, `figures/smoke` and `data/derived/smoke`, then runs the runner under `RICE_SMOKE=1` with its own row list: `through 11`, three `next --spend-read`, `through 16`. It no longer depends on `get-data`, because the smoke list starts with stage 0. The smoke predict loop moves unchanged to a new target `smoke-predict`, which is row 15 of the smoke list; `report.py` is row 16.
+# - `Makefile`: new variable `RES`, `results/smoke` when `RICE_SMOKE` is set and `results` otherwise. The `controls` check for `best_config.json` reads `$(RES)`, so it sees the smoke folder in smoke mode.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 PY ?= .venv/bin/python
 IMG ?= data/raw/Rice_Image_Dataset/Arborio/Arborio (18).jpg
 SM = RICE_SMOKE=1
+RES = results$(if $(RICE_SMOKE),/smoke,)
 .DEFAULT_GOAL := help
-.PHONY: help get-data data grains eda features cluster baselines neural overfit controls val-compare wedge fit freeze compare score holdout-train robustness report predict train all smoke test stamp check
+.PHONY: help get-data data grains eda features cluster baselines neural overfit controls val-compare wedge fit freeze compare score holdout-train robustness report predict train all smoke smoke-predict test stamp check
 
 help:  ## list targets (this is the usage text)
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/\t/'
@@ -144,7 +149,7 @@ train: baselines neural  ## stages 5 and 6
 overfit:  ## before wedge or train: can the CNN memorise 200 grains? fixed config, under a minute
 	$(PY) src/06_neural.py --overfit-test
 controls:  ## after train, never before: shuffled-label controls, which read the chosen configs
-	@test -f results/neural/best_config.json || { echo "run make train first: --control reads results/neural/best_config.json" >&2; exit 1; }
+	@test -f $(RES)/neural/best_config.json || { echo "run make train first: --control reads $(RES)/neural/best_config.json" >&2; exit 1; }
 	$(PY) src/05_baselines.py --control
 	$(PY) src/06_neural.py --control
 val-compare:  ## stage 7 on validation, no test read
@@ -169,29 +174,28 @@ predict:  ## stage 10: predict one image, IMG=path
 	$(PY) src/predict.py "$(IMG)"
 report:  ## summary tables, manifest and figures from saved outputs
 	$(PY) src/report.py
-all: get-data data overfit train controls val-compare fit holdout-train freeze compare score robustness predict report  ## every stage in order
+all:  ## every stage in order through the runner; stops after freeze unless READS=yes
+	$(PY) tools/run_order.py through 11
+ifeq ($(READS),yes)
+	$(PY) tools/run_order.py next --spend-read
+	$(PY) tools/run_order.py next --spend-read
+	$(PY) tools/run_order.py next --spend-read
+	$(PY) tools/run_order.py through 14
+else
+	@echo "stopped after freeze: the three test reads are not spent. Run READS=yes make all, or tools/run_order.py next --spend-read by hand."
+endif
 stamp:  ## copy prompts into file headers
 	$(PY) tools/stamp_prompts.py
 check:  ## fail if a prompt record differs
 	$(PY) tools/check_prompts.py
 test:  ## pytest
 	env -u RICE_SMOKE $(PY) -m pytest -q tests
-smoke: get-data  ## every stage 0-10 and report on a 2,000-grain slice
-	$(SM) $(PY) src/01_build_grains.py
-	$(SM) $(PY) src/03_features.py
-	$(SM) $(PY) src/02_eda.py
-	$(SM) $(PY) src/04_cluster.py
-	$(SM) $(PY) src/06_neural.py --overfit-test
-	$(SM) $(PY) src/05_baselines.py
-	$(SM) $(PY) src/06_neural.py
-	$(SM) $(PY) src/05_baselines.py --control
-	$(SM) $(PY) src/06_neural.py --control
-	$(SM) $(PY) src/07_compare.py --split val
-	$(SM) $(PY) src/08_routing.py --fit
-	$(SM) $(PY) src/09_robustness.py --train
-	$(SM) $(PY) tools/freeze.py
-	$(SM) $(PY) src/07_compare.py --split test
-	$(SM) $(PY) src/08_routing.py --score
-	$(SM) $(PY) src/09_robustness.py --score
+smoke:  ## every stage 0-10 and report on a 2,000-grain slice, through the runner
+	rm -rf models/smoke results/smoke figures/smoke data/derived/smoke
+	$(SM) $(PY) tools/run_order.py through 11
+	$(SM) $(PY) tools/run_order.py next --spend-read
+	$(SM) $(PY) tools/run_order.py next --spend-read
+	$(SM) $(PY) tools/run_order.py next --spend-read
+	$(SM) $(PY) tools/run_order.py through 16
+smoke-predict:  ## predict three slice images, one call per path
 	paths="$$($(SM) $(PY) tools/smoke_images.py 3)" || exit 1; printf '%s\n' "$$paths" | while IFS= read -r p; do $(SM) $(PY) src/predict.py "$$p" || exit 1; done
-	$(SM) $(PY) src/report.py

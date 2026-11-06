@@ -133,9 +133,13 @@
 #
 # ## Fix 7 (harden before go, C1 to C3)
 # - `tests/test_run_order.py`: `tools/run_order.py` driven by a fake row list of `python -c` commands with planted faults. It stops at the first failed check and resumes without repeating passed rows; a nonzero exit fails a row; a torn log line (short, or cut before its newline) stops the runner with nothing run; a second runner with a live lock is refused and a dead process's lock is cleared; a failed start check runs nothing; raw checksums catch a changed file and pass a clean one. Read rows need `--spend-read`, `through` stops before them, a spent read that fails its check is never retried and `status` shows `read 12: spent, incomplete`, a read left by a dead runner counts as spent, `rerun-read` needs a reason and a spent read, runs again and copies the extra read into the ledger, and the start refuses an extra read that is not in the ledger. The code lock records, refuses a changed file until given a reason, ignores `report.py` and a stamp block, and covers the Makefile. The real row list equals the handoff 5.2 list plus 10a, the smoke list has no row 1 and runs stage 3 before 2, the wedge row is off unless asked, row 15 without images stops, and `table` prints every row.
+#
+# ## Fix 8 (harden before go, C5)
+# - `tests/test_data.py`, `tests/test_foundation.py`, `tests/test_harden_seal.py`: the three tests that read the old `smoke` recipe now read the runner's smoke list and the Makefile targets. Smoke starts with stage 0 and goes through the runner; stage 3 runs before stage 2 and each stage once; overfit, baselines, neural, controls and freeze are in that order; `all` stops after freeze unless `READS=yes`, which adds three `next --spend-read`; `smoke` clears its four folders; the `controls` check follows `RES`.
+# - `tests/test_models.py`: `test_controls_target_text` reads the order overfit, baselines, neural, controls, freeze from the runner's list, since `all` no longer lists targets.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Models team fixes to stages 5, 6 and predict. No model is fitted: helpers run on made-up rows, main() is read as text."""
-import ast, csv, importlib, io, json, re
+import ast, csv, importlib, importlib.util, io, json, re
 from pathlib import Path
 import numpy as np, pandas as pd, pytest
 import common as C
@@ -326,8 +330,11 @@ def test_controls_target_text():
     overfit = re.search(r"^overfit:(.*)\n((?:\t.*\n)+)", mk, re.M)
     assert overfit.group(1).partition("##")[0].strip() == ""                    # the sanity check waits on nothing trained
     assert "06_neural.py --overfit-test" in overfit.group(2) and "best_config" not in overfit.group(2)
-    steps = re.search(r"^all:([^#]*)##", mk, re.M).group(1).split()
-    assert steps.index("overfit") < steps.index("train") < steps.index("controls") < steps.index("freeze")
+    assert re.search(r"^all:\s*##", mk, re.M)                                    # the order lives in the runner, not in prerequisites
+    spec = importlib.util.spec_from_file_location("ro_tool", ROOT / "tools" / "run_order.py")
+    ro = importlib.util.module_from_spec(spec); spec.loader.exec_module(ro)
+    ids = [r.id for r in ro.rows_for(False)]
+    assert ids.index("2") < ids.index("5") < ids.index("6") < ids.index("7") < ids.index("11")
 
 
 # predict

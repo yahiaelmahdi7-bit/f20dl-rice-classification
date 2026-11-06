@@ -133,10 +133,15 @@
 #
 # ## Fix 7 (harden before go, C1 to C3)
 # - `tests/test_run_order.py`: `tools/run_order.py` driven by a fake row list of `python -c` commands with planted faults. It stops at the first failed check and resumes without repeating passed rows; a nonzero exit fails a row; a torn log line (short, or cut before its newline) stops the runner with nothing run; a second runner with a live lock is refused and a dead process's lock is cleared; a failed start check runs nothing; raw checksums catch a changed file and pass a clean one. Read rows need `--spend-read`, `through` stops before them, a spent read that fails its check is never retried and `status` shows `read 12: spent, incomplete`, a read left by a dead runner counts as spent, `rerun-read` needs a reason and a spent read, runs again and copies the extra read into the ledger, and the start refuses an extra read that is not in the ledger. The code lock records, refuses a changed file until given a reason, ignores `report.py` and a stamp block, and covers the Makefile. The real row list equals the handoff 5.2 list plus 10a, the smoke list has no row 1 and runs stage 3 before 2, the wedge row is off unless asked, row 15 without images stops, and `table` prints every row.
+#
+# ## Fix 8 (harden before go, C5)
+# - `tests/test_data.py`, `tests/test_foundation.py`, `tests/test_harden_seal.py`: the three tests that read the old `smoke` recipe now read the runner's smoke list and the Makefile targets. Smoke starts with stage 0 and goes through the runner; stage 3 runs before stage 2 and each stage once; overfit, baselines, neural, controls and freeze are in that order; `all` stops after freeze unless `READS=yes`, which adds three `next --spend-read`; `smoke` clears its four folders; the `controls` check follows `RES`.
+# - `tests/test_models.py`: `test_controls_target_text` reads the order overfit, baselines, neural, controls, freeze from the runner's list, since `all` no longer lists targets.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
 import importlib
+import importlib.util
 import json
 import os
 import subprocess
@@ -235,22 +240,46 @@ def test_a_smoke_read_by_an_unlisted_caller_is_refused_and_logs_nothing(tmp_path
     assert not (tmp_path / "test_reads.csv").exists()
 
 
-def smoke_lines():
+def runner_rows(smoke):
+    spec = importlib.util.spec_from_file_location("ro_tool", ROOT / "tools" / "run_order.py")
+    ro = importlib.util.module_from_spec(spec); spec.loader.exec_module(ro)
+    return [r.id for r in ro.rows_for(smoke)]
+
+
+def recipe(target):
     text = (ROOT / "Makefile").read_text()
-    body = text.split("\nsmoke:", 1)[1].split("\n\n", 1)[0].splitlines()[1:]
-    return [l.strip().replace("$(SM) $(PY) ", "") for l in body if l.startswith("\t")]
+    return text.split(f"\n{target}:", 1)[1].split("\n\n", 1)[0]
 
 
 def test_smoke_runs_overfit_and_both_controls_before_freeze():
-    L = smoke_lines()
-    need = ["src/06_neural.py --overfit-test", "src/05_baselines.py", "src/06_neural.py", "src/05_baselines.py --control", "src/06_neural.py --control", "tools/freeze.py"]
-    at = [L.index(n) for n in need]
-    assert at == sorted(at) and L.index("src/06_neural.py --overfit-test") < L.index("src/05_baselines.py")
+    ids = runner_rows(True)
+    at = [ids.index(i) for i in ("2", "5", "6", "7", "11")]      # overfit, baselines, neural, controls, freeze
+    assert at == sorted(at)
+    assert "src/05_baselines.py --control" in recipe("controls") and "src/06_neural.py --control" in recipe("controls")
+    assert "src/06_neural.py --overfit-test" in recipe("overfit")
 
 
 def test_smoke_runs_each_stage_once_and_stage_3_before_2():
-    L = smoke_lines()
-    assert len(L) == len(set(L)) and L.index("src/03_features.py") < L.index("src/02_eda.py")
+    ids = runner_rows(True)
+    assert len(ids) == len(set(ids)) and ids.index("s3") < ids.index("s2")
+
+
+def test_all_stops_after_freeze_unless_reads_is_yes():
+    body = recipe("all")
+    before, after = body.split("ifeq ($(READS),yes)")
+    yes, no = after.split("endif")[0].split("else")
+    assert "through 11" in before and "--spend-read" not in before
+    assert yes.count("next --spend-read") == 3 and "through 14" in yes
+    assert "$(PY)" not in no and "stopped after freeze" in no
+
+
+def test_smoke_clears_its_folders_and_the_controls_check_follows_the_mode():
+    body = recipe("smoke")
+    assert body.splitlines()[1].split() == ["rm", "-rf", "models/smoke", "results/smoke", "figures/smoke", "data/derived/smoke"]
+    ctl = recipe("controls").splitlines()[1]
+    assert "$(RES)/neural/best_config.json" in ctl and "results/neural" not in ctl
+    mk = (ROOT / "Makefile").read_text()
+    assert "RES = results$(if $(RICE_SMOKE),/smoke,)" in mk
 
 
 def test_perceptron_reloads_in_a_fresh_process_with_equal_predictions(tmp_path):
