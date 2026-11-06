@@ -78,9 +78,14 @@
 # ## Fix 11 (harden before go)
 # - `tables(preds, sp, out, rows=None)` gains `rows`. With `rows` set, stage 7 also writes `{sp}_by_lot.csv`, `{sp}_by_angle.csv` and `{sp}_by_angle_lot.csv` from the same `lot_rows`, `angle_rows` and `angle_lot_rows` as the validation tables; grain class, lot and image angle come from those rows, lined up on `grain_id` in prediction order. Without `rows`, validation still uses `C.load_grains()` and the test split writes none of the three.
 # - In `--split test`, `main` passes the frame `read_test` returned as `rows`. It never calls `load_split` a second time, which would log a second read, and never `load_grains`, which has no test rows. A prediction with no grain in `rows` stops the stage with a message. A lot or angle band with no grains gives a blank cell, not a crash (the lot and band tables already list empty cells as missing values).
+#
+# ## Fix 12 (harden before go, D10)
+# - New `--rescore`, with `--split val` only. It makes the same infinite-to-missing step as `read_test`, calls `test_probs` for every model in `model_list` on the validation rows, and compares with the saved validation predictions in memory. It writes nothing and calls neither `score_models` nor `save_preds`. A model matches when the largest probability gap is under 1e-4 and the predicted class is the same on every row whose top two probabilities are at least 1e-4 apart (`agree`).
+# - It then opens every file in `tools/freeze.py` `parts()` (json, joblib, pt), so a corrupt routing or hold-out file fails here and not in a test read. Any fault stops with the list. Validation is not sealed, so this spends no read.
+# - `tests/test_run_order.py`: clean models pass; a corrupted weight file is caught; a class flip at a clear margin is caught and a near-tie flip is not; nothing is written to `results/preds`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 7: compare every model on one split with intervals and paired tests. --split test is one gated test read."""
-import argparse, json
+import argparse, json, sys
 import joblib, numpy as np, pandas as pd
 from scipy.stats import binomtest
 import matplotlib
@@ -208,6 +213,50 @@ def angle_lot_rows(y, pred, deg, cls, lots):
     return r
 
 
+TIE = 1e-4     # a probability gap this small is float noise (Mac GPU), and a top-two gap this small may flip the class
+
+
+def agree(saved, fresh):
+    """(largest probability gap, rows whose class changed although the top two were at least TIE apart)."""
+    top = np.sort(fresh, 1)
+    clear = (top[:, -1] - top[:, -2]) >= TIE
+    flips = int(((saved.argmax(1) != fresh.argmax(1)) & clear).sum())
+    return float(np.abs(saved - fresh).max()), flips
+
+
+def open_part(p):
+    """Open one saved file the way a read will, so a corrupt one fails here."""
+    if p.suffix == ".json": json.loads(p.read_text())
+    elif p.suffix == ".joblib": joblib.load(p)
+    elif p.suffix == ".pt":
+        import torch
+        torch.load(p, map_location="cpu", weights_only=False)
+
+
+def rescore(df, parts):
+    """D10: every model re-scored on validation rows in memory against its saved validation predictions, then every freeze part opened. Writes nothing, spends no read. Returns the faults."""
+    bad = []
+    df = df.replace([np.inf, -np.inf], np.nan)      # as read_test does
+    for m, fs, seeds in model_list():
+        for k in seeds:
+            name = f"{m}:{fs}:seed{k}"
+            saved = C.load_preds(m, fs, k, "val")
+            if saved is None:
+                bad.append(f"{name}: no saved validation predictions")
+                continue
+            try:
+                fresh = np.asarray(test_probs(df.set_index("grain_id").loc[saved.grain_id].reset_index(), m, fs, k))
+            except Exception as e:
+                bad.append(f"{name}: cannot score ({type(e).__name__}: {e})")
+                continue
+            gap, flips = agree(C.probs(saved), fresh)
+            if gap >= TIE or flips: bad.append(f"{name}: largest gap {gap:.2e}, {flips} class flips")
+    for p in parts:
+        try: open_part(p)
+        except Exception as e: bad.append(f"{p}: cannot open ({type(e).__name__}: {e})")
+    return bad
+
+
 def read_test():
     """The single gated test read of this stage. An infinite cell becomes a missing one, which every pipeline imputes; left in, the first imputer raises right after the read."""
     df = C.load_split("test")
@@ -218,7 +267,16 @@ def read_test():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", choices=["val", "test"], default="test")
+    ap.add_argument("--rescore", action="store_true", help="validation only: load every model, compare with saved predictions, write nothing")
     a = ap.parse_args()
+    if a.rescore:
+        if a.split != "val": raise SystemExit("--rescore needs --split val")
+        sys.path.insert(0, str(C.ROOT / "tools"))
+        import freeze
+        bad = rescore(C.load_split("val"), freeze.parts())
+        if bad: raise SystemExit("rescore failed:\n  " + "\n  ".join(bad))
+        print("rescore: every model matches its saved validation predictions and every freeze file opens")
+        return
     out = C.stage_dir("compare")
     sp = a.split
     preds, rows = {}, None

@@ -127,6 +127,9 @@
 # - `tests/test_harden_seal.py`: `C.code_digest` does not move when the prompt-record block is rewritten and does move on a one-character edit, for a Python file and a Makefile alike; a hold-out CNN file whose `run` holds an older code digest is retrained.
 # - `tests/test_harden_seal.py`: `report.main()` runs with `test_reads_disclosed.csv` missing and writes `DISCLOSURES.csv` and `MANIFEST.csv`; with a ledger of two rows, one carrying a `code-changed` reason, the extra-read rows count it and name it; every disclosure evidence file and every new output has a `MANIFEST.csv` row.
 # - `tests/test_awaiting_go.py`: `GO` is `skipif(RICE_GO != "1")`, so plain `pytest` still skips every `@GO` test. The `@GO` tests read `C.RES` and `C.MODELS`, so smoke can run them. The part of the read-log test that walks git history runs in real mode only, because smoke folders are git-ignored. `tests/test_harden_seal.py`: with `RICE_GO` unset every `@GO` test is skipped, and no `@GO` test names `ROOT / "results"` or `ROOT / "models"`.
+#
+# ## Fix 6 (harden before go, D10)
+# - `tests/test_rescore.py`: stage 7 `--rescore` on made-up probabilities. Clean models and float noise pass; an infinite cell reaches the model as missing; a class flip at a clear margin is caught and a flip between a true near-tie is not; a model with no saved validation predictions is caught; a truncated joblib in the freeze parts list is caught; nothing is saved; `--rescore` with `--split test` is refused.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 import numpy as np
 import pandas as pd
