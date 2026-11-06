@@ -1,0 +1,5 @@
+slice_split,grains_in_slice_split,grains_in_real_test
+train,1400,215
+val,300,44
+test,300,39
+total,2000,298
