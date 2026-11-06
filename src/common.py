@@ -103,6 +103,9 @@
 # ## Fix 11 (harden before go, D7)
 # - `common.py`: add `code_digest(files)`, a sha256 over the text of the files with the block between `# === AI-GENERATED CODE: PROMPT RECORD START ===` and `# === AI-GENERATED CODE: PROMPT RECORD END ===` removed. `make stamp` rewrites that block, so it must not move the digest; any other edit must. It works the same for Python files and the Makefile.
 # - `tests/test_harden_seal.py`: a restamp leaves the digest unchanged; a one-character edit moves it; a hold-out checkpoint made under an older digest retrains.
+#
+# ## Fix 12 (harden before go, D8)
+# - `common.py`: `ARTEFACTS` lists `results/DISCLOSURES.csv`, written by `report.py`, columns `item what evidence_file`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Shared paths, seeds, feature sets, split gate, image cache, nets and helpers."""
 import csv, hashlib, json, os, re, sys, time
@@ -259,6 +262,7 @@ ARTEFACTS = {
         "results/robustness/greyworld_control.csv": _a(_S9, "", "seed n max_abs_diff argmax_equal"),
         "results/frozen.json": _a("freeze.py", "common.py", "hash seeds pairs parts"),
         "results/test_reads.csv": _a("common.py", "", "caller time frozen_hash"),
+        "results/DISCLOSURES.csv": _a("report.py", "", "item what evidence_file"),
         "results/SUMMARY.csv": _a("report.py", "", "split model featureset n seeds accuracy acc_lo acc_hi macro_f1 macro_precision macro_recall f1_lo f1_hi acc_sd f1_sd"),
         "results/MANIFEST.csv": _a("report.py", "", "requirement stage output_file covers_R2 covers_R3 covers_R4 generative_task discriminative_task exists"),
         "models/baselines/{model}__{featureset}.joblib": _a(_S5, f"{_S7} {_S9}", _MODEL_KEYS),

@@ -125,6 +125,7 @@
 # - `tests/test_awaiting_go.py`: `test_stage7_tables_reproduce_from_saved_predictions` moves to validation. It rebuilds the `val_*` tables (metrics, recall, confusion, seed spread, McNemar, by lot, by angle, by angle and lot) from the saved validation predictions through the same `tables()` and compares them with the files stage 7 wrote. It touches no sealed label and adds nothing to the read path. After this no `@GO` test loads a test predictions file; `test_no_go_test_loads_a_test_predictions_file` pins that.
 # - `tests/test_harden_seal.py`: `report.py` draws the learning-curve and late-lot recall figures from small made-up CSV frames, leaves a model's missing `late_all` cell empty, and draws nothing from a missing or empty file.
 # - `tests/test_harden_seal.py`: `C.code_digest` does not move when the prompt-record block is rewritten and does move on a one-character edit, for a Python file and a Makefile alike; a hold-out CNN file whose `run` holds an older code digest is retrained.
+# - `tests/test_harden_seal.py`: `report.main()` runs with `test_reads_disclosed.csv` missing and writes `DISCLOSURES.csv` and `MANIFEST.csv`; with a ledger of two rows, one carrying a `code-changed` reason, the extra-read rows count it and name it; every disclosure evidence file and every new output has a `MANIFEST.csv` row.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
@@ -469,3 +470,41 @@ def test_holdout_cnn_retrains_when_the_code_digest_changed(tmp_path, monkeypatch
     monkeypatch.setattr(C, "code_digest", lambda files: "new")
     s.holdout_cnn(N, 0, cfg, rows, rows, None, p)
     assert len(trained) == 2                                 # older code: retrained
+
+
+def _report_in(tmp_path, monkeypatch):
+    R = _report()
+    monkeypatch.setattr(C, "RES", tmp_path / "res")
+    monkeypatch.setattr(C, "FIG", tmp_path / "fig")
+    (tmp_path / "fig").mkdir()
+    return R
+
+
+def test_report_main_runs_with_run_log_and_ledger_missing(tmp_path, monkeypatch):
+    R = _report_in(tmp_path, monkeypatch)
+    R.main()
+    D = pd.read_csv(tmp_path / "res" / "DISCLOSURES.csv")
+    assert list(D.columns) == ["item", "what", "evidence_file"] and len(D) == len(R.DISCLOSURES)
+    assert not D.item.isin(["extra read", "code changed after lock"]).any()
+    M = pd.read_csv(tmp_path / "res" / "MANIFEST.csv")
+    assert (M.loc[M.output_file == "results/smoke_overlap.csv", "exists"] == True).all()   # noqa: E712 committed file, found from the repo root
+    assert (M.loc[M.output_file == "DISCLOSURES.csv", "exists"] == True).all()             # noqa: E712 written just before the manifest
+    assert (M.loc[M.output_file == "compare/test_by_lot.csv", "exists"] == False).all()    # noqa: E712 nothing run yet: row 16 would notice
+
+
+def test_disclosures_count_the_ledger_and_name_it(tmp_path, monkeypatch):
+    R = _report_in(tmp_path, monkeypatch)
+    (tmp_path / "res").mkdir()
+    pd.DataFrame({"caller": ["07", "07"], "time": ["t1", "t2"], "frozen_hash": ["h", "h"], "reason": ["crash", "code-changed: fix"]}).to_csv(tmp_path / "res" / "test_reads_disclosed.csv", index=False)
+    D = R.disclosures().set_index("item")
+    assert D.loc["extra read", "what"].startswith("2 extra read") and D.loc["extra read", "evidence_file"] == "results/test_reads_disclosed.csv"
+    assert D.loc["code changed after lock", "what"].startswith("1 read")
+
+
+def test_every_evidence_file_and_new_output_is_in_the_manifest():
+    R = _report()
+    listed = {m[2] for m in R.MANIFEST}
+    need = {"results/smoke_overlap.csv", "DISCLOSURES.csv", "compare/test_by_lot.csv", "compare/test_by_angle.csv", "compare/test_by_angle_lot.csv",
+            "compare/val_by_lot.csv", "compare/val_by_angle.csv", "compare/val_by_angle_lot.csv", "robustness/mean_colour_check.csv"}
+    assert need <= listed
+    assert {e for _, _, e in R.DISCLOSURES} <= listed | {"routing/val_routes.csv", "eda/class_balance.csv", "baselines/control.csv", "routing/val_calibration.csv"}

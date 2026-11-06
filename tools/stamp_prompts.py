@@ -103,6 +103,9 @@
 # ## Fix 11 (harden before go, D7)
 # - `common.py`: add `code_digest(files)`, a sha256 over the text of the files with the block between `# === AI-GENERATED CODE: PROMPT RECORD START ===` and `# === AI-GENERATED CODE: PROMPT RECORD END ===` removed. `make stamp` rewrites that block, so it must not move the digest; any other edit must. It works the same for Python files and the Makefile.
 # - `tests/test_harden_seal.py`: a restamp leaves the digest unchanged; a one-character edit moves it; a hold-out checkpoint made under an older digest retrains.
+#
+# ## Fix 12 (harden before go, D8)
+# - `common.py`: `ARTEFACTS` lists `results/DISCLOSURES.csv`, written by `report.py`, columns `item what evidence_file`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Copy each stage prompt into the header of the file it generated. Idempotent."""
 import sys

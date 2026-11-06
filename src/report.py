@@ -51,6 +51,10 @@
 #
 # ## Fix 4 (harden before go)
 # - `report.py` adds two figures from saved CSVs only. `learning_curve_figure(curves)` plots train and validation loss per epoch for every `tag` in `results/neural/curves.csv` (`report_learning_curves.png`). `late_recall_figure(late)` plots recall with its interval per model for the `late_all` and `late_test` subsets of `results/robustness/late_recall.csv` (`report_late_lot_recall.png`). A model with only one of the two subsets draws only that point, an empty cell stays empty, and a missing or empty file prints a skip line and draws nothing. `main` calls both after `figure(S)`.
+#
+# ## Fix 5 (harden before go, D8, D9)
+# - `report.py` writes `results/DISCLOSURES.csv`, columns `item, what, evidence_file`: facts, not prose. Fixed rows: old smoke overlap (evidence `results/smoke_overlap.csv`); `val_calibration` and `val_routes` in-sample; hyperparameters picked on validation holding late grains; shuffled-label scores away from 20%; `02_eda` class counts include test; image gate is seed 0 for all three; near-upright is the group's own reading; Perceptron and kNN scores uncalibrated. If `results/test_reads_disclosed.csv` exists and has rows, one row counts the extra reads and names that file as evidence, and one counts rows whose `reason` starts with `code-changed`. The ledger is not copied. A missing ledger or `run_log.csv` is no error.
+# - `MANIFEST.csv` gains a row for every new output: validation and test tables by lot, angle and angle and lot, `mean_colour_check.csv`, `results/smoke_overlap.csv`, `DISCLOSURES.csv`. The `run_log.csv` row comes with the runner. An `output_file` starting `results/` is read from the repo root, so the committed overlap file is found in smoke too. Handoff row 16 fails if any `exists` is False.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import numpy as np
@@ -80,8 +84,31 @@ MANIFEST = [
     ("late-lot confidence chain", 9, "robustness/late_chain.csv", 0, 1, 1, 0, 1),
     ("grey-world tint arm", 9, "robustness/greyworld_results.csv", 0, 0, 1, 0, 1),
     ("single-image prediction", 10, "src/predict.py", 0, 0, 0, 0, 1),
+    ("validation tables by lot", 7, "compare/val_by_lot.csv", 0, 1, 1, 0, 1),
+    ("validation tables by angle", 7, "compare/val_by_angle.csv", 0, 1, 1, 0, 1),
+    ("validation tables by angle and lot", 7, "compare/val_by_angle_lot.csv", 0, 1, 1, 0, 1),
+    ("test tables by lot", 7, "compare/test_by_lot.csv", 0, 1, 1, 0, 1),
+    ("test tables by angle", 7, "compare/test_by_angle.csv", 0, 1, 1, 0, 1),
+    ("test tables by angle and lot", 7, "compare/test_by_angle_lot.csv", 0, 1, 1, 0, 1),
+    ("robustness: mean-colour check and unchanged-image control", 9, "robustness/mean_colour_check.csv", 0, 0, 1, 0, 1),
+    ("old smoke overlap with the real splits", 0, "results/smoke_overlap.csv", 0, 0, 0, 0, 0),
+    ("disclosures for the report", 11, "DISCLOSURES.csv", 0, 0, 0, 0, 0),
 ]
 COLS = ["requirement", "stage", "output_file", "covers_R2", "covers_R3", "covers_R4", "generative_task", "discriminative_task"]
+
+
+# (item, what, evidence_file). Facts, not prose. Evidence paths under results/ are relative to the repo root.
+DISCLOSURES = [
+    ("old smoke overlap", "an early smoke run drew its slice from rows that overlap the real test split; counts by slice split only, no labels, and nothing was fitted on them", "results/smoke_overlap.csv"),
+    ("in-sample calibration and routes", "val_calibration and val_routes are in-sample: temperature, floors and cuts were set on the same validation rows", "routing/val_calibration.csv"),
+    ("validation holds late grains", "hyperparameters were picked on validation, which holds late-lot grains", "baselines/val_results.csv"),
+    ("shuffled-label scores", "control scores sit away from 20% because class shares and lot structure are not equal", "baselines/control.csv"),
+    ("eda counts include test", "02_eda class counts include test rows, as counts only", "eda/class_balance.csv"),
+    ("image gate seed", "the image familiarity gate uses seed 0 for all three CNN seeds", "routing/val_routes.csv"),
+    ("near-upright", "the near-upright band is the group's own reading of the angle table", "compare/val_by_angle.csv"),
+    ("perceptron scores", "Perceptron and kNN scores are not calibrated probabilities; they keep the predicted class only", "baselines/val_results.csv"),
+]
+LEDGER, CODE_CHANGED = "test_reads_disclosed.csv", "code-changed"
 
 
 def read(p):
@@ -155,13 +182,26 @@ def late_recall_figure(late):
     C.savefig(fig, "report_late_lot_recall")
 
 
+def disclosures():
+    """The fixed rows, then one row for extra reads and one for code-changed reasons, counted from the ledger if it exists."""
+    rows = list(DISCLOSURES)
+    L = read(C.RES / LEDGER)
+    if L is not None and len(L):
+        rows.append(("extra read", f"{len(L)} extra read(s) logged; see the ledger for caller, time and reason", f"results/{LEDGER}"))
+        cc = L[L.reason.astype(str).str.startswith(CODE_CHANGED)] if "reason" in L else L.iloc[0:0]
+        if len(cc): rows.append(("code changed after lock", f"{len(cc)} read(s) after a logged code change", f"results/{LEDGER}"))
+    return pd.DataFrame(rows, columns=["item", "what", "evidence_file"])
+
+
 def main():
     S = summary()
     p = C.RES / "SUMMARY.csv"
     p.parent.mkdir(parents=True, exist_ok=True)
     S.to_csv(p, index=False); C.wrote(p)
     M = pd.DataFrame(MANIFEST, columns=COLS)
-    M["exists"] = [(C.ROOT / f).exists() if f.startswith("src/") else (C.RES / f).exists() for f in M.output_file]
+    dp = p.with_name("DISCLOSURES.csv")
+    disclosures().to_csv(dp, index=False); C.wrote(dp)
+    M["exists"] = [(C.ROOT / f).exists() if f.startswith(("src/", "results/")) else (C.RES / f).exists() for f in M.output_file]
     mp = p.with_name("MANIFEST.csv")
     M.to_csv(mp, index=False); C.wrote(mp)
     figure(S)
