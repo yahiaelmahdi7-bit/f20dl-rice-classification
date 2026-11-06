@@ -32,3 +32,7 @@ Add macro precision and macro recall to every metrics row. Add per-class precisi
 
 ## Fix 10 (harden before go)
 - `model_list` gains `("tree4", "all106", (0,))` after the `BASE` models, so `tree4` is scored on validation and in read 1 with every other model, `read_needs` lists its file, and the freeze hash covers it. `model_file` already maps it to `models/baselines/tree4__all106.joblib`. It is not part of `BASE`.
+
+## Fix 11 (harden before go)
+- `tables(preds, sp, out, rows=None)` gains `rows`. With `rows` set, stage 7 also writes `{sp}_by_lot.csv`, `{sp}_by_angle.csv` and `{sp}_by_angle_lot.csv` from the same `lot_rows`, `angle_rows` and `angle_lot_rows` as the validation tables; grain class, lot and image angle come from those rows, lined up on `grain_id` in prediction order. Without `rows`, validation still uses `C.load_grains()` and the test split writes none of the three.
+- In `--split test`, `main` passes the frame `read_test` returned as `rows`. It never calls `load_split` a second time, which would log a second read, and never `load_grains`, which has no test rows. A prediction with no grain in `rows` stops the stage with a message. A lot or angle band with no grains gives a blank cell, not a crash (the lot and band tables already list empty cells as missing values).

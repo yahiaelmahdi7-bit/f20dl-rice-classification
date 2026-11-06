@@ -74,6 +74,10 @@
 #
 # ## Fix 10 (harden before go)
 # - `model_list` gains `("tree4", "all106", (0,))` after the `BASE` models, so `tree4` is scored on validation and in read 1 with every other model, `read_needs` lists its file, and the freeze hash covers it. `model_file` already maps it to `models/baselines/tree4__all106.joblib`. It is not part of `BASE`.
+#
+# ## Fix 11 (harden before go)
+# - `tables(preds, sp, out, rows=None)` gains `rows`. With `rows` set, stage 7 also writes `{sp}_by_lot.csv`, `{sp}_by_angle.csv` and `{sp}_by_angle_lot.csv` from the same `lot_rows`, `angle_rows` and `angle_lot_rows` as the validation tables; grain class, lot and image angle come from those rows, lined up on `grain_id` in prediction order. Without `rows`, validation still uses `C.load_grains()` and the test split writes none of the three.
+# - In `--split test`, `main` passes the frame `read_test` returned as `rows`. It never calls `load_split` a second time, which would log a second read, and never `load_grains`, which has no test rows. A prediction with no grain in `rows` stops the stage with a message. A lot or angle band with no grains gives a blank cell, not a crash (the lot and band tables already list empty cells as missing values).
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 7: compare every model on one split with intervals and paired tests. --split test is one gated test read."""
 import argparse, json
@@ -217,21 +221,22 @@ def main():
     a = ap.parse_args()
     out = C.stage_dir("compare")
     sp = a.split
-    preds = {}
+    preds, rows = {}, None
     if sp == "test":
         preflight(read_needs())            # names every missing file before the read is spent
-        preds = score_models(read_test())
+        rows = read_test()
+        preds = score_models(rows)
     else:
         for m, fs, seeds in model_list():
             for k in seeds:
                 d = C.load_preds(m, fs, k, "val")
                 if d is not None: preds[(m, fs, k)] = d
     assert preds, "no predictions found"
-    tables(preds, sp, out)
+    tables(preds, sp, out, rows)
 
 
-def tables(preds, sp, out):
-    """Everything after the predictions. Apart from main so a test can drive the real tables on made-up predictions."""
+def tables(preds, sp, out, rows=None):
+    """Everything after the predictions. Apart from main so a test can drive the real tables on made-up predictions. `rows` is the frame of the grains scored: the read's own frame for test (load_grains has no test rows, a second load_split would log a second read); validation uses load_grains."""
     ref = next(iter(preds.values()))
     ids = ref.grain_id.to_numpy()
     y = ref.y.to_numpy().astype(int)
@@ -242,12 +247,12 @@ def tables(preds, sp, out):
     idx = rng.integers(0, n, (NBOOT, n))       # one set of resamples shared by every model (paired)
     pred = {k: C.probs(d).argmax(1) for k, d in preds.items()}
     ok = {k: (p == y) for k, p in pred.items()}
-    rows, rec, cm = [], [], []
+    mrows, rec, cm = [], [], []
     for k, p in pred.items():
         m, fs, s = k
         acc_b = ok[k][idx].mean(1)
         f1_b = boot_f1(y, p, idx)
-        rows.append(dict(model=m, featureset=fs, seed=s, split=sp, n=n, accuracy=ok[k].mean(), errors=int((~ok[k]).sum()),
+        mrows.append(dict(model=m, featureset=fs, seed=s, split=sp, n=n, accuracy=ok[k].mean(), errors=int((~ok[k]).sum()),
                          acc_lo=np.percentile(acc_b, 2.5), acc_hi=np.percentile(acc_b, 97.5), macro_f1=C.macro_f1(y, p),
                          macro_precision=C.macro_precision(y, p), macro_recall=C.macro_recall(y, p),
                          f1_lo=np.percentile(f1_b, 2.5), f1_hi=np.percentile(f1_b, 97.5)))
@@ -261,15 +266,16 @@ def tables(preds, sp, out):
         for t in range(5):
             for q in range(5):
                 cm.append(dict(model=m, featureset=fs, seed=s, true=C.CLASSES[t], predicted=C.CLASSES[q], count=int(((y == t) & (p == q)).sum())))
-    M = pd.DataFrame(rows)
+    M = pd.DataFrame(mrows)
     M.to_csv(out / f"{sp}_metrics.csv", index=False); C.wrote(out / f"{sp}_metrics.csv")
     pd.DataFrame(rec).to_csv(out / f"{sp}_recall.csv", index=False); C.wrote(out / f"{sp}_recall.csv")
-    if sp == "val":
-        vg = C.load_grains().set_index("grain_id").reindex(ref.grain_id)
-        pd.DataFrame(lot_rows(y, pred, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / "val_by_lot.csv", index=False); C.wrote(out / "val_by_lot.csv")
+    if sp == "val" or rows is not None:
+        vg = (C.load_grains() if rows is None else rows).set_index("grain_id").reindex(ref.grain_id)
+        assert vg["class"].notna().all(), "predictions hold grains that the rows do not"
+        pd.DataFrame(lot_rows(y, pred, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / f"{sp}_by_lot.csv", index=False); C.wrote(out / f"{sp}_by_lot.csv")
         deg = C.angles(vg)
-        pd.DataFrame(angle_rows(y, pred, deg)).to_csv(out / "val_by_angle.csv", index=False); C.wrote(out / "val_by_angle.csv")
-        pd.DataFrame(angle_lot_rows(y, pred, deg, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / "val_by_angle_lot.csv", index=False); C.wrote(out / "val_by_angle_lot.csv")
+        pd.DataFrame(angle_rows(y, pred, deg)).to_csv(out / f"{sp}_by_angle.csv", index=False); C.wrote(out / f"{sp}_by_angle.csv")
+        pd.DataFrame(angle_lot_rows(y, pred, deg, vg["class"].to_numpy(), vg["lot"].to_numpy())).to_csv(out / f"{sp}_by_angle_lot.csv", index=False); C.wrote(out / f"{sp}_by_angle_lot.csv")
     pd.DataFrame(cm).to_csv(out / f"{sp}_confusion.csv", index=False); C.wrote(out / f"{sp}_confusion.csv")
     sd = M.groupby(["model", "featureset"]).agg(seeds=("seed", "size"), acc_mean=("accuracy", "mean"), acc_sd=("accuracy", "std"),
                                                   f1_mean=("macro_f1", "mean"), f1_sd=("macro_f1", "std"), err_min=("errors", "min"), err_max=("errors", "max")).reset_index()

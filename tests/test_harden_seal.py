@@ -327,3 +327,81 @@ def test_val_results_has_fit_seconds_as_last_column(tmp_path, monkeypatch):
     B.tune_jobs([("nb", "shape16")], f, f, tmp_path)
     r = pd.read_csv(tmp_path / "val_results.csv")
     assert list(r.columns)[-1] == "fit_seconds" and (r.fit_seconds >= 0).all() and r.fit_seconds.notna().all()
+
+
+def _stage7_test_frame():
+    """Six test grains, listed in a different order from the predictions. No late Arborio, and no grain in the 20-30 or 30-45 band."""
+    import numpy as np
+    import pandas as pd
+    g = pd.DataFrame({"grain_id": ["g5", "g0", "g3", "g1", "g4", "g2"],
+                      "class": ["Basmati", "Jasmine", "Arborio", "Jasmine", "Arborio", "Jasmine"],
+                      "lot": ["main", "late", "main", "late", "main", "main"],
+                      "deg": [15.0, 5.0, 15.0, 5.0, np.nan, 15.0], "split": "test"})
+    return g
+
+
+def _stage7_preds():
+    import numpy as np
+    import pandas as pd
+    y = np.array([3, 3, 3, 0, 0, 1])
+    said = (y + (np.arange(6) < 2)) % 5            # g0 and g1 wrong, the rest right
+    return {("hgb", "all106", 0): pd.DataFrame({"grain_id": [f"g{i}" for i in range(6)], "y": y} | {f"p{k}": np.where(said == k, 0.9, 0.025) for k in range(5)})}
+
+
+def _drive_test_tables(tmp_path, monkeypatch, rows):
+    import numpy as np
+    s = importlib.import_module("07_compare")
+    monkeypatch.setattr(s, "NBOOT", 10)
+    monkeypatch.setattr(C, "FIG", tmp_path / "no" / "such" / "folder")
+    monkeypatch.setattr(C, "load_grains", lambda: (_ for _ in ()).throw(AssertionError("load_grains has no test rows")))
+    monkeypatch.setattr(C, "load_split", lambda n: (_ for _ in ()).throw(AssertionError("a second load_split logs a second read")))
+    monkeypatch.setattr(C, "angles", lambda d: d["deg"].to_numpy())
+    s.tables(_stage7_preds(), "test", tmp_path, rows)
+    return s
+
+
+def test_stage7_test_tables_use_the_read_frame_and_leave_blanks(tmp_path, monkeypatch):
+    import numpy as np
+    import pandas as pd
+    _drive_test_tables(tmp_path, monkeypatch, _stage7_test_frame())
+    lot = pd.read_csv(tmp_path / "test_by_lot.csv").set_index(["class", "lot"])
+    assert lot.loc[("Jasmine", "late")].n == 2 and lot.loc[("Jasmine", "late")].recall == 0.0 and lot.loc[("Jasmine", "main")].recall == 1.0
+    assert ("Arborio", "late") not in lot.index                                         # a lot with no grains: no row, no crash
+    ang = pd.read_csv(tmp_path / "test_by_angle.csv")
+    a = ang[ang["class"] == "all"].set_index("band")
+    assert a.n.tolist() == [2, 3, 0, 0, 1] and a.loc["0-10"].accuracy == 0.0 and a.loc["10-20"].accuracy == 1.0
+    assert np.isnan(a.loc["20-30"].accuracy) and np.isnan(a.loc["30-45"].macro_f1)      # an empty band: blank
+    al = pd.read_csv(tmp_path / "test_by_angle_lot.csv").set_index(["band", "class", "lot"])
+    assert al.loc[("0-10", "Jasmine", "late")].errors == 2 and np.isnan(al.loc[("20-30", "Jasmine", "late")].recall)
+    assert not any((tmp_path / n).exists() for n in ("val_by_lot.csv", "val_by_angle.csv", "val_by_angle_lot.csv"))
+
+
+def test_stage7_test_tables_stop_on_a_prediction_with_no_grain(tmp_path, monkeypatch):
+    import pytest
+    with pytest.raises(AssertionError, match="do not"):
+        _drive_test_tables(tmp_path, monkeypatch, _stage7_test_frame().iloc[:4])
+
+
+def test_stage7_val_tables_still_use_load_grains(tmp_path, monkeypatch):
+    import pandas as pd
+    s = importlib.import_module("07_compare")
+    monkeypatch.setattr(s, "NBOOT", 10)
+    monkeypatch.setattr(C, "FIG", tmp_path / "no" / "such" / "folder")
+    g = _stage7_test_frame().assign(split="val")
+    monkeypatch.setattr(C, "load_grains", lambda: g)
+    monkeypatch.setattr(C, "angles", lambda d: d["deg"].to_numpy())
+    s.tables(_stage7_preds(), "val", tmp_path)
+    assert pd.read_csv(tmp_path / "val_by_lot.csv").n.sum() == 6 and not (tmp_path / "test_by_lot.csv").exists()
+
+
+def test_stage7_main_passes_the_read_frame_and_reads_once(tmp_path, monkeypatch):
+    s = importlib.import_module("07_compare")
+    frame, seen = _stage7_test_frame(), {}
+    monkeypatch.setattr(sys, "argv", ["07_compare.py", "--split", "test"])
+    monkeypatch.setattr(C, "stage_dir", lambda n: tmp_path)
+    monkeypatch.setattr(s, "preflight", lambda p: None)
+    monkeypatch.setattr(s, "read_test", lambda: seen.setdefault("reads", []).append(1) or frame)
+    monkeypatch.setattr(s, "score_models", lambda df: _stage7_preds())
+    monkeypatch.setattr(s, "tables", lambda preds, sp, out, rows=None: seen.update(rows=rows, sp=sp))
+    s.main()
+    assert seen["reads"] == [1] and seen["rows"] is frame and seen["sp"] == "test"

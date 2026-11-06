@@ -480,9 +480,9 @@ def test_val_by_lot_hook_lines_up_on_grain_id_and_runs_on_validation_only(tmp_pa
     reads = []
     stub = __import__("types").SimpleNamespace(load_grains=lambda: reads.append(1) or g, wrote=lambda p: None, angles=lambda d: np.full(len(d), 5.0), angle_band=C.angle_band,
                                                ANGLE_BANDS=C.ANGLE_BANDS, NO_ANGLE=C.NO_ANGLE, CLASSES=C.CLASSES)
-    ns = {"C": stub, "np": np, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path}
+    ns = {"C": stub, "np": np, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path, "rows": None}
     exec(_block("src/07_compare.py", "def lot_rows(", "def main():"), ns)
-    body = "if 1:\n" + _block("src/07_compare.py", '    if sp == "val":\n        vg', "    pd.DataFrame(cm)")
+    body = "if 1:\n" + _block("src/07_compare.py", '    if sp == "val" or rows is not None:\n        vg', "    pd.DataFrame(cm)")
     exec(body, ns | {"sp": "test"})
     assert not reads and not (tmp_path / "val_by_lot.csv").exists()
     exec(body, ns | {"sp": "val"})
@@ -564,9 +564,9 @@ def test_val_by_angle_hook_lines_up_on_grain_id_uses_image_angle_and_runs_on_val
     seen = []
     stub = __import__("types").SimpleNamespace(load_grains=lambda: g, wrote=lambda p: None, angles=lambda d: seen.append(list(d.index)) or d.img_deg.to_numpy(), angle_band=C.angle_band,
                                                ANGLE_BANDS=C.ANGLE_BANDS, NO_ANGLE=C.NO_ANGLE, CLASSES=C.CLASSES)
-    ns = {"C": stub, "np": np, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path}
+    ns = {"C": stub, "np": np, "pd": pd, "ref": pd.DataFrame({"grain_id": ["c", "a", "b"]}), "y": np.array([0, 3, 3]), "pred": {("m", "fs", 0): np.array([0, 0, 3])}, "out": tmp_path, "rows": None}
     exec(_block("src/07_compare.py", "def lot_rows(", "def main():"), ns)
-    body = "if 1:\n" + _block("src/07_compare.py", '    if sp == "val":\n        vg', "    pd.DataFrame(cm)")
+    body = "if 1:\n" + _block("src/07_compare.py", '    if sp == "val" or rows is not None:\n        vg', "    pd.DataFrame(cm)")
     exec(body, ns | {"sp": "test"})
     assert not seen and not (tmp_path / "val_by_angle.csv").exists() and not (tmp_path / "val_by_angle_lot.csv").exists()
     exec(body, ns | {"sp": "val"})
