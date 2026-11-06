@@ -58,6 +58,9 @@
 #
 # ## Fix 6 (harden before go, C3 disclosures)
 # - `disclosures()`: the "code changed after lock" row is counted from the `changes` list in `C.RES/code_lock.json` (evidence file `results/code_lock.json`), not from the reasons in the read ledger. The "extra read" row still counts the ledger rows.
+#
+# ## Fix 7 (harden before go, C4)
+# - `MANIFEST.csv` gains three rows, all stage 11: `run_log.csv` (time and memory per runner row), `test_reads_disclosed.csv` (extra test reads, with reasons) and `code_lock.json` (the code digest and any logged code change).
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import json
@@ -97,6 +100,9 @@ MANIFEST = [
     ("robustness: mean-colour check and unchanged-image control", 9, "robustness/mean_colour_check.csv", 0, 0, 1, 0, 1),
     ("old smoke overlap with the real splits", 0, "results/smoke_overlap.csv", 0, 0, 0, 0, 0),
     ("disclosures for the report", 11, "DISCLOSURES.csv", 0, 0, 0, 0, 0),
+    ("run log: time and memory per row", 11, "run_log.csv", 0, 0, 0, 0, 0),
+    ("extra test reads, with reasons", 11, "test_reads_disclosed.csv", 0, 0, 0, 0, 0),
+    ("code lock and logged code changes", 11, "code_lock.json", 0, 0, 0, 0, 0),
 ]
 COLS = ["requirement", "stage", "output_file", "covers_R2", "covers_R3", "covers_R4", "generative_task", "discriminative_task"]
 

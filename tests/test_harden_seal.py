@@ -140,6 +140,9 @@
 #
 # ## Fix 9 (harden before go, C3 disclosures)
 # - `tests/test_harden_seal.py`: `test_disclosures_count_the_ledger_and_name_it` plants a ledger and a `code_lock.json` with two changes; the extra-read row counts the ledger, the code-change row counts the lock file and names it, and with no changes in the lock the row is absent.
+#
+# ## Fix 10 (harden before go, C4)
+# - `tests/test_harden_seal.py`: the manifest test also needs the rows for `run_log.csv`, `test_reads_disclosed.csv` and `code_lock.json`, and every runner output listed in `ARTEFACTS` has a manifest row.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Seal fixes: the smoke slice holds no real test grain, and smoke goes through the real gate."""
 import ast
@@ -547,8 +550,11 @@ def test_every_evidence_file_and_new_output_is_in_the_manifest():
     R = _report()
     listed = {m[2] for m in R.MANIFEST}
     need = {"results/smoke_overlap.csv", "DISCLOSURES.csv", "compare/test_by_lot.csv", "compare/test_by_angle.csv", "compare/test_by_angle_lot.csv",
-            "compare/val_by_lot.csv", "compare/val_by_angle.csv", "compare/val_by_angle_lot.csv", "robustness/mean_colour_check.csv"}
+            "compare/val_by_lot.csv", "compare/val_by_angle.csv", "compare/val_by_angle_lot.csv", "robustness/mean_colour_check.csv",
+            "run_log.csv", "test_reads_disclosed.csv", "code_lock.json"}
     assert need <= listed
+    for name in ("run_log.csv", "test_reads_disclosed.csv", "code_lock.json"):
+        assert C.ARTEFACTS["files"][f"results/{name}"]["writers"] == ["run_order.py"]
     assert {e for _, _, e in R.DISCLOSURES} <= listed | {"routing/val_routes.csv", "eda/class_balance.csv", "baselines/control.csv", "routing/val_calibration.csv"}
 
 

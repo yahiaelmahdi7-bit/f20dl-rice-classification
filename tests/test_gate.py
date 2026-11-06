@@ -140,6 +140,9 @@
 #
 # ## Fix 9 (harden before go, C3 disclosures)
 # - `tests/test_harden_seal.py`: `test_disclosures_count_the_ledger_and_name_it` plants a ledger and a `code_lock.json` with two changes; the extra-read row counts the ledger, the code-change row counts the lock file and names it, and with no changes in the lock the row is absent.
+#
+# ## Fix 10 (harden before go, C4)
+# - `tests/test_harden_seal.py`: the manifest test also needs the rows for `run_log.csv`, `test_reads_disclosed.csv` and `code_lock.json`, and every runner output listed in `ARTEFACTS` has a manifest row.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 import json
 import numpy as np

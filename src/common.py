@@ -119,6 +119,9 @@
 # ## Fix 14 (harden before go, C5)
 # - `Makefile`: `all` calls the runner: `tools/run_order.py through 11`, then, only when `READS=yes`, three `next --spend-read` and `through 14`; otherwise it prints that it stopped after freeze. `smoke` clears `models/smoke`, `results/smoke`, `figures/smoke` and `data/derived/smoke`, then runs the runner under `RICE_SMOKE=1` with its own row list: `through 11`, three `next --spend-read`, `through 16`. It no longer depends on `get-data`, because the smoke list starts with stage 0. The smoke predict loop moves unchanged to a new target `smoke-predict`, which is row 15 of the smoke list; `report.py` is row 16.
 # - `Makefile`: new variable `RES`, `results/smoke` when `RICE_SMOKE` is set and `results` otherwise. The `controls` check for `best_config.json` reads `$(RES)`, so it sees the smoke folder in smoke mode.
+#
+# ## Fix 15 (harden before go, C4)
+# - `common.py`: `ARTEFACTS` lists `results/run_log.csv` (writer `run_order.py`, columns `row command commit start end seconds exit_code check peak_memory_mb`), `results/test_reads_disclosed.csv` (writer `run_order.py`, columns `caller time frozen_hash reason`) and `results/code_lock.json` (writer `run_order.py`, keys `digest time changes`).
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Shared paths, seeds, feature sets, split gate, image cache, nets and helpers."""
 import csv, hashlib, json, os, re, sys, time
@@ -275,6 +278,9 @@ ARTEFACTS = {
         "results/robustness/greyworld_control.csv": _a(_S9, "", "seed n max_abs_diff argmax_equal"),
         "results/frozen.json": _a("freeze.py", "common.py", "hash seeds pairs parts"),
         "results/test_reads.csv": _a("common.py", "", "caller time frozen_hash"),
+        "results/run_log.csv": _a("run_order.py", "", "row command commit start end seconds exit_code check peak_memory_mb"),
+        "results/test_reads_disclosed.csv": _a("run_order.py", "report.py", "caller time frozen_hash reason"),
+        "results/code_lock.json": _a("run_order.py", "report.py", "digest time changes"),
         "results/DISCLOSURES.csv": _a("report.py", "", "item what evidence_file"),
         "results/SUMMARY.csv": _a("report.py", "", "split model featureset n seeds accuracy acc_lo acc_hi macro_f1 macro_precision macro_recall f1_lo f1_hi acc_sd f1_sd"),
         "results/MANIFEST.csv": _a("report.py", "", "requirement stage output_file covers_R2 covers_R3 covers_R4 generative_task discriminative_task exists"),

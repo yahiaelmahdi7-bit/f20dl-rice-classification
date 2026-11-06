@@ -16,3 +16,6 @@ Write `src/report.py`, run by `make report`, reading only saved CSVs and predict
 
 ## Fix 6 (harden before go, C3 disclosures)
 - `disclosures()`: the "code changed after lock" row is counted from the `changes` list in `C.RES/code_lock.json` (evidence file `results/code_lock.json`), not from the reasons in the read ledger. The "extra read" row still counts the ledger rows.
+
+## Fix 7 (harden before go, C4)
+- `MANIFEST.csv` gains three rows, all stage 11: `run_log.csv` (time and memory per runner row), `test_reads_disclosed.csv` (extra test reads, with reasons) and `code_lock.json` (the code digest and any logged code change).
