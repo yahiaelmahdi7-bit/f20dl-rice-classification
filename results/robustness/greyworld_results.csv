@@ -1,0 +1,9 @@
+arm,variant,n,accuracy
+mean_colour_model,raw,492,0.9939024390243902
+mean_colour_model,grey_world,492,0.0
+cnn_seed0,raw_same_path,492,1.0
+cnn_seed0,grey_world,492,0.07113821138211382
+cnn_seed1,raw_same_path,492,0.9979674796747967
+cnn_seed1,grey_world,492,0.018292682926829267
+cnn_seed2,raw_same_path,492,1.0
+cnn_seed2,grey_world,492,0.03048780487804878

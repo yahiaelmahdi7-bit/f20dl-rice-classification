@@ -1,0 +1,11 @@
+subset,route,grains,share,errors
+late_all,hgb,6,0.0018275967103259215,6.0
+late_all,cnn,5,0.0015229972586049345,5.0
+late_all,unsure,0,0.0,
+late_all,unfamiliar,3272,0.9966494060310691,
+late_all,answered_total,11,0.003350593968930856,11.0
+late_test,hgb,0,0.0,0.0
+late_test,cnn,0,0.0,0.0
+late_test,unsure,0,0.0,
+late_test,unfamiliar,492,1.0,
+late_test,answered_total,0,0.0,0.0
