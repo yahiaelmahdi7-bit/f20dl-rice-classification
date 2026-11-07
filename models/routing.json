@@ -1,0 +1,37 @@
+{
+ "hgb": {
+  "temperature": 2.139436884931769,
+  "target_accuracy": 0.9995,
+  "floor": 0.9897550777968603
+ },
+ "cnn_seeds": {
+  "0": {
+   "temperature": 0.727878319236865,
+   "target_accuracy": 0.99,
+   "floor": 0.37297436594963074
+  },
+  "1": {
+   "temperature": 0.7503620715168122,
+   "target_accuracy": 0.99,
+   "floor": 0.4938853979110718
+  },
+  "2": {
+   "temperature": 0.770748508885001,
+   "target_accuracy": 0.99,
+   "floor": 0.383928507566452
+  }
+ },
+ "cnn": {
+  "temperature": 0.727878319236865,
+  "target_accuracy": 0.99,
+  "floor": 0.37297436594963074
+ },
+ "gate_table": {
+  "cut": -43.58363119349408,
+  "percentile": 1.0
+ },
+ "gate_image": {
+  "cut": -30.506019592285156,
+  "percentile": 1.0
+ }
+}

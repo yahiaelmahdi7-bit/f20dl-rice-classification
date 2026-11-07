@@ -1,0 +1,81 @@
+{
+ "hash": "d1a6342f7ab458ae1c7b4b1178074ede4e2d40b5f5058f89e40b67ac9db37e88",
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "pairs": [
+  [
+   "hgb:all106",
+   "cnn:image"
+  ],
+  [
+   "hgb:all106",
+   "mlp:all106"
+  ],
+  [
+   "mlp:all106",
+   "cnn:image"
+  ]
+ ],
+ "parts": {
+  "data/splits.csv": "7865e42f1e9c47150a64a67ec6d7a45e23b6d08b09286f3039a52a28800ee32b",
+  "models/baselines/gmm__all106.joblib": "e24a3fa78eba66c305818fd0405a1b96196bb289172d8b57eee1b532c20b1852",
+  "models/baselines/gmm__colour90.joblib": "be5a209f4760fac44a4b4bbc9dd0dcfa52ff98b05f3c917aa02d359e35450748",
+  "models/baselines/gmm__selected.joblib": "13a658fb511ee49a9cb2a2f172645ab67cf15db52a75bc5501cc80692bcec51a",
+  "models/baselines/gmm__shape16.joblib": "0294d728af33c536bcc605d5ee2ff662424afdb6d215ae3433c892c25f1f1dfd",
+  "models/baselines/hgb__all106.joblib": "196e99aa91d8a570c4fca16d7215c064ea10f68f37437f3d8a06c999aa2cdb04",
+  "models/baselines/hgb__colour90.joblib": "2e0de01fbb06f3dbf4260834595b0b70997819cbfcadee692fa013780333e1e1",
+  "models/baselines/hgb__selected.joblib": "d18c5c73140f11a07c0ace7dae99a8f07a90d4f9001c76ef7446dc018232f480",
+  "models/baselines/hgb__shape16.joblib": "ce8bfe7d832ed4f33d3472e9d455f19b733263eadf772e1c90624b10cb05d0c4",
+  "models/baselines/knn__all106.joblib": "8cab2cddc4e434100e44f2186114d9ec0736644116bdc229edf2f8e008e53583",
+  "models/baselines/knn__colour90.joblib": "0ded4c06a8306c54740ccd1a33b19f1d6b3b4b3a9dfc374cf6096cf1d5b35f40",
+  "models/baselines/knn__selected.joblib": "6b9020e0ebcae354264e54484857f93fe3608491c90d7953a54edc21ad6c63e5",
+  "models/baselines/knn__shape16.joblib": "e6937fb7a2df63bb5255739dc600a2847a0e8e878d8536e61fe49178a8a71e85",
+  "models/baselines/logreg__all106.joblib": "3c62e0d309be4fca94bb8dc7e56ad76d825b08cf1b38bdeca271b05f7125156d",
+  "models/baselines/logreg__colour90.joblib": "20627a74e9c978f00cd4a91e7f75caaff3fcee3149f6a119ce25a0a9fd6c85bd",
+  "models/baselines/logreg__selected.joblib": "f0ed7c2db0566088d84dca72d1594002edb1403b57a64f237564edabbb348278",
+  "models/baselines/logreg__shape16.joblib": "13d6ad1e1bb168a229038be744935aa7e460001ec40d5c4eef7d8b36ef804ac5",
+  "models/baselines/nb__all106.joblib": "d6d6d9f3ca891c24ee6a7aee5242ba9ea45df95ad3bcfdd38f96afa21b20c6c4",
+  "models/baselines/nb__colour90.joblib": "633a35ba6dc23f0233dba959c1cc0373c0cc0efb834311c06a70cdb2ed2088d4",
+  "models/baselines/nb__distinct91.joblib": "bb0cd52e2ed1275ee834bf9d96d77ac7e320e63d43932741e046949e8539f824",
+  "models/baselines/nb__selected.joblib": "2b2e3b0802e5965b1ba9cb94fc641c0adf8b553c77e2bb69b8bc0d911856026c",
+  "models/baselines/nb__shape16.joblib": "62cfc932e04ef85f258f080cad77be4e7755c909c01ba4f4186646be9694b936",
+  "models/baselines/perceptron__all106.joblib": "5558bf0f112d81253da8cc94ac4fbf74b4a2a36a4d4a58004659f4209a18e41b",
+  "models/baselines/perceptron__colour90.joblib": "0cd257072a6d0036494ab94d846615f71461e0eab83c0f2f064acca635bfbf49",
+  "models/baselines/perceptron__selected.joblib": "25ab01444fa5b40a26966624fec2186aff81f9ea512ff10413be7e0748d53930",
+  "models/baselines/perceptron__shape16.joblib": "6c30421d548c8edb4c254cf64f762a5defc3cab538e393fa17427fff1f6612b7",
+  "models/baselines/tree4__all106.joblib": "1acf6f19339608333279929c2b3412669df14c18bd374010a754093c159811de",
+  "models/baselines/tree__all106.joblib": "4232c9b5d469d2b975517e89599cc38eecaa7185bcb8842a675a552c49bea7d4",
+  "models/baselines/tree__colour90.joblib": "3bb5100206103764f2a209b420f8110ce66078568817ac6572bef8a378529199",
+  "models/baselines/tree__selected.joblib": "470965cd3bc860c9634149e549e0723a418e0c0d4a7ec18a05cdaa5e088ed19a",
+  "models/baselines/tree__shape16.joblib": "4fb326754830fe438bf43a8e30f70771c7847ef0ac83bf71c23d1f02dbe8694e",
+  "models/cnn_seed0.pt": "0276cb035db7ae7f088b3d4958ecd7990d339e711a29a6ec5d69d6c0b9bab8f9",
+  "models/cnn_seed1.pt": "55cbdfa4606962b225806106d1395e7b4d69b2bfde516b777a27a764442713ab",
+  "models/cnn_seed2.pt": "d847734212ca57a26e94d6acaa7f2bf039bb7931b8c1b87bff939b1fdd798119",
+  "models/gate_image.joblib": "0fa4023e62797167272e67398fcac1f43bddb14a44e0d9d7f29460ee9a0ed1a4",
+  "models/gate_table.joblib": "673ab122bc2e8620b1afe9b68961edcd7dc01de23110030ca68ce21dfc0e5500",
+  "models/hgb_all106.joblib": "196e99aa91d8a570c4fca16d7215c064ea10f68f37437f3d8a06c999aa2cdb04",
+  "models/holdout/cnn_seed0.pt": "ae01c6ec46b96fb70739b0c485e6db8ad431e73180b40576c26977909ea534d5",
+  "models/holdout/cnn_seed1.pt": "3d329eab2c116af54aef4d08c39b03623f52d3d907cb781076a91cfcb3759cfc",
+  "models/holdout/cnn_seed2.pt": "ee6d536084d8e47621565c82586a53ceeafee47d823896f1850e25aa0f8ae4f3",
+  "models/holdout/full_hgb__sizefree22.joblib": "8e58ad74d700895c9628cba10cee3041a7f9c6a7e69bd1252c77d9fe5def04f2",
+  "models/holdout/full_hgb__sizefree7.joblib": "75962d3a27a4bccdd9a8688307cf78b35666bd06470fb8799e878ca9efc5d275",
+  "models/holdout/gate_image.joblib": "f8d231030e9f0b922129bb575b65c5a06e5282e5ededdffba5dc5d99c3c7dde2",
+  "models/holdout/gate_table.joblib": "5bf74ab9c0a0cee0e7c55d059ce9cd475e432db2ae26e6a0890e89487113d871",
+  "models/holdout/hgb__all106.joblib": "f50e7da2b0974e05d93eb76aee3a249c23bac4bc90da7400d02e01d1b291335a",
+  "models/holdout/hgb__shape16.joblib": "37eca04208e5471a95d0abf1647d26922d8792eba125f5de23c9a7e48a467449",
+  "models/holdout/hgb__sizefree22.joblib": "cfd09d61bb917d9a21de2cee2f0af0bf7471a2f97220fb1726fec8bb8961d1f1",
+  "models/holdout/hgb__sizefree7.joblib": "c0c3f69fe23a646459f2c9e84e0b0e462d10211883d6a9133482a5ed4d983ca4",
+  "models/holdout/routing.json": "7ca21822f39942aa2911d6d2ffdfe2210efa622c84e0d997531c886d04fa6951",
+  "models/mlp_prep.joblib": "99b94fe38a5b4417fa2eb04ef65522b0c0ef124283396c97c74930af47f512af",
+  "models/mlp_seed0.pt": "9206ba0cb8cf9ecfd071239242c9d0d40b52cf4389a2dc887ff4cdb742380979",
+  "models/mlp_seed1.pt": "9ef4e655e1682be14da556d5b894a32815a3ea2f20b5360d594ee2a5e3ab5b43",
+  "models/mlp_seed2.pt": "e04d45c7ad8e11e178b1da0917a4e712423fc239161c45e6e1d553c4b53f4911",
+  "models/routing.json": "85bce5844ec17670cd3b674967c1ce9fb18bbedf24c3b7b95dd6cc768f2e2537",
+  "results/baselines/best_params.json": "23bfc1beda18082f158c5daed636d77491fabc72b4e90450bd99357577a05eb8",
+  "results/features/selected.json": "02c97cf982f6210999cc2019be6211c752075faee1f6dc2c7606d1693ce1141c",
+  "results/neural/best_config.json": "c0aa9838c67cf590b00911763ff979a1be7c8c4f570d6596dd7cd656418fc3e3"
+ }
+}

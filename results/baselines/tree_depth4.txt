@@ -1,0 +1,46 @@
+|--- SHAPEFACTOR_3 <= 0.39
+|   |--- StdDevB <= 2.22
+|   |   |--- ROUNDNESS <= 0.54
+|   |   |   |--- MAJOR_AXIS <= 176.12
+|   |   |   |   |--- class: 3
+|   |   |   |--- MAJOR_AXIS >  176.12
+|   |   |   |   |--- class: 1
+|   |   |--- ROUNDNESS >  0.54
+|   |   |   |--- meanCb <= 128.17
+|   |   |   |   |--- class: 2
+|   |   |   |--- meanCb >  128.17
+|   |   |   |   |--- class: 3
+|   |--- StdDevB >  2.22
+|   |   |--- meanCr <= 120.69
+|   |   |   |--- ROUNDNESS <= 0.54
+|   |   |   |   |--- class: 1
+|   |   |   |--- ROUNDNESS >  0.54
+|   |   |   |   |--- class: 3
+|   |   |--- meanCr >  120.69
+|   |   |   |--- PERIMETER <= 336.64
+|   |   |   |   |--- class: 3
+|   |   |   |--- PERIMETER >  336.64
+|   |   |   |   |--- class: 1
+|--- SHAPEFACTOR_3 >  0.39
+|   |--- MAJOR_AXIS <= 159.08
+|   |   |--- ALLdaub4b <= 60.97
+|   |   |   |--- StdDevCb <= 1.26
+|   |   |   |   |--- class: 0
+|   |   |   |--- StdDevCb >  1.26
+|   |   |   |   |--- class: 4
+|   |   |--- ALLdaub4b >  60.97
+|   |   |   |--- StdDevA <= 1.01
+|   |   |   |   |--- class: 0
+|   |   |   |--- StdDevA >  1.01
+|   |   |   |   |--- class: 4
+|   |--- MAJOR_AXIS >  159.08
+|   |   |--- meanCb <= 129.70
+|   |   |   |--- StdDevRR <= 18.92
+|   |   |   |   |--- class: 2
+|   |   |   |--- StdDevRR >  18.92
+|   |   |   |   |--- class: 0
+|   |   |--- meanCb >  129.70
+|   |   |   |--- EXTENT <= 0.80
+|   |   |   |   |--- class: 3
+|   |   |   |--- EXTENT >  0.80
+|   |   |   |   |--- class: 0

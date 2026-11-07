@@ -1,0 +1,101 @@
+{
+ "gmm:all106": {
+  "n_components": 8
+ },
+ "gmm:colour90": {
+  "n_components": 8
+ },
+ "gmm:selected": {
+  "n_components": 8
+ },
+ "gmm:shape16": {
+  "n_components": 8
+ },
+ "hgb:all106": {
+  "learning_rate": 0.1,
+  "max_iter": 150,
+  "max_leaf_nodes": 31
+ },
+ "hgb:colour90": {
+  "learning_rate": 0.1,
+  "max_iter": 300,
+  "max_leaf_nodes": 31
+ },
+ "hgb:selected": {
+  "learning_rate": 0.1,
+  "max_iter": 300,
+  "max_leaf_nodes": 31
+ },
+ "hgb:shape16": {
+  "learning_rate": 0.05,
+  "max_iter": 300,
+  "max_leaf_nodes": 31
+ },
+ "knn:all106": {
+  "n_neighbors": 3
+ },
+ "knn:colour90": {
+  "n_neighbors": 3
+ },
+ "knn:selected": {
+  "n_neighbors": 5
+ },
+ "knn:shape16": {
+  "n_neighbors": 5
+ },
+ "logreg:all106": {
+  "C": 100
+ },
+ "logreg:colour90": {
+  "C": 10
+ },
+ "logreg:selected": {
+  "C": 1
+ },
+ "logreg:shape16": {
+  "C": 100
+ },
+ "nb:all106": {
+  "var_smoothing": 1e-09
+ },
+ "nb:colour90": {
+  "var_smoothing": 1e-09
+ },
+ "nb:distinct91": {
+  "var_smoothing": 1e-09
+ },
+ "nb:selected": {
+  "var_smoothing": 1e-09
+ },
+ "nb:shape16": {
+  "var_smoothing": 1e-09
+ },
+ "perceptron:all106": {
+  "alpha": 1e-05
+ },
+ "perceptron:colour90": {
+  "alpha": 1e-05
+ },
+ "perceptron:selected": {
+  "alpha": 1e-05
+ },
+ "perceptron:shape16": {
+  "alpha": 1e-05
+ },
+ "tree:all106": {
+  "max_depth": 20,
+  "min_samples_leaf": 1
+ },
+ "tree:colour90": {
+  "max_depth": 20,
+  "min_samples_leaf": 5
+ },
+ "tree:selected": {
+  "max_depth": 10,
+  "min_samples_leaf": 1
+ },
+ "tree:shape16": {
+  "max_depth": 20,
+  "min_samples_leaf": 20
+ }
+}
