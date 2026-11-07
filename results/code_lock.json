@@ -1,5 +1,12 @@
 {
- "digest": "a63f72b5528357e97e3a24efa5577433044457c2d68c1dd0497eb31dbfd9378b",
+ "digest": "df81e8768abb364e2cafe1ea197af7eb7a145823528da1d758f109be992f7faf",
  "time": "2026-11-06T22:40:01",
- "changes": []
+ "changes": [
+  {
+   "time": "2026-11-08T00:31:38",
+   "reason": "CNN floor fitted on grains hgb declines; hold-out uses same rule; runner gains reopen",
+   "from": "a63f72b5528357e97e3a24efa5577433044457c2d68c1dd0497eb31dbfd9378b",
+   "to": "df81e8768abb364e2cafe1ea197af7eb7a145823528da1d758f109be992f7faf"
+  }
+ ]
 }

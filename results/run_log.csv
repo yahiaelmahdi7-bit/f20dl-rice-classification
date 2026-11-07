@@ -14,3 +14,11 @@ row,command,commit,start,end,seconds,exit_code,check,peak_memory_mb
 10,make holdout-train,7d02089,2026-11-06T23:58:54,2026-11-07T00:55:07,3373.4,0,pass,5753
 10a,$PY src/07_compare.py --split val --rescore,7d02089,2026-11-07T00:55:07,2026-11-07T00:55:18,10.7,0,pass,1545
 11,make freeze,7d02089,2026-11-07T00:55:18,2026-11-07T00:55:19,0.9,0,pass,266
+9,reopen,76c4c77,2026-11-08T00:31:37,2026-11-08T00:31:37,0.0,0,"reopened: CNN floor refit on hgb-declined grains, before any test read",0.0
+10,reopen,76c4c77,2026-11-08T00:31:37,2026-11-08T00:31:37,0.0,0,"reopened: CNN floor refit on hgb-declined grains, before any test read",0.0
+10a,reopen,76c4c77,2026-11-08T00:31:37,2026-11-08T00:31:37,0.0,0,"reopened: CNN floor refit on hgb-declined grains, before any test read",0.0
+11,reopen,76c4c77,2026-11-08T00:31:37,2026-11-08T00:31:37,0.0,0,"reopened: CNN floor refit on hgb-declined grains, before any test read",0.0
+9,make fit,76c4c77,2026-11-08T00:31:38,2026-11-08T00:31:41,3.6,0,pass,1113
+10,make holdout-train,76c4c77,2026-11-08T00:31:42,2026-11-08T01:06:19,2077.4,0,pass,4609
+10a,$PY src/07_compare.py --split val --rescore,76c4c77,2026-11-08T01:06:19,2026-11-08T01:06:31,11.4,0,pass,1536
+11,make freeze,76c4c77,2026-11-08T01:06:31,2026-11-08T01:06:32,1.0,0,pass,266
