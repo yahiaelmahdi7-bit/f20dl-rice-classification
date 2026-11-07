@@ -23,3 +23,4 @@ row,command,commit,start,end,seconds,exit_code,check,peak_memory_mb
 10a,$PY src/07_compare.py --split val --rescore,76c4c77,2026-11-08T01:06:19,2026-11-08T01:06:31,11.4,0,pass,1536
 11,make freeze,76c4c77,2026-11-08T01:06:31,2026-11-08T01:06:32,1.0,0,pass,266
 12,make compare,d18693f,2026-11-08T01:15:56,2026-11-08T01:16:25,29.3,0,pass,2066
+13,make score,014cc0c,2026-11-08T01:17:24,2026-11-08T01:17:31,6.5,0,pass,1222
