@@ -30,3 +30,6 @@ Write `src/report.py`, run by `make report`, reading only saved CSVs and predict
 
 ## Fix 10 (row 2 failed at go)
 `DISCLOSURES` gains a fixed `overfit test limit` row: the plan allowed 30 epochs, the first real run reached 92% against the 99% bar, and the limit was raised to 150 after that failure with the 200 grains and the bar unchanged. Evidence file `results/run_log.csv`.
+
+## Fix 11 (row 9 reading, before any test read)
+`DISCLOSURES` gains a fixed `cnn floor grains` row: the plan fitted the CNN floor on all validation grains, the first fit refused none of the grains hgb declines, and the floor was refit on those grains before any test read, after a look at validation routes. Zero CNN errors on validation is by construction. Evidence file `results/code_lock.json`.

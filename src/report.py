@@ -72,6 +72,9 @@
 #
 # ## Fix 10 (row 2 failed at go)
 # `DISCLOSURES` gains a fixed `overfit test limit` row: the plan allowed 30 epochs, the first real run reached 92% against the 99% bar, and the limit was raised to 150 after that failure with the 200 grains and the bar unchanged. Evidence file `results/run_log.csv`.
+#
+# ## Fix 11 (row 9 reading, before any test read)
+# `DISCLOSURES` gains a fixed `cnn floor grains` row: the plan fitted the CNN floor on all validation grains, the first fit refused none of the grains hgb declines, and the floor was refit on those grains before any test read, after a look at validation routes. Zero CNN errors on validation is by construction. Evidence file `results/code_lock.json`.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import json
@@ -125,6 +128,7 @@ DISCLOSURES = [
     ("validation holds late grains", "hyperparameters were picked on validation, which holds late-lot grains", "results/baselines/val_results.csv"),
     ("shuffled-label scores", f"a clean shuffled-label score can sit far from 20%: a simple model can give a whole tight class one shuffled label, so the stop is the {C.CONTROL_CEILING:.0%} ceiling and not the {C.CHANCE_BAND[0]:.0%} to {C.CHANCE_BAND[1]:.0%} band", "results/baselines/control.csv"),
     ("overfit test limit", "the plan allowed 30 epochs for the overfit test; the first real run reached 92% against the 99% bar, because 200 grains at batch 128 gives only 60 updates in 30 epochs, so the limit was raised to 150 after that failure, with the 200 grains and the 99% bar unchanged", "results/run_log.csv"),
+    ("cnn floor grains", "the plan fitted the CNN floor on all validation grains, but the CNN only answers the grains hgb declines; the first fit refused none of them on any seed while getting 73%, 91% and 83% of the answered ones right, so before any test read the floor was refit on the declined grains alone and rows 9 to 11 were rerun; the change followed a look at validation routes, and zero CNN errors on validation is by construction, because the floor sits above the most confident wrong answer", "results/code_lock.json"),
     ("eda counts include test", "02_eda class counts include test rows, as counts only", "results/eda/class_balance.csv"),
     ("image gate seed", "the image familiarity gate uses seed 0 for all three CNN seeds", "results/routing/val_routes.csv"),
     ("near-upright", "the near-upright band is the group's own reading of the angle table", "results/compare/val_by_angle.csv"),

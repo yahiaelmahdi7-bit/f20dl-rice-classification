@@ -145,6 +145,11 @@
 # - `tools/run_order.py`: `pending` yields a read row that is not done even when an earlier attempt passed, so `go` stops on it. Before this, a rerun that failed after an earlier pass let `next` walk on and spend the next read.
 # - `tools/run_order.py`: the stale lock line flushes, so a killed runner cannot lose it.
 # - `tests/test_run_order.py`: fake reads write the same time format as `load_split`, because a raw number sorts before any date and would pass the new comparison whatever the order. New tests: a stray read then a passing rerun ends done with no further read; a rerun that fails after an earlier pass stops `next` and runs nothing after it; a read later than the last passing entry is spent, incomplete even with its ledger row in place.
+#
+# ## Fix 20 (reopen, before any test read)
+# - `tools/run_order.py`: `done_steps` counts a step done when its latest log line passed, used by `pending` and `status`.
+# - `tools/run_order.py`: `reopen ROW --reason R` takes ROW and every row after it, up to the first read, back to pending. It adds one log line per step with the check `reopened: R`, removes none, and deletes `frozen.json` so the gate stays shut until freeze runs again. It is refused once any read exists, and for a read row or a row after one.
+# - `tests/test_run_order.py`: new tests for all of the above. `tests/test_evaluation.py`: the CNN floor comes from the declined grains, in stages 8 and 9.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Run the post-go order of handoff 5.2 from one list, with a check per row, a log, a lock and a code lock. No stage logic lives here."""
 import argparse, csv, glob, hashlib, io, json, os, shutil, subprocess, sys, time
@@ -305,6 +310,11 @@ def passed(e):
     return e["exit_code"] == "0" and e["check"] == "pass"
 
 
+def done_steps(entries):
+    """Sub-steps whose latest log line passed. The log only grows, so `reopen` takes a step back by adding a line."""
+    return {r for r, e in {e["row"]: e for e in entries}.items() if passed(e)}
+
+
 def append_log(entry):
     p = C.RES / "run_log.csv"
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -459,13 +469,29 @@ def disclose(row, reason):
 
 def pending(R, entries, wedge):
     """(row, sub, argv) for every sub-step not yet passed, in order. Off rows are left out."""
-    done = {e["row"] for e in entries if passed(e)}
+    done = done_steps(entries)
     for row in R:
         if row.off and not wedge: continue
         state = read_state(row, entries)
         if state == "done": continue
         for sub, argv in row.steps:
             if sub not in done or state: yield row, sub, argv      # a read row that is not done stays pending, even after an earlier pass
+
+
+def reopen(R, row_id, reason):
+    """Take a row and every row after it, up to the first read, back to pending. Adds a log line per step, removes none, and shuts the gate until freeze runs again. Refused once a read is spent: freeze must keep the hash that read carries."""
+    if not reason: raise Stop("reopen needs --reason")
+    if len(reads()): raise Stop("a test read is spent: reopening would change what it was read under")
+    i = [r.id for r in R].index(row_id)
+    first = next((k for k, r in enumerate(R) if r.read), len(R))
+    if i >= first: raise Stop("only a row before the first read can be reopened")
+    now = time.strftime("%Y-%m-%dT%H:%M:%S")
+    for row in R[i:first]:
+        if row.off: continue
+        for sub, _ in row.steps:
+            append_log({"row": sub, "command": "reopen", "commit": commit(), "start": now, "end": now, "seconds": "0.0", "exit_code": 0, "check": f"reopened: {reason}", "peak_memory_mb": "0.0"})
+            print(f"row {sub}: reopened", flush=True)
+    (C.RES / "frozen.json").unlink(missing_ok=True)
 
 
 def go(R, a, limit=None, one=False):
@@ -492,7 +518,7 @@ def go(R, a, limit=None, one=False):
 
 def status(R, a):
     entries = log_entries()
-    done = {e["row"] for e in entries if passed(e)}
+    done = done_steps(entries)
     for row in R:
         st = read_state(row, entries)
         if row.off and not a.wedge: line = "off"
@@ -511,8 +537,8 @@ def table(R):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("cmd", choices=["status", "next", "through", "table", "rerun-read"])
-    ap.add_argument("arg", nargs="?", help="row id for through and rerun-read")
+    ap.add_argument("cmd", choices=["status", "next", "through", "table", "rerun-read", "reopen"])
+    ap.add_argument("arg", nargs="?", help="row id for through, rerun-read and reopen")
     ap.add_argument("--spend-read", action="store_true")
     ap.add_argument("--code-changed", metavar="REASON")
     ap.add_argument("--reason")
@@ -532,6 +558,9 @@ def main(argv=None):
             elif a.cmd == "through":
                 if a.arg is None: raise Stop("through needs a row id")
                 go(R, a, limit=a.arg)
+            elif a.cmd == "reopen":
+                if a.arg is None: raise Stop("reopen needs a row id")
+                reopen(R, a.arg, a.reason)
             else:
                 row = next((r for r in R if r.id == a.arg), None)
                 if row is None or not row.read: raise Stop("rerun-read needs a row that spends a read (12, 13 or 14)")

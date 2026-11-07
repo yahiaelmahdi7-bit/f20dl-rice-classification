@@ -525,3 +525,69 @@ def test_table_prints_every_row(capsys):
     out = capsys.readouterr().out.splitlines()
     assert len(out) == 2 + len(HANDOFF_52) and any(l.startswith("| 10a |") for l in out)
     assert "$PY src/07_compare.py --split val --rescore" in "\n".join(out) and RO.PY not in "\n".join(out) and "make predict IMG=path" in "\n".join(out)
+
+
+def reopen_rows(env):
+    return [RO.Row("A", "a", [("A", touch(env, "a"))], lambda s: ""), RO.Row("B", "b", [("B", touch(env, "b"))], lambda s: ""),
+            RO.Row("C", "c", [("C1", touch(env, "c")), ("C2", touch(env, "c"))], lambda s: ""), read_row(env)]
+
+
+def test_reopen_reruns_from_that_row_up_to_the_read_and_keeps_every_log_line(env, monkeypatch, capsys):
+    rows(monkeypatch, reopen_rows(env))
+    assert RO.main(["through", "C"]) == 0
+    before = log(env)
+    (env / "res" / "frozen.json").write_text("{}")
+    assert RO.main(["reopen", "B", "--reason", "floor refit"]) == 0
+    L = log(env)
+    assert L.iloc[:len(before)].equals(before)                                 # nothing removed or rewritten
+    assert L.row.tolist()[len(before):] == ["B", "C1", "C2"] and set(L.check.tolist()[len(before):]) == {"reopened: floor refit"}
+    assert not (env / "res" / "frozen.json").exists()                          # the gate is shut until freeze runs again
+    assert RO.main(["through", "C"]) == 0
+    assert (runs(env, "a"), runs(env, "b"), runs(env, "c")) == (1, 2, 4)       # A not repeated; B and both C steps ran again
+    assert not C.TEST_READS.exists()
+
+
+def test_status_shows_a_reopened_row_as_pending(env, monkeypatch, capsys):
+    rows(monkeypatch, reopen_rows(env))
+    assert RO.main(["through", "C"]) == 0
+    assert RO.main(["reopen", "C", "--reason", "r"]) == 0
+    capsys.readouterr()
+    RO.main(["status"])
+    out = capsys.readouterr().out.splitlines()
+    assert "done" in out[1] and "pending" in out[2]
+
+
+def test_next_cannot_spend_a_read_past_a_reopened_row(env, monkeypatch, capsys):
+    rows(monkeypatch, reopen_rows(env))
+    assert RO.main(["through", "C"]) == 0
+    assert RO.main(["reopen", "B", "--reason", "r"]) == 0
+    assert RO.main(["next", "--spend-read"]) == 0
+    assert runs(env, "b") == 2 and not C.TEST_READS.exists()                   # next took B, not the read
+
+
+def test_reopen_is_refused_once_a_read_is_spent(env, monkeypatch, capsys):
+    rows(monkeypatch, reopen_rows(env))
+    assert RO.main(["through", "C"]) == 0
+    RO.main(["next", "--spend-read"])
+    assert C.TEST_READS.exists()
+    n = len(log(env))
+    (env / "res" / "frozen.json").write_text("{}")
+    assert RO.main(["reopen", "B", "--reason", "r"]) == 1
+    assert "read is spent" in capsys.readouterr().err
+    assert len(log(env)) == n and (env / "res" / "frozen.json").exists()
+
+
+def test_reopen_needs_a_reason_and_a_row_before_the_first_read(env, monkeypatch, capsys):
+    rows(monkeypatch, reopen_rows(env))
+    assert RO.main(["through", "C"]) == 0
+    n = len(log(env))
+    assert RO.main(["reopen", "B"]) == 1 and "--reason" in capsys.readouterr().err
+    assert RO.main(["reopen", "12", "--reason", "r"]) == 1 and "before the first read" in capsys.readouterr().err
+    assert RO.main(["reopen", "--reason", "r"]) == 1 and "row id" in capsys.readouterr().err
+    assert len(log(env)) == n
+
+
+def test_a_step_that_fails_after_a_pass_counts_as_not_done(env, monkeypatch):
+    e = dict(zip(RO.LOG_COLS, [""] * len(RO.LOG_COLS)))
+    ok, bad = e | {"row": "A", "exit_code": "0", "check": "pass"}, e | {"row": "A", "exit_code": "1", "check": "fail: x"}
+    assert RO.done_steps([ok]) == {"A"} and RO.done_steps([ok, bad]) == set() and RO.done_steps([bad, ok]) == {"A"}

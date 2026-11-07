@@ -65,6 +65,9 @@
 #
 # ## Fix 4
 # `read_test` is the one gated read. An infinite cell becomes a missing one, as in stage 7, so the table gate's imputer does not raise after the read, and the count is printed.
+#
+# ## Fix 5 (row 9 reading, before any test read)
+# This replaces the floor line above for the second model; the original line stays as the record. `fit_routes`: each CNN seed's temperature still comes from every validation row, but its floor comes only from the validation grains hgb declines, meaning calibrated hgb confidence under the hgb floor. Reason: the CNN answers only those grains, and the first fit, on all grains, refused none of them on any seed. `floor_for` is unchanged, so with no floor reaching the target it returns 1.01 and the CNN answers nothing. Unfamiliar grains stay in the fit: on validation the floors came out the same with and without them, and the fit then needs no gate.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 8: temperature, floors, familiarity gates and the confidence chain. --fit on validation, --score on test."""
 import argparse, json
@@ -100,16 +103,19 @@ def chain(Ph, Pc, fh, fc, unf):
     return route, ans, key
 
 
-def fitted(P, y, target):
-    """Temperature and floor for one model, from validation rows only."""
+def fitted(P, y, target, rows=None):
+    """Temperature from every validation row; floor from `rows`, the validation rows this model answers, all of them by default."""
     T = C.temperature(P, y)
     Pk = C.apply_temp(P, T)
-    return {"temperature": T, "target_accuracy": target, "floor": C.floor_for(Pk.max(1), Pk.argmax(1) == y, target)}
+    m = slice(None) if rows is None else rows
+    return {"temperature": T, "target_accuracy": target, "floor": C.floor_for(Pk.max(1)[m], (Pk.argmax(1) == y)[m], target)}
 
 
 def fit_routes(Ph, Pcs, y):
-    """Routing entries from validation only: hgb, every CNN seed, and seed 0 as the primary answer that predict.py reads."""
-    R = {"hgb": fitted(Ph, y, TARGET["hgb"]), "cnn_seeds": {str(s): fitted(P, y, TARGET["cnn"]) for s, P in Pcs.items()}}
+    """Routing entries from validation only: hgb, every CNN seed, and seed 0 as the primary answer that predict.py reads. The CNN answers only the grains hgb declines, so its floor is fitted on those grains."""
+    H = fitted(Ph, y, TARGET["hgb"])
+    declined = C.apply_temp(Ph, H["temperature"]).max(1) < H["floor"]
+    R = {"hgb": H, "cnn_seeds": {str(s): fitted(P, y, TARGET["cnn"], declined) for s, P in Pcs.items()}}
     R["cnn"] = R["cnn_seeds"]["0"]
     return R
 

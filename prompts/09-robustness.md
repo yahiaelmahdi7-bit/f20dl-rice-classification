@@ -43,3 +43,6 @@ A model must never be scored on grains it trained on. `full_hgb` and `full_cnn` 
 
 ## Fix 10 (harden before go, D7)
 The `run` record of a hold-out CNN gains `code`, the `C.code_digest` of `src/06_neural.py`, `src/common.py` and `src/09_robustness.py`, the code that shapes those weights. A checkpoint made by older code no longer matches and is retrained.
+
+## Fix 11 (row 9 reading, before any test read)
+`--train`: `holdout_routes` takes the hold-out routing from stage 8's `fit_routes`, so the CNN floor comes from the grains hgb declines on hold-out validation. The copy of the floor loop here goes. `models/holdout/routing.json` keeps its keys.

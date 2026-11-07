@@ -23,3 +23,6 @@ Write `src/08_routing.py` with `--fit` and `--score`. Saves `models/routing.json
 
 ## Fix 4
 `read_test` is the one gated read. An infinite cell becomes a missing one, as in stage 7, so the table gate's imputer does not raise after the read, and the count is printed.
+
+## Fix 5 (row 9 reading, before any test read)
+This replaces the floor line above for the second model; the original line stays as the record. `fit_routes`: each CNN seed's temperature still comes from every validation row, but its floor comes only from the validation grains hgb declines, meaning calibrated hgb confidence under the hgb floor. Reason: the CNN answers only those grains, and the first fit, on all grains, refused none of them on any seed. `floor_for` is unchanged, so with no floor reaching the target it returns 1.01 and the CNN answers nothing. Unfamiliar grains stay in the fit: on validation the floors came out the same with and without them, and the fit then needs no gate.

@@ -145,6 +145,11 @@
 # - `tools/run_order.py`: `pending` yields a read row that is not done even when an earlier attempt passed, so `go` stops on it. Before this, a rerun that failed after an earlier pass let `next` walk on and spend the next read.
 # - `tools/run_order.py`: the stale lock line flushes, so a killed runner cannot lose it.
 # - `tests/test_run_order.py`: fake reads write the same time format as `load_split`, because a raw number sorts before any date and would pass the new comparison whatever the order. New tests: a stray read then a passing rerun ends done with no further read; a rerun that fails after an earlier pass stops `next` and runs nothing after it; a read later than the last passing entry is spent, incomplete even with its ledger row in place.
+#
+# ## Fix 20 (reopen, before any test read)
+# - `tools/run_order.py`: `done_steps` counts a step done when its latest log line passed, used by `pending` and `status`.
+# - `tools/run_order.py`: `reopen ROW --reason R` takes ROW and every row after it, up to the first read, back to pending. It adds one log line per step with the check `reopened: R`, removes none, and deletes `frozen.json` so the gate stays shut until freeze runs again. It is refused once any read exists, and for a read row or a row after one.
+# - `tests/test_run_order.py`: new tests for all of the above. `tests/test_evaluation.py`: the CNN floor comes from the declined grains, in stages 8 and 9.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Independent recheck of R2: refit every cluster row and recompute stage 3 accuracies, then compare with the saved CSVs.
 

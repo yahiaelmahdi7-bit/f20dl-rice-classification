@@ -364,6 +364,43 @@ def test_fit_stores_every_seed_and_keeps_the_keys_predict_reads(monkeypatch):
     assert len(seen) == 4 and all(v is y for v in seen)
 
 
+def declined_case():
+    """990 grains hgb is sure of; 10 it declines, where the CNN is wrong on 5 at 0.6 and right on 5 at 0.95. 5 errors in 1,000 clears 99%, 5 in 10 does not."""
+    y = np.zeros(1000, int)
+    Ph, Pc = rows_for(y, 0.999), rows_for(y, 0.9)
+    Ph[990:] = rows_for(y[990:] + 1, 0.5)
+    Pc[990:] = rows_for(y[990:], 0.95)
+    Pc[990:995] = rows_for(y[990:995] + 1, 0.6)
+    return y, Ph, Pc
+
+
+def test_cnn_floor_comes_from_the_grains_hgb_declines(monkeypatch):
+    s = load("src/08_routing.py")
+    monkeypatch.setattr(C, "temperature", lambda P, yy: 1.0)
+    y, Ph, Pc = declined_case()
+    assert C.floor_for(Pc.max(1), Pc.argmax(1) == y, 0.99) == pytest.approx(0.6)      # the old rule lets all ten through
+    R = s.fit_routes(Ph, {0: Pc}, y)
+    assert R["hgb"]["floor"] == pytest.approx(0.999) and R["cnn"]["floor"] == pytest.approx(0.95)
+    route = s.chain(C.apply_temp(Ph, 1.0), C.apply_temp(Pc, 1.0), R["hgb"]["floor"], R["cnn"]["floor"], np.zeros(1000, bool))[0]
+    assert (route == "unsure").sum() == 5 and (route == "cnn").sum() == 5
+
+
+def test_cnn_answers_nothing_when_hgb_declines_nothing(monkeypatch):
+    s = load("src/08_routing.py")
+    monkeypatch.setattr(C, "temperature", lambda P, yy: 1.0)
+    y = np.zeros(10, int)
+    R = s.fit_routes(rows_for(y, 0.999), {0: rows_for(y, 0.9)}, y)
+    assert R["cnn"]["floor"] == pytest.approx(1.01)
+
+
+def test_holdout_routing_uses_the_same_floor_rule_and_keeps_its_keys(monkeypatch):
+    s = load("src/09_robustness.py")
+    monkeypatch.setattr(C, "temperature", lambda P, yy: 1.0)
+    y, Ph, Pc = declined_case()
+    R = s.holdout_routes(Ph, Pc, y)
+    assert set(R) == {"hgb", "cnn"} and R["cnn"]["floor"] == pytest.approx(0.95)
+
+
 def test_route_table_has_one_block_per_seed_on_its_own_numbers(tmp_path, monkeypatch):
     s = load("src/08_routing.py")
     monkeypatch.setattr(C, "savefig", lambda fig, name: s.plt.close(fig))

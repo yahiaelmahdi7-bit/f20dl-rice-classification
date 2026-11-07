@@ -85,6 +85,9 @@
 #
 # ## Fix 10 (harden before go, D7)
 # The `run` record of a hold-out CNN gains `code`, the `C.code_digest` of `src/06_neural.py`, `src/common.py` and `src/09_robustness.py`, the code that shapes those weights. A checkpoint made by older code no longer matches and is retrained.
+#
+# ## Fix 11 (row 9 reading, before any test read)
+# `--train`: `holdout_routes` takes the hold-out routing from stage 8's `fit_routes`, so the CNN floor comes from the grains hgb declines on hold-out validation. The copy of the floor loop here goes. `models/holdout/routing.json` keeps its keys.
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Stage 9: late-lot robustness. --train fits hold-out models without the late lot; --score reads the test split once."""
 import argparse, importlib.util, json
@@ -238,6 +241,13 @@ def fit_tables(B, jobs, params, hd):
         joblib.dump({"pipe": pipe, "cols": C.features(fs), "params": params[fs], "params_from": hgb_key(fs), "train_ids": rows.grain_id.tolist()}, hd / f"{stem}.joblib")
 
 
+def holdout_routes(Ph, Pv, y):
+    """Hold-out routing by stage 8's own rule, one CNN seed, so its floor comes from the grains hgb declines here too."""
+    R = _load("08_routing.py").fit_routes(Ph, {0: Pv}, y)
+    R.pop("cnn_seeds")
+    return R
+
+
 def controls_stand():
     """Hold-out training costs 1.98 h and freeze would refuse a failed control after it, so the same check runs first."""
     bad = _load("freeze.py", SRC.parent / "tools").control_faults()
@@ -264,11 +274,7 @@ def train():
     # hold-out routing, refit on hold-out validation only
     y = vah.y.to_numpy()
     Ph = joblib.load(hd / "hgb__all106.joblib")["pipe"].predict_proba(vah[C.ALL106])
-    R = {}
-    for nm, P, tgt in [("hgb", Ph, 0.9995), ("cnn", emb["Pv"], 0.99)]:
-        T = C.temperature(P, y)
-        Pk = C.apply_temp(P, T)
-        R[nm] = {"temperature": T, "target_accuracy": tgt, "floor": C.floor_for(Pk.max(1), Pk.argmax(1) == y, tgt)}
+    R = holdout_routes(Ph, emb["Pv"], y)
     gt = C.Gate().fit(trh[C.ALL106].to_numpy(np.float64), trh.y.to_numpy(), vah[C.ALL106].to_numpy(np.float64))
     gi = C.Gate().fit(emb["tr"], trh.y.to_numpy(), emb["va"])
     joblib.dump(gt, hd / "gate_table.joblib"); joblib.dump(gi, hd / "gate_image.joblib")
