@@ -75,6 +75,9 @@
 #
 # ## Fix 11 (row 9 reading, before any test read)
 # `DISCLOSURES` gains a fixed `cnn floor grains` row: the plan fitted the CNN floor on all validation grains, the first fit refused none of the grains hgb declines, and the floor was refit on those grains before any test read, after a look at validation routes. Zero CNN errors on validation is by construction. Evidence file `results/code_lock.json`.
+#
+# ## Fix 12 (row 16, after the three test reads)
+# `DISCLOSURES` gains two fixed rows. `holdout cnn retrained`: the hold-out CNNs were trained twice, first in the rows 9 to 11 run and again in the floor-fix rerun, because model reuse is same-run crash recovery only; GPU training is not bit-exact, so the weights differ; the second set was frozen by procedure, not chosen on results; no test read used the first set; hgb and gate models are byte-identical. Evidence file `results/frozen.json`. `tint gain vs area`: the pre-set |r| < 0.1 check between grey-world gain and grain area inside a class passed only for Arborio, missed narrowly for Basmati, Ipsala and Karacadag (0.12 to 0.17) and failed for Jasmine (0.93), so for Jasmine the tint arm cannot separate colour from size. Evidence file `results/robustness/greyworld_gain_vs_area.csv`. `MANIFEST` gains a row for each evidence file: `frozen.json` (stage 11) and `robustness/greyworld_gain_vs_area.csv` (stage 9).
 # === AI-GENERATED CODE: PROMPT RECORD END ===
 """Summary tables, manifest and comparison figure from saved CSVs only. No models, no GPU, no test gate."""
 import json
@@ -112,11 +115,13 @@ MANIFEST = [
     ("test tables by angle", 7, "compare/test_by_angle.csv", 0, 1, 1, 0, 1),
     ("test tables by angle and lot", 7, "compare/test_by_angle_lot.csv", 0, 1, 1, 0, 1),
     ("robustness: mean-colour check and unchanged-image control", 9, "robustness/mean_colour_check.csv", 0, 0, 1, 0, 1),
+    ("grey-world gain against grain area, per class", 9, "robustness/greyworld_gain_vs_area.csv", 0, 0, 1, 0, 1),
     ("old smoke overlap with the real splits", 0, "results/smoke_overlap.csv", 0, 0, 0, 0, 0),
     ("disclosures for the report", 11, "DISCLOSURES.csv", 0, 0, 0, 0, 0),
     ("run log: time and memory per row", 11, "run_log.csv", 0, 0, 0, 0, 0),
     ("extra test reads, with reasons", 11, "test_reads_disclosed.csv", 0, 0, 0, 0, 0),
     ("code lock and logged code changes", 11, "code_lock.json", 0, 0, 0, 0, 0),
+    ("frozen settings and model hashes", 11, "frozen.json", 0, 0, 0, 0, 0),
 ]
 COLS = ["requirement", "stage", "output_file", "covers_R2", "covers_R3", "covers_R4", "generative_task", "discriminative_task"]
 
@@ -133,6 +138,8 @@ DISCLOSURES = [
     ("image gate seed", "the image familiarity gate uses seed 0 for all three CNN seeds", "results/routing/val_routes.csv"),
     ("near-upright", "the near-upright band is the group's own reading of the angle table", "results/compare/val_by_angle.csv"),
     ("perceptron scores", "Perceptron and kNN scores are not calibrated probabilities; they keep the predicted class only", "results/baselines/val_results.csv"),
+    ("holdout cnn retrained", "the hold-out CNNs were trained twice: once in the first rows 9 to 11 run, then again in the floor-fix rerun, because saved models are reused only to recover a crash inside the same run; GPU training is not bit-exact, so the two sets of weights differ; the second set was frozen because the procedure retrains on a rerun, not because it scored better, and no test read used the first set; the hgb and gate models came out byte-identical", "results/frozen.json"),
+    ("tint gain vs area", "the pre-set check that grey-world gain does not track grain area inside a class (|r| < 0.1 on every colour channel) passed only for Arborio; Basmati, Ipsala and Karacadag missed narrowly (largest |r| 0.12 to 0.17) and Jasmine failed outright (0.93), so for Jasmine the tint arm cannot separate colour from size", "results/robustness/greyworld_gain_vs_area.csv"),
 ]
 LEDGER, CODE_LOCK = "test_reads_disclosed.csv", "code_lock.json"
 
