@@ -1,0 +1,851 @@
+rm -rf models/smoke results/smoke figures/smoke data/derived/smoke
+RICE_SMOKE=1 .venv/bin/python tools/run_order.py through 11
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/00_get_data.py
+verified rice-msc.zip sha256 81695e6c75ba9239...
+already unpacked: /Users/y/Academic/courses/f20dl/data/raw/Rice_MSC_Dataset, no download, no unpack
+verified rice-image.zip sha256 560b0934c38675b2...
+already unpacked: /Users/y/Academic/courses/f20dl/data/raw/Rice_Image_Dataset, no download, no unpack
+raw data verified and read-only
+row s0: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/01_build_grains.py
+table (75000, 107), images 75000
+  measured 0/2002
+  linked Arborio: 402 images, unique rows 402
+  linked Basmati: 402 images, unique rows 402
+  linked Ipsala: 394 images, unique rows 394
+  linked Jasmine: 402 images, unique rows 402
+  linked Karacadag: 402 images, unique rows 402
+/Users/y/Academic/courses/f20dl/src/01_build_grains.py:310: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  g = imgs.merge(msc.reset_index().rename(columns={"index": "msc_row"}), on="msc_row")
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/missing_cells.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/link_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/quality_link_area.png
+links 2002, drops 0, grains 2002, late 88
+wrote /Users/y/Academic/courses/f20dl/data/derived/smoke/splits.csv
+  cached 0/2002
+wrote /Users/y/Academic/courses/f20dl/data/derived/smoke/grains.parquet
+wrote /Users/y/Academic/courses/f20dl/data/derived/smoke/images128.u8
+          n    late   share
+split                      
+test    301  0.0432  0.1503
+train  1401  0.0443  0.6998
+val     300  0.0433  0.1499
+split        test   train     val
+class                            
+Arborio    0.2027  0.2006  0.2000
+Basmati    0.2027  0.2006  0.2000
+Ipsala     0.1960  0.1970  0.1967
+Jasmine    0.1993  0.2013  0.2000
+Karacadag  0.1993  0.2006  0.2033
+row s1: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/03_features.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/ranking.csv
+43 correlation clusters, one representative each
+{'k': 1, 'hgb_val_accuracy': 0.88, 'logreg_val_accuracy': 0.8866666666666667, 'hgb_inner_accuracy': 0.8754448398576512, 'logreg_inner_accuracy': 0.8683274021352313}
+{'k': 3, 'hgb_val_accuracy': 0.9833333333333333, 'logreg_val_accuracy': 0.9633333333333334, 'hgb_inner_accuracy': 0.9679715302491103, 'logreg_inner_accuracy': 0.9608540925266904}
+{'k': 8, 'hgb_val_accuracy': 0.9966666666666667, 'logreg_val_accuracy': 0.9766666666666667, 'hgb_inner_accuracy': 0.9857651245551602, 'logreg_inner_accuracy': 0.9893238434163701}
+{'k': 32, 'hgb_val_accuracy': 0.9966666666666667, 'logreg_val_accuracy': 0.9966666666666667, 'hgb_inner_accuracy': 0.9928825622775801, 'logreg_inner_accuracy': 0.9928825622775801}
+{'k': 91, 'hgb_val_accuracy': 0.9966666666666667, 'logreg_val_accuracy': 0.9966666666666667, 'hgb_inner_accuracy': 0.99644128113879, 'logreg_inner_accuracy': 1.0}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/accuracy_vs_k.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/selected.json
+selected k=91 (by model {'hgb': 91, 'logreg': 91}), old rule k=32: ['ROUNDNESS', 'SHAPEFACTOR_1', 'SHAPEFACTOR_2', 'PERIMETER', 'EQDIASQ', 'entropyL', 'meanB', 'meanA', 'StdDevV', 'StdDevL', 'entropyXX', 'meanS', 'kurtosisRG', 'StdDevB', 'kurtosisV', 'entropyH', 'meanH', 'meanRG', 'meanRR', 'StdDevA', 'EXTENT', 'skewRG', 'meanCr', 'skewS', 'skewA', 'entropyYY', 'skewCb', 'skewV', 'meanV', 'entropyV', 'skewRB', 'StdDevCr', 'StdDevH', 'kurtosisS', 'kurtosisB', 'skewH', 'kurtosisCb', 'SHAPEFACTOR_4', 'SOLIDITY', 'kurtosisH', 'skewCr', 'kurtosisA', 'kurtosisCr', 'SHAPEFACTOR_3', 'COMPACTNESS', 'ASPECT_RATIO', 'ECCENTRICITY', 'MINOR_AXIS', 'AREA', 'MAJOR_AXIS', 'CONVEX_AREA', 'entropyB', 'entropyCr', 'entropyRB', 'entropyY', 'entropyRG', 'meanCb', 'entropyA', 'entropyCb', 'entropyRR', 'StdDevRB', 'StdDevRG', 'StdDevRR', 'StdDevY', 'kurtosisYY', 'kurtosisY', 'kurtosisXX', 'kurtosisL', 'StdDevZZ', 'kurtosisRR', 'StdDevCb', 'StdDevS', 'entropyS', 'StdDevYY', 'StdDevXX', 'meanY', 'kurtosisRB', 'meanL', 'kurtosisZZ', 'meanYY', 'meanXX', 'skewL', 'skewRR', 'skewY', 'skewB', 'entropyZZ', 'skewYY', 'meanZZ', 'meanRB', 'skewXX', 'skewZZ']
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/selected_info.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/stability.csv
+{'featureset': 'all106', 'n_features': 106, 'model': 'hgb', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'all106', 'n_features': 106, 'model': 'logreg', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'distinct91', 'n_features': 91, 'model': 'hgb', 'val_accuracy': 1.0, 'val_macro_f1': 1.0, 'n_val': 300}
+{'featureset': 'distinct91', 'n_features': 91, 'model': 'logreg', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'shape16', 'n_features': 16, 'model': 'hgb', 'val_accuracy': 0.9833333333333333, 'val_macro_f1': 0.9834132677461229, 'n_val': 300}
+{'featureset': 'shape16', 'n_features': 16, 'model': 'logreg', 'val_accuracy': 0.97, 'val_macro_f1': 0.9699155033914393, 'n_val': 300}
+{'featureset': 'colour90', 'n_features': 90, 'model': 'hgb', 'val_accuracy': 0.9833333333333333, 'val_macro_f1': 0.9834923646878106, 'n_val': 300}
+{'featureset': 'colour90', 'n_features': 90, 'model': 'logreg', 'val_accuracy': 0.98, 'val_macro_f1': 0.980050753949457, 'n_val': 300}
+{'featureset': 'sizefree7', 'n_features': 7, 'model': 'hgb', 'val_accuracy': 0.8833333333333333, 'val_macro_f1': 0.8828180916535568, 'n_val': 300}
+{'featureset': 'sizefree7', 'n_features': 7, 'model': 'logreg', 'val_accuracy': 0.88, 'val_macro_f1': 0.8781646065590907, 'n_val': 300}
+{'featureset': 'sizefree22', 'n_features': 22, 'model': 'hgb', 'val_accuracy': 0.9833333333333333, 'val_macro_f1': 0.9832904908348212, 'n_val': 300}
+{'featureset': 'sizefree22', 'n_features': 22, 'model': 'logreg', 'val_accuracy': 0.9766666666666667, 'val_macro_f1': 0.9766321700559342, 'n_val': 300}
+{'featureset': 'selected', 'n_features': 91, 'model': 'hgb', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'selected', 'n_features': 91, 'model': 'logreg', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'authors_top5', 'n_features': 5, 'model': 'hgb', 'val_accuracy': 0.8766666666666667, 'val_macro_f1': 0.8763510037402578, 'n_val': 300}
+{'featureset': 'authors_top5', 'n_features': 5, 'model': 'logreg', 'val_accuracy': 0.89, 'val_macro_f1': 0.8884793795586681, 'n_val': 300}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/set_comparison.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/features_accuracy_vs_k.png
+row s3: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/02_eda.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/class_balance.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_class_balance.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_distributions.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/corr_clusters.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_correlation.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/tint_by_class.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_tint.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/jasmine_lots.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_jasmine_break.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/entropy_vs_logarea.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_entropy_vs_area.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/copy_columns.csv
+{False: 15} copy columns identical to their mean column
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_examples.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/data_dictionary.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/entropy_check.csv
+   column scale   n  pearson  median_ratio  min_ratio  max_ratio
+entropyRR 0-255 200 1.000000      1.000289   1.000103   1.001132
+entropyRG 0-255 200 1.000000      1.000285   1.000103   1.001148
+entropyRB 0-255 200 1.000000      1.000398   1.000100   1.001385
+ entropyH   0-1 200 0.963959      1.246784   1.005023   1.573700
+ entropyS   0-1 200 0.963933      2.215396   1.357211  17.693951
+ entropyV   0-1 200 0.999961      1.021484   1.008293   1.109133
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/validity.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/outliers.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/outlier_picks.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_outlier_montage.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_file_order.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/file_order.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_mean_images.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/resize_area_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/shift_accounting.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_shift_accounting.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/insights.csv
+row s2: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/04_cluster.py
+all106: PCA-20 cumulative explained variance 0.9843
+{'featureset': 'all106', 'method': 'kmeans', 'k': 2, 'silhouette': 0.41136665293541985, 'bic': nan, 'inertia': 113129.57736252373, 'ARI': 0.2041420671084093, 'NMI': 0.4387696001411423, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.4113666529354198, 'silhouette_sd': 1.0007415106216802e-16, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 2, 'silhouette': 0.3882028157839677, 'bic': 101392.94645365597, 'inertia': nan, 'ARI': 0.20267893161182304, 'NMI': 0.40683408992994163, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3882028157839677, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 3, 'silhouette': 0.3014144975308504, 'bic': nan, 'inertia': 89464.15411873335, 'ARI': 0.4627596474009065, 'NMI': 0.6472452343056958, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3014144975308504, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 3, 'silhouette': 0.2714884278142721, 'bic': 89515.6988515591, 'inertia': nan, 'ARI': 0.575227678910375, 'NMI': 0.7305487816528976, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.27148842781427207, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 4, 'silhouette': 0.2861955415284637, 'bic': nan, 'inertia': 78680.63014387224, 'ARI': 0.7070449437028731, 'NMI': 0.7955945684025002, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2861955415284637, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 4, 'silhouette': 0.2828945411727908, 'bic': 83938.50831362151, 'inertia': nan, 'ARI': 0.7211196885081441, 'NMI': 0.826756538801933, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.28289454117279084, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 5, 'silhouette': 0.3134098745945972, 'bic': nan, 'inertia': 69615.38356033919, 'ARI': 0.8466200410276389, 'NMI': 0.8724462354275287, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3134098745945972, 'silhouette_sd': 5.551115123125783e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 5, 'silhouette': 0.30971936221575447, 'bic': 81530.40062759355, 'inertia': nan, 'ARI': 0.8584234305600412, 'NMI': 0.8970395768524968, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.30971936221575447, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 6, 'silhouette': 0.33580499591679425, 'bic': nan, 'inertia': 62023.55179842586, 'ARI': 0.9129314317099889, 'NMI': 0.91746180468125, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.33580499591679425, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 6, 'silhouette': 0.3333357341215687, 'bic': 80025.44832091178, 'inertia': nan, 'ARI': 0.9223942773890506, 'NMI': 0.9307492529925396, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.33333573412156864, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 7, 'silhouette': 0.3042577120954129, 'bic': nan, 'inertia': 56312.40745228361, 'ARI': 0.8444156858245802, 'NMI': 0.8786174839800664, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3042577120954129, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 7, 'silhouette': 0.31565787944805274, 'bic': 78786.79673363286, 'inertia': nan, 'ARI': 0.8900829383505822, 'NMI': 0.9179254012397904, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.31565787944805274, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 8, 'silhouette': 0.30719595393059157, 'bic': nan, 'inertia': 54389.16492288273, 'ARI': 0.8325157038574477, 'NMI': 0.8669503767636597, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.30719595393059157, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 8, 'silhouette': 0.28926870645691527, 'bic': 79280.66991864104, 'inertia': nan, 'ARI': 0.8364348944966262, 'NMI': 0.8904074786851306, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.28926870645691527, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 9, 'silhouette': 0.25541938272981046, 'bic': nan, 'inertia': 51274.68613785719, 'ARI': 0.7112607533154823, 'NMI': 0.8028502205777341, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2554193827298105, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 9, 'silhouette': 0.25565103326368005, 'bic': 77990.16536266716, 'inertia': nan, 'ARI': 0.7511362711832412, 'NMI': 0.8492815953937486, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.25565103326368005, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 10, 'silhouette': 0.26115302835782744, 'bic': nan, 'inertia': 48663.173514275484, 'ARI': 0.7050108599591745, 'NMI': 0.8073227586843118, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2611530283578274, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 10, 'silhouette': 0.2328444372110996, 'bic': 78708.45023109434, 'inertia': nan, 'ARI': 0.7224693948415759, 'NMI': 0.838589064583217, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2328444372110996, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+distinct91: PCA-20 cumulative explained variance 0.9827
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 2, 'silhouette': 0.4087825440703106, 'bic': nan, 'inertia': 97800.59663630307, 'ARI': 0.20433508779737544, 'NMI': 0.44064239598473726, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.40878254407031067, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 2, 'silhouette': 0.3817287642535489, 'bic': 99240.99517112719, 'inertia': nan, 'ARI': 0.20267893161182304, 'NMI': 0.40683408992994163, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.38172876425354885, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 3, 'silhouette': 0.29450559677620103, 'bic': nan, 'inertia': 78110.03856197115, 'ARI': 0.4656377293392072, 'NMI': 0.6565951762889021, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.29450559677620103, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 3, 'silhouette': 0.28005454195927204, 'bic': 87902.7808564476, 'inertia': nan, 'ARI': 0.5823017555184197, 'NMI': 0.7440170253551546, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28005454195927204, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 4, 'silhouette': 0.2956430414752318, 'bic': nan, 'inertia': 67774.45041810992, 'ARI': 0.677652447425249, 'NMI': 0.788337993745879, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.2956430414752318, 'silhouette_sd': 5.551115123125783e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 4, 'silhouette': 0.28942373705536784, 'bic': 85269.06723712942, 'inertia': nan, 'ARI': 0.6799966520590036, 'NMI': 0.8072502941327472, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28942373705536784, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 5, 'silhouette': 0.31381039673290373, 'bic': nan, 'inertia': 59958.775118107, 'ARI': 0.8718853659056127, 'NMI': 0.889983878297653, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.31381039673290373, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 5, 'silhouette': 0.3104869364459386, 'bic': 79871.75055603561, 'inertia': nan, 'ARI': 0.8768095428244106, 'NMI': 0.906210471097023, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.3104869364459386, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 6, 'silhouette': 0.28666452306407963, 'bic': nan, 'inertia': 54020.32480925233, 'ARI': 0.8098753640551666, 'NMI': 0.8530763751474896, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28666452306407963, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 6, 'silhouette': 0.3283292756809308, 'bic': 78362.31241336778, 'inertia': nan, 'ARI': 0.9290089259607733, 'NMI': 0.938303718871311, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.3283292756809308, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 7, 'silhouette': 0.289598816287008, 'bic': nan, 'inertia': 51064.318300711995, 'ARI': 0.7929958161555649, 'NMI': 0.8389088501432305, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.289598816287008, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 7, 'silhouette': 0.3133324682975814, 'bic': 77193.86990944463, 'inertia': nan, 'ARI': 0.888097990971433, 'NMI': 0.9137190663688105, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.3133324682975814, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 8, 'silhouette': 0.2802291465255139, 'bic': nan, 'inertia': 46929.619577779034, 'ARI': 0.7874440456778159, 'NMI': 0.862831138013812, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28022914652551395, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 8, 'silhouette': 0.2440007167876983, 'bic': 77715.5507032176, 'inertia': nan, 'ARI': 0.7096221457465256, 'NMI': 0.8099333387366952, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.2440007167876983, 'silhouette_sd': 1.962615573354719e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 9, 'silhouette': 0.289635754923256, 'bic': nan, 'inertia': 43976.02061883871, 'ARI': 0.7695776883525379, 'NMI': 0.8487536594358409, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.289635754923256, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 9, 'silhouette': 0.260908919636832, 'bic': 78504.65209263764, 'inertia': nan, 'ARI': 0.7775851306097219, 'NMI': 0.8620755567511459, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.260908919636832, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 10, 'silhouette': 0.27766326346149606, 'bic': nan, 'inertia': 42576.946895989655, 'ARI': 0.747722700466865, 'NMI': 0.8218914525719568, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.27766326346149606, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 10, 'silhouette': 0.24351026479272198, 'bic': 77308.335209171, 'inertia': nan, 'ARI': 0.7575297645567663, 'NMI': 0.8408586193185561, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.24351026479272195, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+sizefree22: PCA-20 cumulative explained variance 1.0000
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 2, 'silhouette': 0.30627139255055974, 'bic': nan, 'inertia': 25079.537036738155, 'ARI': 0.2579623274955418, 'NMI': 0.36724945710023515, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.3062713925505597, 'silhouette_sd': 5.551115123125783e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 2, 'silhouette': 0.2664139633390373, 'bic': -68955.43299641031, 'inertia': nan, 'ARI': 0.28466518762087645, 'NMI': 0.40640070013019997, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.26641396333903733, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 3, 'silhouette': 0.39206907620965564, 'bic': nan, 'inertia': 16709.069245166476, 'ARI': 0.46963367177559273, 'NMI': 0.604267245299527, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.39206907620965564, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 3, 'silhouette': 0.36226469579068704, 'bic': -81704.60183489385, 'inertia': nan, 'ARI': 0.5845008452680424, 'NMI': 0.7354249371439674, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.36226469579068704, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 4, 'silhouette': 0.3798310972763849, 'bic': nan, 'inertia': 13258.164505487897, 'ARI': 0.655094191600577, 'NMI': 0.7318509332243355, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.3798310972763849, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 4, 'silhouette': 0.34607753715302947, 'bic': -85300.45287603152, 'inertia': nan, 'ARI': 0.6754171359238333, 'NMI': 0.7638296780310616, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.34607753715302947, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 5, 'silhouette': 0.39968320159237225, 'bic': nan, 'inertia': 11061.533073234492, 'ARI': 0.6771653643413844, 'NMI': 0.7308273549241819, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.39968320159237225, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 5, 'silhouette': 0.29752501248239976, 'bic': -87820.89231176075, 'inertia': nan, 'ARI': 0.6959717747041786, 'NMI': 0.7766275778319128, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.29752501248239976, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 6, 'silhouette': 0.3768007834763119, 'bic': nan, 'inertia': 9654.820947931206, 'ARI': 0.6708046325329495, 'NMI': 0.702968691608388, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.3768007834763119, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 6, 'silhouette': 0.31000931179523006, 'bic': -89036.21767095514, 'inertia': nan, 'ARI': 0.7237033139270885, 'NMI': 0.789462423390892, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.31000931179523006, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 7, 'silhouette': 0.36179570843461517, 'bic': nan, 'inertia': 8735.960453440472, 'ARI': 0.7103345310268568, 'NMI': 0.7338545391271257, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.36179570843461517, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 7, 'silhouette': 0.30008135455614127, 'bic': -88900.81609052743, 'inertia': nan, 'ARI': 0.8041955611214329, 'NMI': 0.8405739533773319, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.30008135455614127, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 8, 'silhouette': 0.31890686863081824, 'bic': nan, 'inertia': 8205.004690569705, 'ARI': 0.6414445450082117, 'NMI': 0.7085289585726083, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.31890686863081824, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 8, 'silhouette': 0.2767730662749073, 'bic': -88539.81381681655, 'inertia': nan, 'ARI': 0.8004174962941798, 'NMI': 0.8380583619745287, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.2767730662749073, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 9, 'silhouette': 0.30356718656996895, 'bic': nan, 'inertia': 7713.366687295251, 'ARI': 0.6093698147074457, 'NMI': 0.7142145045778119, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.303567186569969, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 9, 'silhouette': 0.240677962276382, 'bic': -88507.09939668035, 'inertia': nan, 'ARI': 0.74004697463422, 'NMI': 0.798922077707443, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.240677962276382, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 10, 'silhouette': 0.28403886887324964, 'bic': nan, 'inertia': 7296.654878191487, 'ARI': 0.6025129626659362, 'NMI': 0.7249152742390234, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.28403886887324964, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 10, 'silhouette': 0.2200474222938092, 'bic': -88258.19338717584, 'inertia': nan, 'ARI': 0.7511626550143452, 'NMI': 0.8131888868347138, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.2200474222938092, 'silhouette_sd': 1.3877787807814457e-17, 'silhouette_draws': 5}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/cluster_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/heldout.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/gmm_stability.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/profiles.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/late_lot_check.csv
+{('all106', 'gmm'): False, ('all106', 'kmeans'): True, ('distinct91', 'gmm'): False, ('distinct91', 'kmeans'): False, ('sizefree22', 'gmm'): False, ('sizefree22', 'kmeans'): False} late-lot cluster found (>=80% share at >=80% purity)
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/cluster_heatmaps.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/cluster_overview.png
+row s4: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/06_neural.py --overfit-test
+[overfit] epoch 1: 2.4 s/epoch on mps train_loss 1.5471 val_acc nan
+[overfit] epoch 2: 0.4 s/epoch on mps train_loss 1.2860 val_acc nan
+overfit test: train accuracy on 200 grains = 0.4400 after 2 epochs; smoke path, no verdict
+row 2: pass
+row 4: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/05_baselines.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__shape16__seed0__val.parquet
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.97, 'val_macro_f1': 0.970020138743774, 'val_macro_precision': 0.9702474516311383, 'val_macro_recall': 0.9700546448087431, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.00499695900361985}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__shape16__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'shape16', 'val_accuracy': 0.9766666666666667, 'val_macro_f1': 0.9767201539876214, 'val_macro_precision': 0.9769326605060545, 'val_macro_recall': 0.9767759562841529, 'params': '{"n_components": 2}', 'fit_seconds': 0.026906374958343804}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__shape16__seed0__val.parquet
+{'model': 'tree', 'featureset': 'shape16', 'val_accuracy': 0.9733333333333334, 'val_macro_f1': 0.973465862861976, 'val_macro_precision': 0.9739061038818633, 'val_macro_recall': 0.9735519125683061, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.011930291017051786}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__shape16__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'shape16', 'val_accuracy': 0.97, 'val_macro_f1': 0.9699155033914393, 'val_macro_precision': 0.9698851532833194, 'val_macro_recall': 0.9700546448087433, 'params': '{"C": 1}', 'fit_seconds': 0.02335387497441843}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__shape16__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'shape16', 'val_accuracy': 0.98, 'val_macro_f1': 0.9800792399201164, 'val_macro_precision': 0.9805289829185355, 'val_macro_recall': 0.9801639344262295, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 4.049677417031489}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__shape16__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'shape16', 'val_accuracy': 0.9266666666666666, 'val_macro_f1': 0.9261953569731085, 'val_macro_precision': 0.9293560395856456, 'val_macro_recall': 0.9266666666666665, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.008393583004362881}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__shape16__seed0__val.parquet
+{'model': 'knn', 'featureset': 'shape16', 'val_accuracy': 0.97, 'val_macro_f1': 0.9700826446280992, 'val_macro_precision': 0.9701092896174863, 'val_macro_recall': 0.9701092896174863, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.0037830829969607294}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__colour90__seed0__val.parquet
+{'model': 'nb', 'featureset': 'colour90', 'val_accuracy': 0.94, 'val_macro_f1': 0.9405821972065874, 'val_macro_precision': 0.9418676900584796, 'val_macro_recall': 0.9402185792349727, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.013338916993234307}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__colour90__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'colour90', 'val_accuracy': 0.9633333333333334, 'val_macro_f1': 0.9634665573546493, 'val_macro_precision': 0.9635429196282121, 'val_macro_recall': 0.9634426229508197, 'params': '{"n_components": 2}', 'fit_seconds': 0.041850582987535745}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__colour90__seed0__val.parquet
+{'model': 'tree', 'featureset': 'colour90', 'val_accuracy': 0.9, 'val_macro_f1': 0.9004769843475039, 'val_macro_precision': 0.9007078295860003, 'val_macro_recall': 0.9004371584699454, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.05417008401127532}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__colour90__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'colour90', 'val_accuracy': 0.98, 'val_macro_f1': 0.980050753949457, 'val_macro_precision': 0.9802678462057859, 'val_macro_recall': 0.9800546448087433, 'params': '{"C": 1}', 'fit_seconds': 0.02814437501365319}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__colour90__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'colour90', 'val_accuracy': 0.98, 'val_macro_f1': 0.9801293761249671, 'val_macro_precision': 0.9804705375649412, 'val_macro_recall': 0.980054644808743, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 14.224298000044655}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__colour90__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'colour90', 'val_accuracy': 0.9566666666666667, 'val_macro_f1': 0.9568189055521396, 'val_macro_precision': 0.9571812927347454, 'val_macro_recall': 0.9568306010928961, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.020519374986179173}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__colour90__seed0__val.parquet
+{'model': 'knn', 'featureset': 'colour90', 'val_accuracy': 0.9666666666666667, 'val_macro_f1': 0.9667747987963645, 'val_macro_precision': 0.9668762529615454, 'val_macro_recall': 0.966830601092896, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.012615707993973047}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__all106__seed0__val.parquet
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.015512957994360477}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__all106__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_components": 2}', 'fit_seconds': 0.048981041996739805}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__all106__seed0__val.parquet
+{'model': 'tree', 'featureset': 'all106', 'val_accuracy': 0.9866666666666667, 'val_macro_f1': 0.9867194591090117, 'val_macro_precision': 0.9870967741935484, 'val_macro_recall': 0.9867759562841532, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.055605834000743926}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__all106__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'all106', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"C": 1}', 'fit_seconds': 0.02262837497983128}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__all106__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'all106', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 10.602310209011193}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__all106__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933597466400389, 'val_macro_precision': 0.993495505023797, 'val_macro_recall': 0.9933333333333334, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.028878666984383017}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__all106__seed0__val.parquet
+{'model': 'knn', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.016460916958749294}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__selected__seed0__val.parquet
+{'model': 'nb', 'featureset': 'selected', 'val_accuracy': 0.99, 'val_macro_f1': 0.9900266448042633, 'val_macro_precision': 0.9901075268817205, 'val_macro_recall': 0.99, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.01399620802840218}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__selected__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'selected', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933599781375966, 'val_macro_precision': 0.9934408602150537, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_components": 2}', 'fit_seconds': 0.060213042015675455}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__selected__seed0__val.parquet
+{'model': 'tree', 'featureset': 'selected', 'val_accuracy': 0.9866666666666667, 'val_macro_f1': 0.9867194591090117, 'val_macro_precision': 0.9870967741935484, 'val_macro_recall': 0.9867759562841532, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.048050542012788355}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__selected__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'selected', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"C": 1}', 'fit_seconds': 0.023863542010076344}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__selected__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'selected', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 30.027147167013027}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__selected__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'selected', 'val_accuracy': 0.99, 'val_macro_f1': 0.9899719887955183, 'val_macro_precision': 0.99, 'val_macro_recall': 0.99, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.024984750023577362}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__selected__seed0__val.parquet
+{'model': 'knn', 'featureset': 'selected', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.012218000018037856}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__distinct91__seed0__val.parquet
+{'model': 'nb', 'featureset': 'distinct91', 'val_accuracy': 0.99, 'val_macro_f1': 0.9900266448042633, 'val_macro_precision': 0.9901075268817205, 'val_macro_recall': 0.99, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.013824624998960644}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree4__all106__seed0__val.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/tree_depth4.txt
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/baselines_tree_depth4.png
+row 5: pass
+[mlp_tune] epoch 1: 0.0 s/epoch on cpu train_loss 1.4660 val_acc 0.5400
+[mlp_tune] 1 epochs, best val loss 1.2727
+[mlp_tune] epoch 1: 0.0 s/epoch on cpu train_loss 1.4690 val_acc 0.5333
+[mlp_tune] 1 epochs, best val loss 1.2731
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/tuning_mlp.csv
+[mlp_seed0] epoch 1: 0.0 s/epoch on cpu train_loss 1.4660 val_acc 0.5400
+[mlp_seed0] 1 epochs, best val loss 1.2727
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed0__val.parquet
+[mlp_seed1] epoch 1: 0.0 s/epoch on cpu train_loss 1.5921 val_acc 0.4700
+[mlp_seed1] 1 epochs, best val loss 1.3728
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed1__val.parquet
+[mlp_seed2] epoch 1: 0.0 s/epoch on cpu train_loss 1.5118 val_acc 0.6767
+[mlp_seed2] 1 epochs, best val loss 1.3259
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed2__val.parquet
+row 6a: pass
+[cnn_tune] epoch 1: 2.8 s/epoch on mps train_loss 1.3722 val_acc 0.3867
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/tuning_cnn.csv
+[cnn_seed0] epoch 1: 2.3 s/epoch on mps train_loss 1.3694 val_acc 0.4000
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed0__val.parquet
+row 6b: pass
+cnn: reusing the tuned config {'width': 16, 'lr': 0.001, 'dropout': 0.0} for seeds [1]
+[cnn_seed1] epoch 1: 2.0 s/epoch on mps train_loss 1.3571 val_acc 0.2033
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed1__val.parquet
+row 6c: pass
+cnn: reusing the tuned config {'width': 16, 'lr': 0.001, 'dropout': 0.0} for seeds [2]
+[cnn_seed2] epoch 1: 4.3 s/epoch on mps train_loss 1.2507 val_acc 0.2000
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed2__val.parquet
+row 6d: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/05_baselines.py --control
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.016666666666666666}
+{'model': 'gmm', 'featureset': 'shape16', 'val_accuracy': 0.17333333333333334}
+{'model': 'tree', 'featureset': 'shape16', 'val_accuracy': 0.24666666666666667}
+{'model': 'logreg', 'featureset': 'shape16', 'val_accuracy': 0.10333333333333333}
+{'model': 'hgb', 'featureset': 'shape16', 'val_accuracy': 0.21333333333333335}
+{'model': 'perceptron', 'featureset': 'shape16', 'val_accuracy': 0.53}
+{'model': 'knn', 'featureset': 'shape16', 'val_accuracy': 0.19333333333333333}
+{'model': 'nb', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'gmm', 'featureset': 'colour90', 'val_accuracy': 0.15}
+{'model': 'tree', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'logreg', 'featureset': 'colour90', 'val_accuracy': 0.19}
+{'model': 'hgb', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'perceptron', 'featureset': 'colour90', 'val_accuracy': 0.35}
+{'model': 'knn', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 0.15}
+{'model': 'gmm', 'featureset': 'all106', 'val_accuracy': 0.14333333333333334}
+{'model': 'tree', 'featureset': 'all106', 'val_accuracy': 0.17333333333333334}
+{'model': 'logreg', 'featureset': 'all106', 'val_accuracy': 0.18}
+{'model': 'hgb', 'featureset': 'all106', 'val_accuracy': 0.19}
+{'model': 'perceptron', 'featureset': 'all106', 'val_accuracy': 0.16666666666666666}
+{'model': 'knn', 'featureset': 'all106', 'val_accuracy': 0.19666666666666666}
+{'model': 'nb', 'featureset': 'selected', 'val_accuracy': 0.14}
+{'model': 'gmm', 'featureset': 'selected', 'val_accuracy': 0.15333333333333332}
+{'model': 'tree', 'featureset': 'selected', 'val_accuracy': 0.15}
+{'model': 'logreg', 'featureset': 'selected', 'val_accuracy': 0.18}
+{'model': 'hgb', 'featureset': 'selected', 'val_accuracy': 0.18}
+{'model': 'perceptron', 'featureset': 'selected', 'val_accuracy': 0.16666666666666666}
+{'model': 'knn', 'featureset': 'selected', 'val_accuracy': 0.20666666666666667}
+{'model': 'nb', 'featureset': 'distinct91', 'val_accuracy': 0.14}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/06_neural.py --control
+[control_cnn] epoch 1: 5.8 s/epoch on mps train_loss 1.6264 val_acc 0.1767
+[control_mlp] epoch 1: 0.0 s/epoch on cpu train_loss 1.6392 val_acc 0.1633
+[control_mlp] 1 epochs, best val loss 1.6303
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+  model  val_accuracy  train_n  in_18_22_band
+0   cnn      0.176667     1401          False
+1   mlp      0.163333     1401          False
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+row 7: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/07_compare.py --split val
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_recall.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_by_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_by_angle.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_by_angle_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_confusion.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_seed_spread.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_mcnemar.csv
+     model featureset  accuracy  errors  macro_f1
+       hgb   selected   0.99667       1   0.99667
+        nb   selected   0.99000       3   0.99003
+       gmm   selected   0.99333       2   0.99336
+      tree   selected   0.98667       4   0.98672
+    logreg   selected   0.99667       1   0.99667
+perceptron   selected   0.99000       3   0.98997
+       knn   selected   0.99333       2   0.99333
+       hgb    shape16   0.98000       6   0.98008
+        nb    shape16   0.97000       9   0.97002
+       gmm    shape16   0.97667       7   0.97672
+      tree    shape16   0.97333       8   0.97347
+    logreg    shape16   0.97000       9   0.96992
+perceptron    shape16   0.92667      22   0.92620
+       knn    shape16   0.97000       9   0.97008
+       hgb   colour90   0.98000       6   0.98013
+        nb   colour90   0.94000      18   0.94058
+       gmm   colour90   0.96333      11   0.96347
+      tree   colour90   0.90000      30   0.90048
+    logreg   colour90   0.98000       6   0.98005
+perceptron   colour90   0.95667      13   0.95682
+       knn   colour90   0.96667      10   0.96677
+       hgb     all106   0.99667       1   0.99667
+        nb     all106   0.99333       2   0.99333
+       gmm     all106   0.99333       2   0.99333
+      tree     all106   0.98667       4   0.98672
+    logreg     all106   0.99667       1   0.99667
+perceptron     all106   0.99333       2   0.99336
+       knn     all106   0.99333       2   0.99333
+        nb distinct91   0.99000       3   0.99003
+     tree4     all106   0.99000       3   0.99005
+       mlp     all106   0.54000     138   0.48591
+       cnn      image   0.40000     180   0.28079
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                179                  0            179   0.0000         1       180   0.59667  0.54000  0.65000    primary  0.0000
+    0 hgb:all106 mlp:all106                137                  0            137   0.0000         1       138   0.45667  0.40333  0.51333    primary  0.0000
+    0 mlp:all106  cnn:image                103                 61            164   0.0013       138       180   0.14000  0.05667  0.22000    primary  0.0013
+    1 hgb:all106  cnn:image                238                  0            238   0.0000         1       239   0.79333  0.74667  0.83667 seed_check  0.0000
+    1 hgb:all106 mlp:all106                158                  0            158   0.0000         1       159   0.52667  0.47000  0.58000 seed_check  0.0000
+    1 mlp:all106  cnn:image                141                 61            202   0.0000       159       239   0.26667  0.18333  0.35333 seed_check  0.0000
+    2 hgb:all106  cnn:image                239                  0            239   0.0000         1       240   0.79667  0.75000  0.84000 seed_check  0.0000
+    2 hgb:all106 mlp:all106                 97                  1             98   0.0000         1        97   0.32000  0.26667  0.37333 seed_check  0.0000
+    2 mlp:all106  cnn:image                150                  7            157   0.0000        97       240   0.47667  0.41667  0.53667 seed_check  0.0000
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/compare_confusion_val.png
+row 8: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/08_routing.py --fit
+wrote /Users/y/Academic/courses/f20dl/models/smoke/routing.json
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/val_calibration.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/val_routes.csv
+split     model   n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+  val       hgb 300   0.99667  0.00817         0.00253      0.42863             0.00000
+  val cnn_seed0 300   0.40000  0.14963         0.08953      1.23558             0.58947
+  val cnn_seed1 300   0.20333  0.07276         0.07687      0.94787             0.78596
+  val cnn_seed2 300   0.20000  0.10530         0.05741      1.87216             0.78947
+split  seed                    route  grains   share  errors  accuracy
+  val     0                      hgb     292 0.97333     0.0   1.00000
+  val     0                      cnn       0 0.00000     0.0       NaN
+  val     0                   unsure       2 0.00667     NaN       NaN
+  val     0               unfamiliar       6 0.02000     NaN       NaN
+  val     0           answered_total     292 0.97333     0.0   1.00000
+  val     0    unfamiliar_table_gate       3 0.01000     NaN       NaN
+  val     0    unfamiliar_image_gate       3 0.01000     NaN       NaN
+  val     0 chain_err_at_95_coverage     300 0.95000     NaN   0.98947
+  val     1                      hgb     292 0.97333     0.0   1.00000
+  val     1                      cnn       0 0.00000     0.0       NaN
+  val     1                   unsure       2 0.00667     NaN       NaN
+  val     1               unfamiliar       6 0.02000     NaN       NaN
+  val     1           answered_total     292 0.97333     0.0   1.00000
+  val     1    unfamiliar_table_gate       3 0.01000     NaN       NaN
+  val     1    unfamiliar_image_gate       3 0.01000     NaN       NaN
+  val     1 chain_err_at_95_coverage     300 0.95000     NaN   0.98246
+  val     2                      hgb     292 0.97333     0.0   1.00000
+  val     2                      cnn       0 0.00000     0.0       NaN
+  val     2                   unsure       2 0.00667     NaN       NaN
+  val     2               unfamiliar       6 0.02000     NaN       NaN
+  val     2           answered_total     292 0.97333     0.0   1.00000
+  val     2    unfamiliar_table_gate       3 0.01000     NaN       NaN
+  val     2    unfamiliar_image_gate       3 0.01000     NaN       NaN
+  val     2 chain_err_at_95_coverage     300 0.95000     NaN   0.98246
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_risk_coverage_val.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_reliability_val.png
+row 9: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/09_robustness.py --train
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+hold-out train 1339 val 287 (late dropped: 62 + 13)
+[holdout_cnn_seed0] epoch 1: 4.5 s/epoch on mps train_loss 1.3612 val_acc 0.4181
+[holdout_cnn_seed1] epoch 1: 2.0 s/epoch on mps train_loss 1.3479 val_acc 0.2160
+[holdout_cnn_seed2] epoch 1: 2.3 s/epoch on mps train_loss 1.2167 val_acc 0.2091
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/models/smoke/holdout/routing.json
+row 10: pass
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+rescore: every model matches its saved validation predictions and every freeze file opens
+row 10a: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python tools/freeze.py
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+frozen 51c32b7ce16bdd9633c7f1c67d8511cebb6e30fedd10b8906d40e58603850d85 -> /Users/y/Academic/courses/f20dl/results/smoke/frozen.json
+row 11: pass
+RICE_SMOKE=1 .venv/bin/python tools/run_order.py next --spend-read
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/07_compare.py --split test
+test read: 301 grains, 0 infinite cells made missing
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__distinct91__seed0__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree4__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed1__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed2__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed0__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed1__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed2__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_recall.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_by_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_by_angle.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_by_angle_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_confusion.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_seed_spread.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_mcnemar.csv
+     model featureset  accuracy  errors  macro_f1
+       hgb   selected   0.99668       1   0.99667
+        nb   selected   0.99668       1   0.99669
+       gmm   selected   0.99336       2   0.99336
+      tree   selected   0.99003       3   0.99008
+    logreg   selected   0.99668       1   0.99669
+perceptron   selected   0.98671       4   0.98677
+       knn   selected   0.99668       1   0.99669
+       hgb    shape16   0.97342       8   0.97355
+        nb    shape16   0.97674       7   0.97685
+       gmm    shape16   0.98007       6   0.98016
+      tree    shape16   0.97010       9   0.97007
+    logreg    shape16   0.97010       9   0.97013
+perceptron    shape16   0.93023      21   0.92894
+       knn    shape16   0.97010       9   0.97013
+       hgb   colour90   0.97342       8   0.97352
+        nb   colour90   0.95681      13   0.95703
+       gmm   colour90   0.97674       7   0.97683
+      tree   colour90   0.94684      16   0.94689
+    logreg   colour90   0.97674       7   0.97691
+perceptron   colour90   0.96678      10   0.96696
+       knn   colour90   0.98007       6   0.98016
+       hgb     all106   0.99668       1   0.99667
+        nb     all106   0.99668       1   0.99669
+       gmm     all106   0.99668       1   0.99667
+      tree     all106   0.98671       4   0.98680
+    logreg     all106   0.99668       1   0.99669
+perceptron     all106   0.99336       2   0.99339
+       knn     all106   0.99668       1   0.99669
+        nb distinct91   0.99668       1   0.99669
+     tree4     all106   0.98339       5   0.98347
+       mlp     all106   0.54817     136   0.49263
+       cnn      image   0.38538     185   0.27347
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                184                  0            184   0.0000         1       185   0.61130  0.55482  0.66445    primary  0.0000
+    0 hgb:all106 mlp:all106                136                  1            137   0.0000         1       136   0.44850  0.38870  0.50498    primary  0.0000
+    0 mlp:all106  cnn:image                109                 60            169   0.0002       136       185   0.16279  0.08306  0.24585    primary  0.0002
+    1 hgb:all106  cnn:image                240                  0            240   0.0000         1       241   0.79734  0.75415  0.84385 seed_check  0.0000
+    1 hgb:all106 mlp:all106                160                  0            160   0.0000         1       161   0.53156  0.47508  0.58804 seed_check  0.0000
+    1 mlp:all106  cnn:image                140                 60            200   0.0000       161       241   0.26578  0.18264  0.34884 seed_check  0.0000
+    2 hgb:all106  cnn:image                239                  0            239   0.0000         1       240   0.79402  0.74751  0.83721 seed_check  0.0000
+    2 hgb:all106 mlp:all106                 91                  1             92   0.0000         1        91   0.29900  0.24585  0.35548 seed_check  0.0000
+    2 mlp:all106  cnn:image                153                  4            157   0.0000        91       240   0.49502  0.43854  0.55482 seed_check  0.0000
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/compare_confusion_test.png
+row 12: pass
+RICE_SMOKE=1 .venv/bin/python tools/run_order.py next --spend-read
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/08_routing.py --score
+test read: 301 grains, 0 infinite cells made missing
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/test_calibration.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/test_routes.csv
+split     model   n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb 301   0.99668  0.01099         0.00409      0.42863             0.00000
+ test cnn_seed0 301   0.38538  0.16972         0.07660      1.23558             0.59441
+ test cnn_seed1 301   0.19934  0.07692         0.08104      0.94787             0.79021
+ test cnn_seed2 301   0.20266  0.10266         0.05476      1.87216             0.78671
+split  seed                    route  grains   share  errors  accuracy
+ test     0                      hgb     292 0.97010     0.0   1.00000
+ test     0                      cnn       0 0.00000     0.0       NaN
+ test     0                   unsure       2 0.00664     NaN       NaN
+ test     0               unfamiliar       7 0.02326     NaN       NaN
+ test     0           answered_total     292 0.97010     0.0   1.00000
+ test     0    unfamiliar_table_gate       4 0.01329     NaN       NaN
+ test     0    unfamiliar_image_gate       3 0.00997     NaN       NaN
+ test     0 chain_err_at_95_coverage     301 0.95000     NaN   0.98951
+ test     1                      hgb     292 0.97010     0.0   1.00000
+ test     1                      cnn       0 0.00000     0.0       NaN
+ test     1                   unsure       2 0.00664     NaN       NaN
+ test     1               unfamiliar       7 0.02326     NaN       NaN
+ test     1           answered_total     292 0.97010     0.0   1.00000
+ test     1    unfamiliar_table_gate       4 0.01329     NaN       NaN
+ test     1    unfamiliar_image_gate       3 0.00997     NaN       NaN
+ test     1 chain_err_at_95_coverage     301 0.95000     NaN   0.97902
+ test     2                      hgb     292 0.97010     0.0   1.00000
+ test     2                      cnn       0 0.00000     0.0       NaN
+ test     2                   unsure       2 0.00664     NaN       NaN
+ test     2               unfamiliar       7 0.02326     NaN       NaN
+ test     2           answered_total     292 0.97010     0.0   1.00000
+ test     2    unfamiliar_table_gate       4 0.01329     NaN       NaN
+ test     2    unfamiliar_image_gate       3 0.00997     NaN       NaN
+ test     2 chain_err_at_95_coverage     301 0.95000     NaN   0.97902
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_risk_coverage_test.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_reliability_test.png
+row 13: pass
+RICE_SMOKE=1 .venv/bin/python tools/run_order.py next --spend-read
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/09_robustness.py --score
+test read: 301 grains, 0 infinite cells made missing
+late grains: all 88, test 13
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/late_recall.csv
+                 model    subset  n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all 88  0.0000  0.0000   0.0418           0.7398                 20            
+    holdout_hgb:all106 late_test 13  0.0000  0.0000   0.2281           0.7290                  4            
+   holdout_hgb:shape16  late_all 88  0.0000  0.0000   0.0418           0.8115                 28            
+   holdout_hgb:shape16 late_test 13  0.0000  0.0000   0.2281           0.8284                  5            
+ holdout_hgb:sizefree7  late_all 88  0.8295  0.7376   0.8939           0.9157                  3  hgb:all106
+ holdout_hgb:sizefree7 late_test 13  0.6923  0.4237   0.8732           0.8725                  1  hgb:all106
+holdout_hgb:sizefree22  late_all 88  0.9205  0.8448   0.9609           0.8368                  2  hgb:all106
+holdout_hgb:sizefree22 late_test 13  0.9231  0.6669   0.9863           0.7501                  0  hgb:all106
+    full_hgb:sizefree7 late_test 13  0.6154  0.3552   0.8229           0.8532                  1  hgb:all106
+   full_hgb:sizefree22 late_test 13  1.0000  0.7719   1.0000           0.9864                  0  hgb:all106
+       full_hgb:all106 late_test 13  1.0000  0.7719   1.0000           0.9889                  0            
+      full_hgb:shape16 late_test 13  0.8462  0.5776   0.9567           0.9310                  1            
+     holdout_cnn:seed0  late_all 88  0.0000  0.0000   0.0418           0.3062                  0            
+     holdout_cnn:seed0 late_test 13  0.0000  0.0000   0.2281           0.3055                  0            
+        full_cnn:seed0 late_test 13  0.0000  0.0000   0.2281           0.3150                  0            
+     holdout_cnn:seed1  late_all 88  0.0000  0.0000   0.0418           0.2784                  0            
+     holdout_cnn:seed1 late_test 13  0.0000  0.0000   0.2281           0.2785                  0            
+        full_cnn:seed1 late_test 13  0.0000  0.0000   0.2281           0.2767                  0            
+     holdout_cnn:seed2  late_all 88  0.0000  0.0000   0.0418           0.2961                  0            
+     holdout_cnn:seed2 late_test 13  0.0000  0.0000   0.2281           0.2972                  0            
+        full_cnn:seed2 late_test 13  0.0000  0.0000   0.2281           0.3036                  0            
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/late_chain.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/greyworld_gain_vs_area.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/mean_colour_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/greyworld_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/greyworld_control.csv
+              arm       variant  n  accuracy
+mean_colour_model           raw 13    0.9231
+mean_colour_model    grey_world 13    0.0000
+        cnn_seed0 raw_same_path 13    0.0000
+        cnn_seed0    grey_world 13    0.0000
+        cnn_seed1 raw_same_path 13    0.0000
+        cnn_seed1    grey_world 13    0.0000
+        cnn_seed2 raw_same_path 13    0.0000
+        cnn_seed2    grey_world 13    0.0000
+ seed  n  max_abs_diff  argmax_equal
+    0 13  4.470348e-08          True
+    1 13  2.980232e-08          True
+    2 13  2.980232e-08          True
+row 14: pass
+RICE_SMOKE=1 .venv/bin/python tools/run_order.py through 16
+paths="$(RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python tools/smoke_images.py 3)" || exit 1; printf '%s\n' "$paths" | while IFS= read -r p; do RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python src/predict.py "$p" || exit 1; done
+/Users/y/Academic/courses/f20dl/src/common.py:732: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+image: Arborio (416).jpg
+image side: Karacadag (confidence 0.2966)
+table side: Arborio (confidence 1.0000)
+route: hgb
+familiarity: familiar (table gate False, image gate False)
+answer: Arborio (confidence 1.0000)
+/Users/y/Academic/courses/f20dl/src/common.py:732: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+image: basmati (178).jpg
+image side: Karacadag (confidence 0.2959)
+table side: no table row for this image
+route: unsure
+familiarity: familiar (table gate False, image gate False)
+answer: none (not confident enough)
+/Users/y/Academic/courses/f20dl/src/common.py:732: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+image: Ipsala (710).jpg
+image side: Ipsala (confidence 0.3535)
+table side: Ipsala (confidence 1.0000)
+route: hgb
+familiarity: familiar (table gate False, image gate False)
+answer: Ipsala (confidence 1.0000)
+row 15: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/report.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/SUMMARY.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/DISCLOSURES.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/MANIFEST.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/summary_comparison.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/report_learning_curves.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/report_late_lot_recall.png
+row 16: pass

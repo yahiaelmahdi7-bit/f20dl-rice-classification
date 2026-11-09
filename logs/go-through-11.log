@@ -1,0 +1,2019 @@
+rm -rf models/smoke results/smoke figures/smoke data/derived/smoke
+RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python tools/run_order.py through 11
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/00_get_data.py
+verified rice-msc.zip sha256 81695e6c75ba9239...
+already unpacked: /Users/y/Academic/courses/f20dl/data/raw/Rice_MSC_Dataset, no download, no unpack
+verified rice-image.zip sha256 560b0934c38675b2...
+already unpacked: /Users/y/Academic/courses/f20dl/data/raw/Rice_Image_Dataset, no download, no unpack
+raw data verified and read-only
+row s0: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/01_build_grains.py
+table (75000, 107), images 75000
+  measured 0/2002
+  linked Arborio: 402 images, unique rows 402
+  linked Basmati: 402 images, unique rows 402
+  linked Ipsala: 394 images, unique rows 394
+  linked Jasmine: 402 images, unique rows 402
+  linked Karacadag: 402 images, unique rows 402
+/Users/y/Academic/courses/f20dl/src/01_build_grains.py:310: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  g = imgs.merge(msc.reset_index().rename(columns={"index": "msc_row"}), on="msc_row")
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/missing_cells.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/link_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/quality_link_area.png
+links 2002, drops 0, grains 2002, late 88
+wrote /Users/y/Academic/courses/f20dl/data/derived/smoke/splits.csv
+  cached 0/2002
+wrote /Users/y/Academic/courses/f20dl/data/derived/smoke/grains.parquet
+wrote /Users/y/Academic/courses/f20dl/data/derived/smoke/images128.u8
+          n    late   share
+split                      
+test    301  0.0432  0.1503
+train  1401  0.0443  0.6998
+val     300  0.0433  0.1499
+split        test   train     val
+class                            
+Arborio    0.2027  0.2006  0.2000
+Basmati    0.2027  0.2006  0.2000
+Ipsala     0.1960  0.1970  0.1967
+Jasmine    0.1993  0.2013  0.2000
+Karacadag  0.1993  0.2006  0.2033
+row s1: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/03_features.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/ranking.csv
+43 correlation clusters, one representative each
+{'k': 1, 'hgb_val_accuracy': 0.88, 'logreg_val_accuracy': 0.8866666666666667, 'hgb_inner_accuracy': 0.8754448398576512, 'logreg_inner_accuracy': 0.8683274021352313}
+{'k': 3, 'hgb_val_accuracy': 0.9833333333333333, 'logreg_val_accuracy': 0.9633333333333334, 'hgb_inner_accuracy': 0.9679715302491103, 'logreg_inner_accuracy': 0.9608540925266904}
+{'k': 8, 'hgb_val_accuracy': 0.9966666666666667, 'logreg_val_accuracy': 0.9766666666666667, 'hgb_inner_accuracy': 0.9857651245551602, 'logreg_inner_accuracy': 0.9893238434163701}
+{'k': 32, 'hgb_val_accuracy': 0.9966666666666667, 'logreg_val_accuracy': 0.9966666666666667, 'hgb_inner_accuracy': 0.9928825622775801, 'logreg_inner_accuracy': 0.9928825622775801}
+{'k': 91, 'hgb_val_accuracy': 0.9966666666666667, 'logreg_val_accuracy': 0.9966666666666667, 'hgb_inner_accuracy': 0.99644128113879, 'logreg_inner_accuracy': 1.0}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/accuracy_vs_k.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/selected.json
+selected k=91 (by model {'hgb': 91, 'logreg': 91}), old rule k=32: ['ROUNDNESS', 'SHAPEFACTOR_1', 'SHAPEFACTOR_2', 'PERIMETER', 'EQDIASQ', 'entropyL', 'meanB', 'meanA', 'StdDevV', 'StdDevL', 'entropyXX', 'meanS', 'kurtosisRG', 'StdDevB', 'kurtosisV', 'entropyH', 'meanH', 'meanRG', 'meanRR', 'StdDevA', 'EXTENT', 'skewRG', 'meanCr', 'skewS', 'skewA', 'entropyYY', 'skewCb', 'skewV', 'meanV', 'entropyV', 'skewRB', 'StdDevCr', 'StdDevH', 'kurtosisS', 'kurtosisB', 'skewH', 'kurtosisCb', 'SHAPEFACTOR_4', 'SOLIDITY', 'kurtosisH', 'skewCr', 'kurtosisA', 'kurtosisCr', 'SHAPEFACTOR_3', 'COMPACTNESS', 'ASPECT_RATIO', 'ECCENTRICITY', 'MINOR_AXIS', 'AREA', 'MAJOR_AXIS', 'CONVEX_AREA', 'entropyB', 'entropyCr', 'entropyRB', 'entropyY', 'entropyRG', 'meanCb', 'entropyA', 'entropyCb', 'entropyRR', 'StdDevRB', 'StdDevRG', 'StdDevRR', 'StdDevY', 'kurtosisYY', 'kurtosisY', 'kurtosisXX', 'kurtosisL', 'StdDevZZ', 'kurtosisRR', 'StdDevCb', 'StdDevS', 'entropyS', 'StdDevYY', 'StdDevXX', 'meanY', 'kurtosisRB', 'meanL', 'kurtosisZZ', 'meanYY', 'meanXX', 'skewL', 'skewRR', 'skewY', 'skewB', 'entropyZZ', 'skewYY', 'meanZZ', 'meanRB', 'skewXX', 'skewZZ']
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/selected_info.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/stability.csv
+{'featureset': 'all106', 'n_features': 106, 'model': 'hgb', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'all106', 'n_features': 106, 'model': 'logreg', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'distinct91', 'n_features': 91, 'model': 'hgb', 'val_accuracy': 1.0, 'val_macro_f1': 1.0, 'n_val': 300}
+{'featureset': 'distinct91', 'n_features': 91, 'model': 'logreg', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'shape16', 'n_features': 16, 'model': 'hgb', 'val_accuracy': 0.9833333333333333, 'val_macro_f1': 0.9834132677461229, 'n_val': 300}
+{'featureset': 'shape16', 'n_features': 16, 'model': 'logreg', 'val_accuracy': 0.97, 'val_macro_f1': 0.9699155033914393, 'n_val': 300}
+{'featureset': 'colour90', 'n_features': 90, 'model': 'hgb', 'val_accuracy': 0.9833333333333333, 'val_macro_f1': 0.9834923646878106, 'n_val': 300}
+{'featureset': 'colour90', 'n_features': 90, 'model': 'logreg', 'val_accuracy': 0.98, 'val_macro_f1': 0.980050753949457, 'n_val': 300}
+{'featureset': 'sizefree7', 'n_features': 7, 'model': 'hgb', 'val_accuracy': 0.8833333333333333, 'val_macro_f1': 0.8828180916535568, 'n_val': 300}
+{'featureset': 'sizefree7', 'n_features': 7, 'model': 'logreg', 'val_accuracy': 0.88, 'val_macro_f1': 0.8781646065590907, 'n_val': 300}
+{'featureset': 'sizefree22', 'n_features': 22, 'model': 'hgb', 'val_accuracy': 0.9833333333333333, 'val_macro_f1': 0.9832904908348212, 'n_val': 300}
+{'featureset': 'sizefree22', 'n_features': 22, 'model': 'logreg', 'val_accuracy': 0.9766666666666667, 'val_macro_f1': 0.9766321700559342, 'n_val': 300}
+{'featureset': 'selected', 'n_features': 91, 'model': 'hgb', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'selected', 'n_features': 91, 'model': 'logreg', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'n_val': 300}
+{'featureset': 'authors_top5', 'n_features': 5, 'model': 'hgb', 'val_accuracy': 0.8766666666666667, 'val_macro_f1': 0.8763510037402578, 'n_val': 300}
+{'featureset': 'authors_top5', 'n_features': 5, 'model': 'logreg', 'val_accuracy': 0.89, 'val_macro_f1': 0.8884793795586681, 'n_val': 300}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/features/set_comparison.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/features_accuracy_vs_k.png
+row s3: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/02_eda.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/class_balance.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_class_balance.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_distributions.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/corr_clusters.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_correlation.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/tint_by_class.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_tint.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/jasmine_lots.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_jasmine_break.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/entropy_vs_logarea.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_entropy_vs_area.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/copy_columns.csv
+{False: 15} copy columns identical to their mean column
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_examples.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/data_dictionary.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/entropy_check.csv
+   column scale   n  pearson  median_ratio  min_ratio  max_ratio
+entropyRR 0-255 200 1.000000      1.000289   1.000103   1.001132
+entropyRG 0-255 200 1.000000      1.000285   1.000103   1.001148
+entropyRB 0-255 200 1.000000      1.000398   1.000100   1.001385
+ entropyH   0-1 200 0.963959      1.246784   1.005023   1.573700
+ entropyS   0-1 200 0.963933      2.215396   1.357211  17.693951
+ entropyV   0-1 200 0.999961      1.021484   1.008293   1.109133
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/validity.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/outliers.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/outlier_picks.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_outlier_montage.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_file_order.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/file_order.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_mean_images.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/resize_area_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/shift_accounting.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/eda_shift_accounting.png
+wrote /Users/y/Academic/courses/f20dl/results/smoke/eda/insights.csv
+row s2: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/04_cluster.py
+all106: PCA-20 cumulative explained variance 0.9843
+{'featureset': 'all106', 'method': 'kmeans', 'k': 2, 'silhouette': 0.41136665293541985, 'bic': nan, 'inertia': 113129.57736252373, 'ARI': 0.2041420671084093, 'NMI': 0.4387696001411423, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.4113666529354198, 'silhouette_sd': 1.0007415106216802e-16, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 2, 'silhouette': 0.3882028157839677, 'bic': 101392.94645365597, 'inertia': nan, 'ARI': 0.20267893161182304, 'NMI': 0.40683408992994163, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3882028157839677, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 3, 'silhouette': 0.3014144975308504, 'bic': nan, 'inertia': 89464.15411873335, 'ARI': 0.4627596474009065, 'NMI': 0.6472452343056958, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3014144975308504, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 3, 'silhouette': 0.2714884278142721, 'bic': 89515.6988515591, 'inertia': nan, 'ARI': 0.575227678910375, 'NMI': 0.7305487816528976, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.27148842781427207, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 4, 'silhouette': 0.2861955415284637, 'bic': nan, 'inertia': 78680.63014387224, 'ARI': 0.7070449437028731, 'NMI': 0.7955945684025002, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2861955415284637, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 4, 'silhouette': 0.2828945411727908, 'bic': 83938.50831362151, 'inertia': nan, 'ARI': 0.7211196885081441, 'NMI': 0.826756538801933, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.28289454117279084, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 5, 'silhouette': 0.3134098745945972, 'bic': nan, 'inertia': 69615.38356033919, 'ARI': 0.8466200410276389, 'NMI': 0.8724462354275287, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3134098745945972, 'silhouette_sd': 5.551115123125783e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 5, 'silhouette': 0.30971936221575447, 'bic': 81530.40062759355, 'inertia': nan, 'ARI': 0.8584234305600412, 'NMI': 0.8970395768524968, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.30971936221575447, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 6, 'silhouette': 0.33580499591679425, 'bic': nan, 'inertia': 62023.55179842586, 'ARI': 0.9129314317099889, 'NMI': 0.91746180468125, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.33580499591679425, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 6, 'silhouette': 0.3333357341215687, 'bic': 80025.44832091178, 'inertia': nan, 'ARI': 0.9223942773890506, 'NMI': 0.9307492529925396, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.33333573412156864, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 7, 'silhouette': 0.3042577120954129, 'bic': nan, 'inertia': 56312.40745228361, 'ARI': 0.8444156858245802, 'NMI': 0.8786174839800664, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.3042577120954129, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 7, 'silhouette': 0.31565787944805274, 'bic': 78786.79673363286, 'inertia': nan, 'ARI': 0.8900829383505822, 'NMI': 0.9179254012397904, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.31565787944805274, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 8, 'silhouette': 0.30719595393059157, 'bic': nan, 'inertia': 54389.16492288273, 'ARI': 0.8325157038574477, 'NMI': 0.8669503767636597, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.30719595393059157, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 8, 'silhouette': 0.28926870645691527, 'bic': 79280.66991864104, 'inertia': nan, 'ARI': 0.8364348944966262, 'NMI': 0.8904074786851306, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.28926870645691527, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 9, 'silhouette': 0.25541938272981046, 'bic': nan, 'inertia': 51274.68613785719, 'ARI': 0.7112607533154823, 'NMI': 0.8028502205777341, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2554193827298105, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 9, 'silhouette': 0.25565103326368005, 'bic': 77990.16536266716, 'inertia': nan, 'ARI': 0.7511362711832412, 'NMI': 0.8492815953937486, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.25565103326368005, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 10, 'silhouette': 0.26115302835782744, 'bic': nan, 'inertia': 48663.17351427548, 'ARI': 0.7050108599591745, 'NMI': 0.8073227586843118, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2611530283578274, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'all106', 'method': 'gmm', 'k': 10, 'silhouette': 0.2328444372110996, 'bic': 78708.45023109434, 'inertia': nan, 'ARI': 0.7224693948415759, 'NMI': 0.838589064583217, 'pca_cum_var': 0.9843448908765545, 'silhouette_mean': 0.2328444372110996, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+distinct91: PCA-20 cumulative explained variance 0.9827
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 2, 'silhouette': 0.4087825440703106, 'bic': nan, 'inertia': 97800.59663630307, 'ARI': 0.20433508779737544, 'NMI': 0.44064239598473726, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.40878254407031067, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 2, 'silhouette': 0.3817287642535489, 'bic': 99240.99517112719, 'inertia': nan, 'ARI': 0.20267893161182304, 'NMI': 0.40683408992994163, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.38172876425354885, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 3, 'silhouette': 0.29450559677620103, 'bic': nan, 'inertia': 78110.03856197115, 'ARI': 0.4656377293392072, 'NMI': 0.6565951762889021, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.29450559677620103, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 3, 'silhouette': 0.28005454195927204, 'bic': 87902.7808564476, 'inertia': nan, 'ARI': 0.5823017555184197, 'NMI': 0.7440170253551546, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28005454195927204, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 4, 'silhouette': 0.2956430414752318, 'bic': nan, 'inertia': 67774.45041810992, 'ARI': 0.677652447425249, 'NMI': 0.788337993745879, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.2956430414752318, 'silhouette_sd': 5.551115123125783e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 4, 'silhouette': 0.28942373705536784, 'bic': 85269.06723712942, 'inertia': nan, 'ARI': 0.6799966520590036, 'NMI': 0.8072502941327472, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28942373705536784, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 5, 'silhouette': 0.31381039673290373, 'bic': nan, 'inertia': 59958.775118107, 'ARI': 0.8718853659056127, 'NMI': 0.889983878297653, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.31381039673290373, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 5, 'silhouette': 0.3104869364459386, 'bic': 79871.75055603561, 'inertia': nan, 'ARI': 0.8768095428244106, 'NMI': 0.906210471097023, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.3104869364459386, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 6, 'silhouette': 0.28666452306407963, 'bic': nan, 'inertia': 54020.32480925233, 'ARI': 0.8098753640551666, 'NMI': 0.8530763751474896, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28666452306407963, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 6, 'silhouette': 0.3283292756809308, 'bic': 78362.31241336778, 'inertia': nan, 'ARI': 0.9290089259607733, 'NMI': 0.938303718871311, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.3283292756809308, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 7, 'silhouette': 0.289598816287008, 'bic': nan, 'inertia': 51064.318300711995, 'ARI': 0.7929958161555649, 'NMI': 0.8389088501432305, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.289598816287008, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 7, 'silhouette': 0.3133324682975814, 'bic': 77193.86990944463, 'inertia': nan, 'ARI': 0.888097990971433, 'NMI': 0.9137190663688105, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.3133324682975814, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 8, 'silhouette': 0.2802291465255139, 'bic': nan, 'inertia': 46929.619577779034, 'ARI': 0.7874440456778159, 'NMI': 0.862831138013812, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.28022914652551395, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 8, 'silhouette': 0.2440007167876983, 'bic': 77715.5507032176, 'inertia': nan, 'ARI': 0.7096221457465256, 'NMI': 0.8099333387366952, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.2440007167876983, 'silhouette_sd': 1.962615573354719e-17, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 9, 'silhouette': 0.289635754923256, 'bic': nan, 'inertia': 43976.02061883871, 'ARI': 0.7695776883525379, 'NMI': 0.8487536594358409, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.289635754923256, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 9, 'silhouette': 0.260908919636832, 'bic': 78504.65209263764, 'inertia': nan, 'ARI': 0.7775851306097219, 'NMI': 0.8620755567511459, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.260908919636832, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 10, 'silhouette': 0.27766326346149606, 'bic': nan, 'inertia': 42576.946895989655, 'ARI': 0.747722700466865, 'NMI': 0.8218914525719568, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.27766326346149606, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 10, 'silhouette': 0.24351026479272198, 'bic': 77308.335209171, 'inertia': nan, 'ARI': 0.7575297645567663, 'NMI': 0.8408586193185561, 'pca_cum_var': 0.9826615421346483, 'silhouette_mean': 0.24351026479272195, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+sizefree22: PCA-20 cumulative explained variance 1.0000
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 2, 'silhouette': 0.30627139255055974, 'bic': nan, 'inertia': 25079.537036738155, 'ARI': 0.2579623274955418, 'NMI': 0.36724945710023515, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.3062713925505597, 'silhouette_sd': 5.551115123125783e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 2, 'silhouette': 0.2664139633390373, 'bic': -68955.43299641031, 'inertia': nan, 'ARI': 0.28466518762087645, 'NMI': 0.40640070013019997, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.26641396333903733, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 3, 'silhouette': 0.39206907620965564, 'bic': nan, 'inertia': 16709.069245166476, 'ARI': 0.46963367177559273, 'NMI': 0.604267245299527, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.39206907620965564, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 3, 'silhouette': 0.36226469579068704, 'bic': -81704.60183489385, 'inertia': nan, 'ARI': 0.5845008452680424, 'NMI': 0.7354249371439674, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.36226469579068704, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 4, 'silhouette': 0.3798310972763849, 'bic': nan, 'inertia': 13258.164505487897, 'ARI': 0.655094191600577, 'NMI': 0.7318509332243355, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.3798310972763849, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 4, 'silhouette': 0.34607753715302947, 'bic': -85300.45287603152, 'inertia': nan, 'ARI': 0.6754171359238333, 'NMI': 0.7638296780310616, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.34607753715302947, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 5, 'silhouette': 0.39968320159237225, 'bic': nan, 'inertia': 11061.533073234494, 'ARI': 0.6771653643413844, 'NMI': 0.7308273549241819, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.39968320159237225, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 5, 'silhouette': 0.29752501248239976, 'bic': -87820.89231176075, 'inertia': nan, 'ARI': 0.6959717747041786, 'NMI': 0.7766275778319128, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.29752501248239976, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 6, 'silhouette': 0.3768007834763119, 'bic': nan, 'inertia': 9654.820947931206, 'ARI': 0.6708046325329495, 'NMI': 0.702968691608388, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.3768007834763119, 'silhouette_sd': 6.206335383118183e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 6, 'silhouette': 0.31000931179523006, 'bic': -89036.21767095514, 'inertia': nan, 'ARI': 0.7237033139270885, 'NMI': 0.789462423390892, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.31000931179523006, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 7, 'silhouette': 0.36179570843461517, 'bic': nan, 'inertia': 8735.960453440472, 'ARI': 0.7103345310268568, 'NMI': 0.7338545391271257, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.36179570843461517, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 7, 'silhouette': 0.30008135455614127, 'bic': -88900.81609052743, 'inertia': nan, 'ARI': 0.8041955611214329, 'NMI': 0.8405739533773319, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.30008135455614127, 'silhouette_sd': 3.925231146709438e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 8, 'silhouette': 0.31890686863081824, 'bic': nan, 'inertia': 8205.004690569704, 'ARI': 0.6414445450082117, 'NMI': 0.7085289585726083, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.31890686863081824, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 8, 'silhouette': 0.2767730662749073, 'bic': -88539.81381681655, 'inertia': nan, 'ARI': 0.8004174962941798, 'NMI': 0.8380583619745287, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.2767730662749073, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 9, 'silhouette': 0.30356718656996895, 'bic': nan, 'inertia': 7713.366687295249, 'ARI': 0.6093698147074457, 'NMI': 0.7142145045778119, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.303567186569969, 'silhouette_sd': 4.8074067159589095e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 9, 'silhouette': 0.240677962276382, 'bic': -88507.09939668035, 'inertia': nan, 'ARI': 0.74004697463422, 'NMI': 0.798922077707443, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.240677962276382, 'silhouette_sd': 2.7755575615628914e-17, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 10, 'silhouette': 0.28403886887324964, 'bic': nan, 'inertia': 7296.654878191487, 'ARI': 0.6025129626659362, 'NMI': 0.7249152742390234, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.28403886887324964, 'silhouette_sd': 0.0, 'silhouette_draws': 5}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 10, 'silhouette': 0.2200474222938092, 'bic': -88258.19338717584, 'inertia': nan, 'ARI': 0.7511626550143452, 'NMI': 0.8131888868347138, 'pca_cum_var': 0.9999997620089985, 'silhouette_mean': 0.2200474222938092, 'silhouette_sd': 1.3877787807814457e-17, 'silhouette_draws': 5}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/cluster_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/heldout.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/gmm_stability.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/profiles.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/cluster/late_lot_check.csv
+{('all106', 'gmm'): False, ('all106', 'kmeans'): True, ('distinct91', 'gmm'): False, ('distinct91', 'kmeans'): False, ('sizefree22', 'gmm'): False, ('sizefree22', 'kmeans'): False} late-lot cluster found (>=80% share at >=80% purity)
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/cluster_heatmaps.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/cluster_overview.png
+row s4: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/06_neural.py --overfit-test
+[overfit] epoch 1: 1.4 s/epoch on mps train_loss 1.5471 val_acc nan
+[overfit] epoch 2: 0.4 s/epoch on mps train_loss 1.2862 val_acc nan
+overfit test: train accuracy on 200 grains = 0.4400 after 2 epochs; smoke path, no verdict
+row 2: pass
+row 4: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/05_baselines.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__shape16__seed0__val.parquet
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.97, 'val_macro_f1': 0.970020138743774, 'val_macro_precision': 0.9702474516311383, 'val_macro_recall': 0.9700546448087431, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.0034744579752441496}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__shape16__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'shape16', 'val_accuracy': 0.9766666666666667, 'val_macro_f1': 0.9767201539876214, 'val_macro_precision': 0.9769326605060545, 'val_macro_recall': 0.9767759562841529, 'params': '{"n_components": 2}', 'fit_seconds': 0.016101542016258463}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__shape16__seed0__val.parquet
+{'model': 'tree', 'featureset': 'shape16', 'val_accuracy': 0.9733333333333334, 'val_macro_f1': 0.973465862861976, 'val_macro_precision': 0.9739061038818633, 'val_macro_recall': 0.9735519125683061, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.00603304200922139}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__shape16__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'shape16', 'val_accuracy': 0.97, 'val_macro_f1': 0.9699155033914393, 'val_macro_precision': 0.9698851532833194, 'val_macro_recall': 0.9700546448087433, 'params': '{"C": 1}', 'fit_seconds': 0.006396625016350299}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__shape16__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'shape16', 'val_accuracy': 0.98, 'val_macro_f1': 0.9800792399201164, 'val_macro_precision': 0.9805289829185355, 'val_macro_recall': 0.9801639344262295, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 0.709534249996068}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__shape16__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'shape16', 'val_accuracy': 0.9266666666666666, 'val_macro_f1': 0.9261953569731085, 'val_macro_precision': 0.9293560395856456, 'val_macro_recall': 0.9266666666666665, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.004389708017697558}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__shape16__seed0__val.parquet
+{'model': 'knn', 'featureset': 'shape16', 'val_accuracy': 0.97, 'val_macro_f1': 0.9700826446280992, 'val_macro_precision': 0.9701092896174863, 'val_macro_recall': 0.9701092896174863, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.0016984580142889172}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__colour90__seed0__val.parquet
+{'model': 'nb', 'featureset': 'colour90', 'val_accuracy': 0.94, 'val_macro_f1': 0.9405821972065874, 'val_macro_precision': 0.9418676900584796, 'val_macro_recall': 0.9402185792349727, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.007095333974575624}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__colour90__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'colour90', 'val_accuracy': 0.9633333333333334, 'val_macro_f1': 0.9634665573546493, 'val_macro_precision': 0.9635429196282121, 'val_macro_recall': 0.9634426229508197, 'params': '{"n_components": 2}', 'fit_seconds': 0.020421541994437575}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__colour90__seed0__val.parquet
+{'model': 'tree', 'featureset': 'colour90', 'val_accuracy': 0.9, 'val_macro_f1': 0.9004769843475039, 'val_macro_precision': 0.9007078295860003, 'val_macro_recall': 0.9004371584699454, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.0277982089901343}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__colour90__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'colour90', 'val_accuracy': 0.98, 'val_macro_f1': 0.980050753949457, 'val_macro_precision': 0.9802678462057859, 'val_macro_recall': 0.9800546448087433, 'params': '{"C": 1}', 'fit_seconds': 0.01310041599208489}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__colour90__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'colour90', 'val_accuracy': 0.98, 'val_macro_f1': 0.9801293761249671, 'val_macro_precision': 0.9804705375649412, 'val_macro_recall': 0.980054644808743, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 0.8326140419812873}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__colour90__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'colour90', 'val_accuracy': 0.9566666666666667, 'val_macro_f1': 0.9568189055521396, 'val_macro_precision': 0.9571812927347454, 'val_macro_recall': 0.9568306010928961, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.01027875000727363}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__colour90__seed0__val.parquet
+{'model': 'knn', 'featureset': 'colour90', 'val_accuracy': 0.9666666666666667, 'val_macro_f1': 0.9667747987963645, 'val_macro_precision': 0.9668762529615454, 'val_macro_recall': 0.966830601092896, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.006373500014888123}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__all106__seed0__val.parquet
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.007975207990966737}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__all106__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_components": 2}', 'fit_seconds': 0.018344749987591058}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__all106__seed0__val.parquet
+{'model': 'tree', 'featureset': 'all106', 'val_accuracy': 0.9866666666666667, 'val_macro_f1': 0.9867194591090117, 'val_macro_precision': 0.9870967741935484, 'val_macro_recall': 0.9867759562841532, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.03136229200754315}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__all106__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'all106', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"C": 1}', 'fit_seconds': 0.010654250014340505}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__all106__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'all106', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 0.9259090000123251}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__all106__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933597466400389, 'val_macro_precision': 0.993495505023797, 'val_macro_recall': 0.9933333333333334, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.012497874995460734}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__all106__seed0__val.parquet
+{'model': 'knn', 'featureset': 'all106', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.007456166000338271}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__selected__seed0__val.parquet
+{'model': 'nb', 'featureset': 'selected', 'val_accuracy': 0.99, 'val_macro_f1': 0.9900266448042633, 'val_macro_precision': 0.9901075268817205, 'val_macro_recall': 0.99, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.0066846670233644545}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__selected__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'selected', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933599781375966, 'val_macro_precision': 0.9934408602150537, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_components": 2}', 'fit_seconds': 0.018333040992729366}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__selected__seed0__val.parquet
+{'model': 'tree', 'featureset': 'selected', 'val_accuracy': 0.9866666666666667, 'val_macro_f1': 0.9867194591090117, 'val_macro_precision': 0.9870967741935484, 'val_macro_recall': 0.9867759562841532, 'params': '{"max_depth": 5, "min_samples_leaf": 5}', 'fit_seconds': 0.02768412500154227}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__selected__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'selected', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"C": 1}', 'fit_seconds': 0.009621083998354152}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__selected__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'selected', 'val_accuracy': 0.9966666666666667, 'val_macro_f1': 0.996666435169109, 'val_macro_precision': 0.9967213114754099, 'val_macro_recall': 0.9966666666666667, 'params': '{"learning_rate": 0.1, "max_iter": 30, "max_leaf_nodes": 31}', 'fit_seconds': 1.6920423340052366}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__selected__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'selected', 'val_accuracy': 0.99, 'val_macro_f1': 0.9899719887955183, 'val_macro_precision': 0.99, 'val_macro_recall': 0.99, 'params': '{"alpha": 0.0001}', 'fit_seconds': 0.01100412500090897}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__selected__seed0__val.parquet
+{'model': 'knn', 'featureset': 'selected', 'val_accuracy': 0.9933333333333333, 'val_macro_f1': 0.9933331018357757, 'val_macro_precision': 0.9933879781420766, 'val_macro_recall': 0.9933333333333334, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.006594209000468254}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__distinct91__seed0__val.parquet
+{'model': 'nb', 'featureset': 'distinct91', 'val_accuracy': 0.99, 'val_macro_f1': 0.9900266448042633, 'val_macro_precision': 0.9901075268817205, 'val_macro_recall': 0.99, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.006513542000902817}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree4__all106__seed0__val.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/tree_depth4.txt
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/baselines_tree_depth4.png
+row 5: pass
+[mlp_tune] epoch 1: 0.0 s/epoch on cpu train_loss 1.4660 val_acc 0.5400
+[mlp_tune] 1 epochs, best val loss 1.2727
+[mlp_tune] epoch 1: 0.0 s/epoch on cpu train_loss 1.4690 val_acc 0.5333
+[mlp_tune] 1 epochs, best val loss 1.2731
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/tuning_mlp.csv
+[mlp_seed0] epoch 1: 0.0 s/epoch on cpu train_loss 1.4660 val_acc 0.5400
+[mlp_seed0] 1 epochs, best val loss 1.2727
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed0__val.parquet
+[mlp_seed1] epoch 1: 0.0 s/epoch on cpu train_loss 1.5921 val_acc 0.4700
+[mlp_seed1] 1 epochs, best val loss 1.3728
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed1__val.parquet
+[mlp_seed2] epoch 1: 0.0 s/epoch on cpu train_loss 1.5118 val_acc 0.6767
+[mlp_seed2] 1 epochs, best val loss 1.3259
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed2__val.parquet
+row 6a: pass
+[cnn_tune] epoch 1: 2.1 s/epoch on mps train_loss 1.3722 val_acc 0.3867
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/tuning_cnn.csv
+[cnn_seed0] epoch 1: 1.7 s/epoch on mps train_loss 1.3675 val_acc 0.3933
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed0__val.parquet
+row 6b: pass
+cnn: reusing the tuned config {'width': 16, 'lr': 0.001, 'dropout': 0.0} for seeds [1]
+[cnn_seed1] epoch 1: 1.9 s/epoch on mps train_loss 1.3563 val_acc 0.2033
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed1__val.parquet
+row 6c: pass
+cnn: reusing the tuned config {'width': 16, 'lr': 0.001, 'dropout': 0.0} for seeds [2]
+[cnn_seed2] epoch 1: 2.1 s/epoch on mps train_loss 1.2512 val_acc 0.2000
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed2__val.parquet
+row 6d: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/05_baselines.py --control
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.016666666666666666}
+{'model': 'gmm', 'featureset': 'shape16', 'val_accuracy': 0.17333333333333334}
+{'model': 'tree', 'featureset': 'shape16', 'val_accuracy': 0.24666666666666667}
+{'model': 'logreg', 'featureset': 'shape16', 'val_accuracy': 0.10333333333333333}
+{'model': 'hgb', 'featureset': 'shape16', 'val_accuracy': 0.21333333333333335}
+{'model': 'perceptron', 'featureset': 'shape16', 'val_accuracy': 0.53}
+{'model': 'knn', 'featureset': 'shape16', 'val_accuracy': 0.19333333333333333}
+{'model': 'nb', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'gmm', 'featureset': 'colour90', 'val_accuracy': 0.15}
+{'model': 'tree', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'logreg', 'featureset': 'colour90', 'val_accuracy': 0.19}
+{'model': 'hgb', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'perceptron', 'featureset': 'colour90', 'val_accuracy': 0.35}
+{'model': 'knn', 'featureset': 'colour90', 'val_accuracy': 0.17}
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 0.15}
+{'model': 'gmm', 'featureset': 'all106', 'val_accuracy': 0.14333333333333334}
+{'model': 'tree', 'featureset': 'all106', 'val_accuracy': 0.17333333333333334}
+{'model': 'logreg', 'featureset': 'all106', 'val_accuracy': 0.18}
+{'model': 'hgb', 'featureset': 'all106', 'val_accuracy': 0.19}
+{'model': 'perceptron', 'featureset': 'all106', 'val_accuracy': 0.16666666666666666}
+{'model': 'knn', 'featureset': 'all106', 'val_accuracy': 0.19666666666666666}
+{'model': 'nb', 'featureset': 'selected', 'val_accuracy': 0.14}
+{'model': 'gmm', 'featureset': 'selected', 'val_accuracy': 0.15333333333333332}
+{'model': 'tree', 'featureset': 'selected', 'val_accuracy': 0.15}
+{'model': 'logreg', 'featureset': 'selected', 'val_accuracy': 0.18}
+{'model': 'hgb', 'featureset': 'selected', 'val_accuracy': 0.18}
+{'model': 'perceptron', 'featureset': 'selected', 'val_accuracy': 0.16666666666666666}
+{'model': 'knn', 'featureset': 'selected', 'val_accuracy': 0.20666666666666667}
+{'model': 'nb', 'featureset': 'distinct91', 'val_accuracy': 0.14}
+wrote /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/06_neural.py --control
+[control_cnn] epoch 1: 2.1 s/epoch on mps train_loss 1.6264 val_acc 0.1767
+[control_mlp] epoch 1: 0.0 s/epoch on cpu train_loss 1.6392 val_acc 0.1633
+[control_mlp] 1 epochs, best val loss 1.6303
+wrote /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+  model  val_accuracy  train_n  in_18_22_band
+0   cnn      0.176667     1401          False
+1   mlp      0.163333     1401          False
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+row 7: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/07_compare.py --split val
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_recall.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_by_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_by_angle.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_by_angle_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_confusion.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_seed_spread.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/val_mcnemar.csv
+     model featureset  accuracy  errors  macro_f1
+       hgb   selected   0.99667       1   0.99667
+        nb   selected   0.99000       3   0.99003
+       gmm   selected   0.99333       2   0.99336
+      tree   selected   0.98667       4   0.98672
+    logreg   selected   0.99667       1   0.99667
+perceptron   selected   0.99000       3   0.98997
+       knn   selected   0.99333       2   0.99333
+       hgb    shape16   0.98000       6   0.98008
+        nb    shape16   0.97000       9   0.97002
+       gmm    shape16   0.97667       7   0.97672
+      tree    shape16   0.97333       8   0.97347
+    logreg    shape16   0.97000       9   0.96992
+perceptron    shape16   0.92667      22   0.92620
+       knn    shape16   0.97000       9   0.97008
+       hgb   colour90   0.98000       6   0.98013
+        nb   colour90   0.94000      18   0.94058
+       gmm   colour90   0.96333      11   0.96347
+      tree   colour90   0.90000      30   0.90048
+    logreg   colour90   0.98000       6   0.98005
+perceptron   colour90   0.95667      13   0.95682
+       knn   colour90   0.96667      10   0.96677
+       hgb     all106   0.99667       1   0.99667
+        nb     all106   0.99333       2   0.99333
+       gmm     all106   0.99333       2   0.99333
+      tree     all106   0.98667       4   0.98672
+    logreg     all106   0.99667       1   0.99667
+perceptron     all106   0.99333       2   0.99336
+       knn     all106   0.99333       2   0.99333
+        nb distinct91   0.99000       3   0.99003
+     tree4     all106   0.99000       3   0.99005
+       mlp     all106   0.54000     138   0.48591
+       cnn      image   0.39333     182   0.27681
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                181                  0            181  0.00000         1       182   0.60333  0.54667  0.65667    primary 0.00000
+    0 hgb:all106 mlp:all106                137                  0            137  0.00000         1       138   0.45667  0.40333  0.51333    primary 0.00000
+    0 mlp:all106  cnn:image                105                 61            166  0.00079       138       182   0.14667  0.06333  0.22667    primary 0.00079
+    1 hgb:all106  cnn:image                238                  0            238  0.00000         1       239   0.79333  0.74667  0.83667 seed_check 0.00000
+    1 hgb:all106 mlp:all106                158                  0            158  0.00000         1       159   0.52667  0.47000  0.58000 seed_check 0.00000
+    1 mlp:all106  cnn:image                141                 61            202  0.00000       159       239   0.26667  0.18333  0.35333 seed_check 0.00000
+    2 hgb:all106  cnn:image                239                  0            239  0.00000         1       240   0.79667  0.75000  0.84000 seed_check 0.00000
+    2 hgb:all106 mlp:all106                 97                  1             98  0.00000         1        97   0.32000  0.26667  0.37333 seed_check 0.00000
+    2 mlp:all106  cnn:image                150                  7            157  0.00000        97       240   0.47667  0.41667  0.53667 seed_check 0.00000
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/compare_confusion_val.png
+row 8: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/08_routing.py --fit
+wrote /Users/y/Academic/courses/f20dl/models/smoke/routing.json
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/val_calibration.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/val_routes.csv
+split     model   n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+  val       hgb 300   0.99667  0.00817         0.00253      0.42863             0.00000
+  val cnn_seed0 300   0.39333  0.23671         0.09047      1.32869             0.59298
+  val cnn_seed1 300   0.20333  0.07276         0.07723      0.94358             0.78596
+  val cnn_seed2 300   0.20000  0.10407         0.05909      1.79792             0.78947
+split  seed                    route  grains   share  errors  accuracy
+  val     0                      hgb     292 0.97333     0.0   1.00000
+  val     0                      cnn       0 0.00000     0.0       NaN
+  val     0                   unsure       2 0.00667     NaN       NaN
+  val     0               unfamiliar       6 0.02000     NaN       NaN
+  val     0           answered_total     292 0.97333     0.0   1.00000
+  val     0    unfamiliar_table_gate       3 0.01000     NaN       NaN
+  val     0    unfamiliar_image_gate       3 0.01000     NaN       NaN
+  val     0 chain_err_at_95_coverage     300 0.95000     NaN   0.99298
+  val     1                      hgb     292 0.97333     0.0   1.00000
+  val     1                      cnn       0 0.00000     0.0       NaN
+  val     1                   unsure       2 0.00667     NaN       NaN
+  val     1               unfamiliar       6 0.02000     NaN       NaN
+  val     1           answered_total     292 0.97333     0.0   1.00000
+  val     1    unfamiliar_table_gate       3 0.01000     NaN       NaN
+  val     1    unfamiliar_image_gate       3 0.01000     NaN       NaN
+  val     1 chain_err_at_95_coverage     300 0.95000     NaN   0.98246
+  val     2                      hgb     292 0.97333     0.0   1.00000
+  val     2                      cnn       0 0.00000     0.0       NaN
+  val     2                   unsure       2 0.00667     NaN       NaN
+  val     2               unfamiliar       6 0.02000     NaN       NaN
+  val     2           answered_total     292 0.97333     0.0   1.00000
+  val     2    unfamiliar_table_gate       3 0.01000     NaN       NaN
+  val     2    unfamiliar_image_gate       3 0.01000     NaN       NaN
+  val     2 chain_err_at_95_coverage     300 0.95000     NaN   0.98246
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_risk_coverage_val.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_reliability_val.png
+row 9: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/09_robustness.py --train
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+hold-out train 1339 val 287 (late dropped: 62 + 13)
+[holdout_cnn_seed0] epoch 1: 2.0 s/epoch on mps train_loss 1.3596 val_acc 0.4181
+[holdout_cnn_seed1] epoch 1: 1.6 s/epoch on mps train_loss 1.3477 val_acc 0.2195
+[holdout_cnn_seed2] epoch 1: 1.6 s/epoch on mps train_loss 1.2149 val_acc 0.2091
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/models/smoke/holdout/routing.json
+row 10: pass
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+rescore: every model matches its saved validation predictions and every freeze file opens
+row 10a: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python tools/freeze.py
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/smoke/neural/control.csv
+frozen 2ac32e3cfad1172ba6992bbfb2d985fa4915999e67003c05ce36c16fc504fb32 -> /Users/y/Academic/courses/f20dl/results/smoke/frozen.json
+row 11: pass
+RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python tools/run_order.py next --spend-read
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/07_compare.py --split test
+test read: 301 grains, 0 infinite cells made missing
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/hgb__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/gmm__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/logreg__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/perceptron__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/knn__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/nb__distinct91__seed0__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/tree4__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed1__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/mlp__all106__seed2__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed0__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed1__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/preds/cnn__image__seed2__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_recall.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_by_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_by_angle.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_by_angle_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_confusion.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_seed_spread.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/compare/test_mcnemar.csv
+     model featureset  accuracy  errors  macro_f1
+       hgb   selected   0.99668       1   0.99667
+        nb   selected   0.99668       1   0.99669
+       gmm   selected   0.99336       2   0.99336
+      tree   selected   0.99003       3   0.99008
+    logreg   selected   0.99668       1   0.99669
+perceptron   selected   0.98671       4   0.98677
+       knn   selected   0.99668       1   0.99669
+       hgb    shape16   0.97342       8   0.97355
+        nb    shape16   0.97674       7   0.97685
+       gmm    shape16   0.98007       6   0.98016
+      tree    shape16   0.97010       9   0.97007
+    logreg    shape16   0.97010       9   0.97013
+perceptron    shape16   0.93023      21   0.92894
+       knn    shape16   0.97010       9   0.97013
+       hgb   colour90   0.97342       8   0.97352
+        nb   colour90   0.95681      13   0.95703
+       gmm   colour90   0.97674       7   0.97683
+      tree   colour90   0.94684      16   0.94689
+    logreg   colour90   0.97674       7   0.97691
+perceptron   colour90   0.96678      10   0.96696
+       knn   colour90   0.98007       6   0.98016
+       hgb     all106   0.99668       1   0.99667
+        nb     all106   0.99668       1   0.99669
+       gmm     all106   0.99668       1   0.99667
+      tree     all106   0.98671       4   0.98680
+    logreg     all106   0.99668       1   0.99669
+perceptron     all106   0.99336       2   0.99339
+       knn     all106   0.99668       1   0.99669
+        nb distinct91   0.99668       1   0.99669
+     tree4     all106   0.98339       5   0.98347
+       mlp     all106   0.54817     136   0.49263
+       cnn      image   0.38538     185   0.27347
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                184                  0            184   0.0000         1       185   0.61130  0.55482  0.66445    primary  0.0000
+    0 hgb:all106 mlp:all106                136                  1            137   0.0000         1       136   0.44850  0.38870  0.50498    primary  0.0000
+    0 mlp:all106  cnn:image                109                 60            169   0.0002       136       185   0.16279  0.08306  0.24585    primary  0.0002
+    1 hgb:all106  cnn:image                240                  0            240   0.0000         1       241   0.79734  0.75415  0.84385 seed_check  0.0000
+    1 hgb:all106 mlp:all106                160                  0            160   0.0000         1       161   0.53156  0.47508  0.58804 seed_check  0.0000
+    1 mlp:all106  cnn:image                140                 60            200   0.0000       161       241   0.26578  0.18264  0.34884 seed_check  0.0000
+    2 hgb:all106  cnn:image                239                  0            239   0.0000         1       240   0.79402  0.74751  0.83721 seed_check  0.0000
+    2 hgb:all106 mlp:all106                 91                  1             92   0.0000         1        91   0.29900  0.24585  0.35548 seed_check  0.0000
+    2 mlp:all106  cnn:image                153                  4            157   0.0000        91       240   0.49502  0.43854  0.55482 seed_check  0.0000
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/compare_confusion_test.png
+row 12: pass
+RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python tools/run_order.py next --spend-read
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/08_routing.py --score
+test read: 301 grains, 0 infinite cells made missing
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/test_calibration.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/routing/test_routes.csv
+split     model   n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb 301   0.99668  0.01099         0.00409      0.42863             0.00000
+ test cnn_seed0 301   0.38538  0.20738         0.08393      1.32869             0.60140
+ test cnn_seed1 301   0.19934  0.07691         0.08139      0.94358             0.79021
+ test cnn_seed2 301   0.20266  0.10141         0.05644      1.79792             0.78671
+split  seed                    route  grains   share  errors  accuracy
+ test     0                      hgb     291 0.96678     0.0   1.00000
+ test     0                      cnn       0 0.00000     0.0       NaN
+ test     0                   unsure       2 0.00664     NaN       NaN
+ test     0               unfamiliar       8 0.02658     NaN       NaN
+ test     0           answered_total     291 0.96678     0.0   1.00000
+ test     0    unfamiliar_table_gate       4 0.01329     NaN       NaN
+ test     0    unfamiliar_image_gate       4 0.01329     NaN       NaN
+ test     0 chain_err_at_95_coverage     301 0.95000     NaN   0.98951
+ test     1                      hgb     291 0.96678     0.0   1.00000
+ test     1                      cnn       0 0.00000     0.0       NaN
+ test     1                   unsure       2 0.00664     NaN       NaN
+ test     1               unfamiliar       8 0.02658     NaN       NaN
+ test     1           answered_total     291 0.96678     0.0   1.00000
+ test     1    unfamiliar_table_gate       4 0.01329     NaN       NaN
+ test     1    unfamiliar_image_gate       4 0.01329     NaN       NaN
+ test     1 chain_err_at_95_coverage     301 0.95000     NaN   0.97902
+ test     2                      hgb     291 0.96678     0.0   1.00000
+ test     2                      cnn       0 0.00000     0.0       NaN
+ test     2                   unsure       2 0.00664     NaN       NaN
+ test     2               unfamiliar       8 0.02658     NaN       NaN
+ test     2           answered_total     291 0.96678     0.0   1.00000
+ test     2    unfamiliar_table_gate       4 0.01329     NaN       NaN
+ test     2    unfamiliar_image_gate       4 0.01329     NaN       NaN
+ test     2 chain_err_at_95_coverage     301 0.95000     NaN   0.97902
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_risk_coverage_test.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/routing_reliability_test.png
+row 13: pass
+RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python tools/run_order.py next --spend-read
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/09_robustness.py --score
+test read: 301 grains, 0 infinite cells made missing
+late grains: all 88, test 13
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/late_recall.csv
+                 model    subset  n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all 88  0.0000  0.0000   0.0418           0.7398                 20            
+    holdout_hgb:all106 late_test 13  0.0000  0.0000   0.2281           0.7290                  4            
+   holdout_hgb:shape16  late_all 88  0.0000  0.0000   0.0418           0.8115                 28            
+   holdout_hgb:shape16 late_test 13  0.0000  0.0000   0.2281           0.8284                  5            
+ holdout_hgb:sizefree7  late_all 88  0.8295  0.7376   0.8939           0.9157                  3  hgb:all106
+ holdout_hgb:sizefree7 late_test 13  0.6923  0.4237   0.8732           0.8725                  1  hgb:all106
+holdout_hgb:sizefree22  late_all 88  0.9205  0.8448   0.9609           0.8368                  2  hgb:all106
+holdout_hgb:sizefree22 late_test 13  0.9231  0.6669   0.9863           0.7501                  0  hgb:all106
+    full_hgb:sizefree7 late_test 13  0.6154  0.3552   0.8229           0.8532                  1  hgb:all106
+   full_hgb:sizefree22 late_test 13  1.0000  0.7719   1.0000           0.9864                  0  hgb:all106
+       full_hgb:all106 late_test 13  1.0000  0.7719   1.0000           0.9889                  0            
+      full_hgb:shape16 late_test 13  0.8462  0.5776   0.9567           0.9310                  1            
+     holdout_cnn:seed0  late_all 88  0.0000  0.0000   0.0418           0.3105                  0            
+     holdout_cnn:seed0 late_test 13  0.0000  0.0000   0.2281           0.3096                  0            
+        full_cnn:seed0 late_test 13  0.0000  0.0000   0.2281           0.3203                  0            
+     holdout_cnn:seed1  late_all 88  0.0000  0.0000   0.0418           0.2785                  0            
+     holdout_cnn:seed1 late_test 13  0.0000  0.0000   0.2281           0.2787                  0            
+        full_cnn:seed1 late_test 13  0.0000  0.0000   0.2281           0.2765                  0            
+     holdout_cnn:seed2  late_all 88  0.0000  0.0000   0.0418           0.2988                  0            
+     holdout_cnn:seed2 late_test 13  0.0000  0.0000   0.2281           0.2999                  0            
+        full_cnn:seed2 late_test 13  0.0000  0.0000   0.2281           0.3027                  0            
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/late_chain.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/greyworld_gain_vs_area.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/mean_colour_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/greyworld_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/robustness/greyworld_control.csv
+              arm       variant  n  accuracy
+mean_colour_model           raw 13    0.9231
+mean_colour_model    grey_world 13    0.0000
+        cnn_seed0 raw_same_path 13    0.0000
+        cnn_seed0    grey_world 13    0.0000
+        cnn_seed1 raw_same_path 13    0.0000
+        cnn_seed1    grey_world 13    0.0000
+        cnn_seed2 raw_same_path 13    0.0000
+        cnn_seed2    grey_world 13    0.0000
+ seed  n  max_abs_diff  argmax_equal
+    0 13  5.960464e-08          True
+    1 13  2.980232e-08          True
+    2 13  4.470348e-08          True
+row 14: pass
+RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python tools/run_order.py through 16
+paths="$(RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python tools/smoke_images.py 3)" || exit 1; printf '%s\n' "$paths" | while IFS= read -r p; do RICE_SMOKE=1 /Users/y/Academic/courses/f20dl/.venv/bin/python src/predict.py "$p" || exit 1; done
+/Users/y/Academic/courses/f20dl/src/common.py:727: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+image: Arborio (416).jpg
+image side: Karacadag (confidence 0.2928)
+table side: Arborio (confidence 1.0000)
+route: hgb
+familiarity: familiar (table gate False, image gate False)
+answer: Arborio (confidence 1.0000)
+/Users/y/Academic/courses/f20dl/src/common.py:727: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+image: basmati (178).jpg
+image side: Karacadag (confidence 0.2917)
+table side: no table row for this image
+route: unsure
+familiarity: familiar (table gate False, image gate False)
+answer: none (not confident enough)
+/Users/y/Academic/courses/f20dl/src/common.py:727: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+image: Ipsala (710).jpg
+image side: Ipsala (confidence 0.3326)
+table side: Ipsala (confidence 1.0000)
+route: hgb
+familiarity: familiar (table gate False, image gate False)
+answer: Ipsala (confidence 1.0000)
+row 15: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/report.py
+wrote /Users/y/Academic/courses/f20dl/results/smoke/SUMMARY.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/DISCLOSURES.csv
+wrote /Users/y/Academic/courses/f20dl/results/smoke/MANIFEST.csv
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/summary_comparison.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/report_learning_curves.png
+wrote /Users/y/Academic/courses/f20dl/figures/smoke/report_late_lot_recall.png
+row 16: pass
+row 1: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/06_neural.py --overfit-test
+[overfit] epoch 1: 1.0 s/epoch on mps train_loss 1.5610 val_acc nan
+[overfit] epoch 2: 0.4 s/epoch on mps train_loss 1.3324 val_acc nan
+[overfit] epoch 3: 0.4 s/epoch on mps train_loss 1.1943 val_acc nan
+[overfit] epoch 4: 0.4 s/epoch on mps train_loss 1.0624 val_acc nan
+[overfit] epoch 5: 0.4 s/epoch on mps train_loss 0.9753 val_acc nan
+[overfit] epoch 6: 0.4 s/epoch on mps train_loss 0.8805 val_acc nan
+[overfit] epoch 7: 0.4 s/epoch on mps train_loss 0.8067 val_acc nan
+[overfit] epoch 8: 0.4 s/epoch on mps train_loss 0.7544 val_acc nan
+[overfit] epoch 9: 0.4 s/epoch on mps train_loss 0.6932 val_acc nan
+[overfit] epoch 10: 0.4 s/epoch on mps train_loss 0.6497 val_acc nan
+[overfit] epoch 11: 0.4 s/epoch on mps train_loss 0.6247 val_acc nan
+[overfit] epoch 12: 0.4 s/epoch on mps train_loss 0.5700 val_acc nan
+[overfit] epoch 13: 0.4 s/epoch on mps train_loss 0.5322 val_acc nan
+[overfit] epoch 14: 0.4 s/epoch on mps train_loss 0.5007 val_acc nan
+[overfit] epoch 15: 0.4 s/epoch on mps train_loss 0.4653 val_acc nan
+[overfit] epoch 16: 0.4 s/epoch on mps train_loss 0.4432 val_acc nan
+[overfit] epoch 17: 0.4 s/epoch on mps train_loss 0.4204 val_acc nan
+[overfit] epoch 18: 0.4 s/epoch on mps train_loss 0.4104 val_acc nan
+[overfit] epoch 19: 0.4 s/epoch on mps train_loss 0.4098 val_acc nan
+[overfit] epoch 20: 0.4 s/epoch on mps train_loss 0.3901 val_acc nan
+[overfit] epoch 21: 0.4 s/epoch on mps train_loss 0.3569 val_acc nan
+[overfit] epoch 22: 0.4 s/epoch on mps train_loss 0.3586 val_acc nan
+[overfit] epoch 23: 0.4 s/epoch on mps train_loss 0.3320 val_acc nan
+[overfit] epoch 24: 0.4 s/epoch on mps train_loss 0.3266 val_acc nan
+[overfit] epoch 25: 0.4 s/epoch on mps train_loss 0.3180 val_acc nan
+[overfit] epoch 26: 0.4 s/epoch on mps train_loss 0.3121 val_acc nan
+[overfit] epoch 27: 0.4 s/epoch on mps train_loss 0.3138 val_acc nan
+[overfit] epoch 28: 0.4 s/epoch on mps train_loss 0.3280 val_acc nan
+[overfit] epoch 29: 0.4 s/epoch on mps train_loss 0.3047 val_acc nan
+[overfit] epoch 30: 0.4 s/epoch on mps train_loss 0.3056 val_acc nan
+overfit test: train accuracy on 200 grains = 0.9200; first epoch at >= 0.99: never of up to 30 -> FAIL
+make: *** [overfit] Error 1
+row 2: fail: exit code 2
+STOP: row 2 failed; fix it, then run again
+STOP: start checks failed:
+  not on AC power
+AC power back 22:39:38, starting through 11
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/06_neural.py --overfit-test
+[overfit] epoch 1: 1.7 s/epoch on mps train_loss 1.5610 val_acc nan
+[overfit] epoch 2: 0.4 s/epoch on mps train_loss 1.3324 val_acc nan
+[overfit] epoch 3: 0.4 s/epoch on mps train_loss 1.1939 val_acc nan
+[overfit] epoch 4: 0.4 s/epoch on mps train_loss 1.0612 val_acc nan
+[overfit] epoch 5: 0.4 s/epoch on mps train_loss 0.9739 val_acc nan
+[overfit] epoch 6: 0.4 s/epoch on mps train_loss 0.8777 val_acc nan
+[overfit] epoch 7: 0.4 s/epoch on mps train_loss 0.8023 val_acc nan
+[overfit] epoch 8: 0.4 s/epoch on mps train_loss 0.7479 val_acc nan
+[overfit] epoch 9: 0.4 s/epoch on mps train_loss 0.6833 val_acc nan
+[overfit] epoch 10: 0.4 s/epoch on mps train_loss 0.6348 val_acc nan
+[overfit] epoch 11: 0.4 s/epoch on mps train_loss 0.6082 val_acc nan
+[overfit] epoch 12: 0.4 s/epoch on mps train_loss 0.5439 val_acc nan
+[overfit] epoch 13: 0.4 s/epoch on mps train_loss 0.4988 val_acc nan
+[overfit] epoch 14: 0.4 s/epoch on mps train_loss 0.4603 val_acc nan
+[overfit] epoch 15: 0.4 s/epoch on mps train_loss 0.4137 val_acc nan
+[overfit] epoch 16: 0.4 s/epoch on mps train_loss 0.3909 val_acc nan
+[overfit] epoch 17: 0.4 s/epoch on mps train_loss 0.3689 val_acc nan
+[overfit] epoch 18: 0.4 s/epoch on mps train_loss 0.3442 val_acc nan
+[overfit] epoch 19: 0.4 s/epoch on mps train_loss 0.3339 val_acc nan
+[overfit] epoch 20: 0.4 s/epoch on mps train_loss 0.3167 val_acc nan
+[overfit] epoch 21: 0.4 s/epoch on mps train_loss 0.2787 val_acc nan
+[overfit] epoch 22: 0.4 s/epoch on mps train_loss 0.2733 val_acc nan
+[overfit] epoch 23: 0.4 s/epoch on mps train_loss 0.2274 val_acc nan
+[overfit] epoch 24: 0.4 s/epoch on mps train_loss 0.2182 val_acc nan
+[overfit] epoch 25: 0.4 s/epoch on mps train_loss 0.1957 val_acc nan
+[overfit] epoch 26: 0.4 s/epoch on mps train_loss 0.1837 val_acc nan
+[overfit] epoch 27: 0.4 s/epoch on mps train_loss 0.1735 val_acc nan
+[overfit] epoch 28: 0.4 s/epoch on mps train_loss 0.1715 val_acc nan
+[overfit] epoch 29: 0.4 s/epoch on mps train_loss 0.1346 val_acc nan
+[overfit] epoch 30: 0.4 s/epoch on mps train_loss 0.1308 val_acc nan
+[overfit] epoch 31: 0.4 s/epoch on mps train_loss 0.1133 val_acc nan
+[overfit] epoch 32: 0.4 s/epoch on mps train_loss 0.1045 val_acc nan
+[overfit] epoch 33: 0.4 s/epoch on mps train_loss 0.0984 val_acc nan
+[overfit] epoch 34: 0.4 s/epoch on mps train_loss 0.0903 val_acc nan
+[overfit] epoch 35: 0.4 s/epoch on mps train_loss 0.0923 val_acc nan
+[overfit] epoch 36: 0.4 s/epoch on mps train_loss 0.0791 val_acc nan
+[overfit] epoch 37: 0.4 s/epoch on mps train_loss 0.0709 val_acc nan
+overfit test: train accuracy on 200 grains = 0.9900; first epoch at >= 0.99: 37 of up to 150 -> PASS
+row 2: pass
+row 4: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/05_baselines.py
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__shape16__seed0__val.parquet
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.9701918786256135, 'val_macro_f1': 0.97032454216841, 'val_macro_precision': 0.9704357972606059, 'val_macro_recall': 0.9702675736961451, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.06017862498993054}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__shape16__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'shape16', 'val_accuracy': 0.9761713520749665, 'val_macro_f1': 0.9762578859599834, 'val_macro_precision': 0.9762818487556482, 'val_macro_recall': 0.9762394557823129, 'params': '{"n_components": 8}', 'fit_seconds': 0.822641416976694}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__shape16__seed0__val.parquet
+{'model': 'tree', 'featureset': 'shape16', 'val_accuracy': 0.9767960731816153, 'val_macro_f1': 0.9768723407539242, 'val_macro_precision': 0.9769172489834931, 'val_macro_recall': 0.9768544217687076, 'params': '{"max_depth": 20, "min_samples_leaf": 20}', 'fit_seconds': 0.4511340000317432}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__shape16__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'shape16', 'val_accuracy': 0.976706827309237, 'val_macro_f1': 0.9767926460321761, 'val_macro_precision': 0.9768248785628255, 'val_macro_recall': 0.9767727891156461, 'params': '{"C": 100}', 'fit_seconds': 0.3042304999544285}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__shape16__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'shape16', 'val_accuracy': 0.9815261044176706, 'val_macro_f1': 0.9815918881052246, 'val_macro_precision': 0.9816135410592833, 'val_macro_recall': 0.9815764172335602, 'params': '{"learning_rate": 0.05, "max_iter": 300, "max_leaf_nodes": 31}', 'fit_seconds': 17.925841749995016}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__shape16__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'shape16', 'val_accuracy': 0.961624274877287, 'val_macro_f1': 0.9616782755842406, 'val_macro_precision': 0.9624655992361879, 'val_macro_recall': 0.961728798185941, 'params': '{"alpha": 1e-05}', 'fit_seconds': 0.09808970801532269}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__shape16__seed0__val.parquet
+{'model': 'knn', 'featureset': 'shape16', 'val_accuracy': 0.9790272199910754, 'val_macro_f1': 0.9791018743554932, 'val_macro_precision': 0.9791341385711811, 'val_macro_recall': 0.979089342403628, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.04720112500945106}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__colour90__seed0__val.parquet
+{'model': 'nb', 'featureset': 'colour90', 'val_accuracy': 0.9519857206604194, 'val_macro_f1': 0.9521705846508868, 'val_macro_precision': 0.9523338336246272, 'val_macro_recall': 0.9521705215419501, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.32398375001503155}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__colour90__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'colour90', 'val_accuracy': 0.9818830879071843, 'val_macro_f1': 0.9819562182300985, 'val_macro_precision': 0.9819723178275771, 'val_macro_recall': 0.9819555555555557, 'params': '{"n_components": 8}', 'fit_seconds': 1.4369245410198346}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__colour90__seed0__val.parquet
+{'model': 'tree', 'featureset': 'colour90', 'val_accuracy': 0.9715305667112896, 'val_macro_f1': 0.9716423184363967, 'val_macro_precision': 0.9716714413144493, 'val_macro_recall': 0.97163537414966, 'params': '{"max_depth": 20, "min_samples_leaf": 5}', 'fit_seconds': 3.63243054196937}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__colour90__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'colour90', 'val_accuracy': 0.9896474788041053, 'val_macro_f1': 0.9896909815546546, 'val_macro_precision': 0.9896992701143276, 'val_macro_recall': 0.9896888888888891, 'params': '{"C": 10}', 'fit_seconds': 1.0846155409817584}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__colour90__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'colour90', 'val_accuracy': 0.9911646586345382, 'val_macro_f1': 0.9911977886706493, 'val_macro_precision': 0.9912066635715598, 'val_macro_recall': 0.9911999999999999, 'params': '{"learning_rate": 0.1, "max_iter": 300, "max_leaf_nodes": 31}', 'fit_seconds': 6.665766916004941}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__colour90__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'colour90', 'val_accuracy': 0.9749219098616689, 'val_macro_f1': 0.9750112090120776, 'val_macro_precision': 0.9753261511261279, 'val_macro_recall': 0.9750185941043084, 'params': '{"alpha": 1e-05}', 'fit_seconds': 0.5996478750021197}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__colour90__seed0__val.parquet
+{'model': 'knn', 'featureset': 'colour90', 'val_accuracy': 0.9823293172690764, 'val_macro_f1': 0.9823919748339817, 'val_macro_precision': 0.9824076825933256, 'val_macro_recall': 0.9823999999999999, 'params': '{"n_neighbors": 3}', 'fit_seconds': 0.3100060420110822}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__all106__seed0__val.parquet
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 0.9908969210174029, 'val_macro_f1': 0.9909397715600481, 'val_macro_precision': 0.9910269987353908, 'val_macro_recall': 0.9909297052154195, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.3885292499908246}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__all106__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'all106', 'val_accuracy': 0.9970548862115127, 'val_macro_f1': 0.9970661916399024, 'val_macro_precision': 0.9970662282881484, 'val_macro_recall': 0.9970666666666667, 'params': '{"n_components": 8}', 'fit_seconds': 1.5801862080115825}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__all106__seed0__val.parquet
+{'model': 'tree', 'featureset': 'all106', 'val_accuracy': 0.9955377063810799, 'val_macro_f1': 0.9955521972124343, 'val_macro_precision': 0.9955581433922817, 'val_macro_recall': 0.9955482993197279, 'params': '{"max_depth": 20, "min_samples_leaf": 1}', 'fit_seconds': 3.3114824580261484}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__all106__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'all106', 'val_accuracy': 0.9983043284248103, 'val_macro_f1': 0.9983113860571295, 'val_macro_precision': 0.998313238068353, 'val_macro_recall': 0.998311111111111, 'params': '{"C": 100}', 'fit_seconds': 0.5176154999644496}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__all106__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'all106', 'val_accuracy': 0.9984828201695671, 'val_macro_f1': 0.9984889282677777, 'val_macro_precision': 0.9984891649231497, 'val_macro_recall': 0.998488888888889, 'params': '{"learning_rate": 0.1, "max_iter": 150, "max_leaf_nodes": 31}', 'fit_seconds': 5.676870875002351}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__all106__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'all106', 'val_accuracy': 0.9965194109772423, 'val_macro_f1': 0.9965328825999225, 'val_macro_precision': 0.9965411192828434, 'val_macro_recall': 0.9965333333333334, 'params': '{"alpha": 1e-05}', 'fit_seconds': 0.7101016250089742}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__all106__seed0__val.parquet
+{'model': 'knn', 'featureset': 'all106', 'val_accuracy': 0.99776885319054, 'val_macro_f1': 0.9977782106613301, 'val_macro_precision': 0.9977798640898801, 'val_macro_recall': 0.9977777777777778, 'params': '{"n_neighbors": 3}', 'fit_seconds': 0.37198470800649375}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__selected__seed0__val.parquet
+{'model': 'nb', 'featureset': 'selected', 'val_accuracy': 0.9904506916555109, 'val_macro_f1': 0.9905002632325886, 'val_macro_precision': 0.9906429421817939, 'val_macro_recall': 0.9904852607709751, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.05548833397915587}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__selected__seed0__val.parquet
+{'model': 'gmm', 'featureset': 'selected', 'val_accuracy': 0.9983935742971888, 'val_macro_f1': 0.9983997403644272, 'val_macro_precision': 0.9984020429670721, 'val_macro_recall': 0.9984, 'params': '{"n_components": 8}', 'fit_seconds': 0.8029075840022415}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__selected__seed0__val.parquet
+{'model': 'tree', 'featureset': 'selected', 'val_accuracy': 0.9966979027219991, 'val_macro_f1': 0.9967097170019656, 'val_macro_precision': 0.9967200831983154, 'val_macro_recall': 0.9967056689342403, 'params': '{"max_depth": 10, "min_samples_leaf": 1}', 'fit_seconds': 0.3698392500518821}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__selected__seed0__val.parquet
+{'model': 'logreg', 'featureset': 'selected', 'val_accuracy': 0.9978580990629183, 'val_macro_f1': 0.9978664066122158, 'val_macro_precision': 0.997870874108593, 'val_macro_recall': 0.9978648526077099, 'params': '{"C": 1}', 'fit_seconds': 0.0932761249714531}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__selected__seed0__val.parquet
+{'model': 'hgb', 'featureset': 'selected', 'val_accuracy': 0.9983043284248103, 'val_macro_f1': 0.9983114462512155, 'val_macro_precision': 0.9983122141633245, 'val_macro_recall': 0.998311111111111, 'params': '{"learning_rate": 0.1, "max_iter": 300, "max_leaf_nodes": 31}', 'fit_seconds': 7.396532999991905}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__selected__seed0__val.parquet
+{'model': 'perceptron', 'featureset': 'selected', 'val_accuracy': 0.9936635430611335, 'val_macro_f1': 0.9936806536184537, 'val_macro_precision': 0.9936879938854958, 'val_macro_recall': 0.993688888888889, 'params': '{"alpha": 1e-05}', 'fit_seconds': 0.09245241596363485}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__selected__seed0__val.parquet
+{'model': 'knn', 'featureset': 'selected', 'val_accuracy': 0.9980365908076752, 'val_macro_f1': 0.9980441091055738, 'val_macro_precision': 0.9980463377252942, 'val_macro_recall': 0.9980426303854875, 'params': '{"n_neighbors": 5}', 'fit_seconds': 0.05458850000286475}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__distinct91__seed0__val.parquet
+{'model': 'nb', 'featureset': 'distinct91', 'val_accuracy': 0.9898259705488621, 'val_macro_f1': 0.9898697159749817, 'val_macro_precision': 0.9899364997770611, 'val_macro_recall': 0.989859410430839, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 0.34295650001149625}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/grid.csv
+wrote /Users/y/Academic/courses/f20dl/results/baselines/val_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree4__all106__seed0__val.parquet
+wrote /Users/y/Academic/courses/f20dl/results/baselines/tree_depth4.txt
+wrote /Users/y/Academic/courses/f20dl/figures/baselines_tree_depth4.png
+row 5: pass
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.2738 val_acc 0.9897
+[mlp_tune] epoch 2: 0.0 s/epoch on cpu train_loss 0.0277 val_acc 0.9950
+[mlp_tune] epoch 3: 0.0 s/epoch on cpu train_loss 0.0153 val_acc 0.9967
+[mlp_tune] epoch 4: 0.0 s/epoch on cpu train_loss 0.0108 val_acc 0.9975
+[mlp_tune] epoch 5: 0.0 s/epoch on cpu train_loss 0.0084 val_acc 0.9978
+[mlp_tune] epoch 6: 0.0 s/epoch on cpu train_loss 0.0069 val_acc 0.9979
+[mlp_tune] epoch 7: 0.0 s/epoch on cpu train_loss 0.0061 val_acc 0.9980
+[mlp_tune] epoch 8: 0.0 s/epoch on cpu train_loss 0.0053 val_acc 0.9978
+[mlp_tune] epoch 9: 0.0 s/epoch on cpu train_loss 0.0048 val_acc 0.9980
+[mlp_tune] epoch 10: 0.0 s/epoch on cpu train_loss 0.0044 val_acc 0.9980
+[mlp_tune] epoch 11: 0.0 s/epoch on cpu train_loss 0.0042 val_acc 0.9982
+[mlp_tune] epoch 12: 0.0 s/epoch on cpu train_loss 0.0038 val_acc 0.9984
+[mlp_tune] epoch 13: 0.0 s/epoch on cpu train_loss 0.0037 val_acc 0.9985
+[mlp_tune] epoch 14: 0.0 s/epoch on cpu train_loss 0.0037 val_acc 0.9984
+[mlp_tune] epoch 15: 0.0 s/epoch on cpu train_loss 0.0033 val_acc 0.9982
+[mlp_tune] epoch 16: 0.0 s/epoch on cpu train_loss 0.0032 val_acc 0.9985
+[mlp_tune] epoch 17: 0.0 s/epoch on cpu train_loss 0.0030 val_acc 0.9983
+[mlp_tune] epoch 18: 0.0 s/epoch on cpu train_loss 0.0030 val_acc 0.9984
+[mlp_tune] epoch 19: 0.0 s/epoch on cpu train_loss 0.0027 val_acc 0.9984
+[mlp_tune] epoch 20: 0.0 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_tune] epoch 21: 0.0 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_tune] epoch 22: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9982
+[mlp_tune] epoch 23: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9984
+[mlp_tune] epoch 24: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9987
+[mlp_tune] epoch 25: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_tune] epoch 26: 0.0 s/epoch on cpu train_loss 0.0022 val_acc 0.9986
+[mlp_tune] epoch 27: 0.0 s/epoch on cpu train_loss 0.0021 val_acc 0.9984
+[mlp_tune] epoch 28: 0.0 s/epoch on cpu train_loss 0.0021 val_acc 0.9984
+[mlp_tune] epoch 29: 0.0 s/epoch on cpu train_loss 0.0021 val_acc 0.9985
+[mlp_tune] epoch 30: 0.0 s/epoch on cpu train_loss 0.0023 val_acc 0.9986
+[mlp_tune] epoch 31: 0.0 s/epoch on cpu train_loss 0.0019 val_acc 0.9987
+[mlp_tune] epoch 32: 0.0 s/epoch on cpu train_loss 0.0020 val_acc 0.9985
+[mlp_tune] epoch 33: 0.0 s/epoch on cpu train_loss 0.0020 val_acc 0.9985
+[mlp_tune] epoch 34: 0.0 s/epoch on cpu train_loss 0.0018 val_acc 0.9984
+[mlp_tune] epoch 35: 0.0 s/epoch on cpu train_loss 0.0017 val_acc 0.9983
+[mlp_tune] epoch 36: 0.0 s/epoch on cpu train_loss 0.0018 val_acc 0.9986
+[mlp_tune] epoch 37: 0.1 s/epoch on cpu train_loss 0.0017 val_acc 0.9988
+[mlp_tune] epoch 38: 0.0 s/epoch on cpu train_loss 0.0017 val_acc 0.9983
+[mlp_tune] epoch 39: 0.0 s/epoch on cpu train_loss 0.0018 val_acc 0.9987
+[mlp_tune] epoch 40: 0.0 s/epoch on cpu train_loss 0.0017 val_acc 0.9987
+[mlp_tune] epoch 41: 0.0 s/epoch on cpu train_loss 0.0016 val_acc 0.9984
+[mlp_tune] epoch 42: 0.0 s/epoch on cpu train_loss 0.0016 val_acc 0.9985
+[mlp_tune] 42 epochs, best val loss 0.0060
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.2842 val_acc 0.9897
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.0319 val_acc 0.9949
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0189 val_acc 0.9965
+[mlp_tune] epoch 4: 0.1 s/epoch on cpu train_loss 0.0129 val_acc 0.9973
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0102 val_acc 0.9978
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0086 val_acc 0.9979
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0077 val_acc 0.9979
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0069 val_acc 0.9980
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0067 val_acc 0.9983
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0056 val_acc 0.9983
+[mlp_tune] epoch 11: 0.1 s/epoch on cpu train_loss 0.0054 val_acc 0.9984
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0050 val_acc 0.9984
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0048 val_acc 0.9985
+[mlp_tune] epoch 14: 0.1 s/epoch on cpu train_loss 0.0046 val_acc 0.9984
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0045 val_acc 0.9984
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0039 val_acc 0.9983
+[mlp_tune] epoch 17: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9984
+[mlp_tune] epoch 18: 0.1 s/epoch on cpu train_loss 0.0037 val_acc 0.9983
+[mlp_tune] epoch 19: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9983
+[mlp_tune] epoch 20: 0.1 s/epoch on cpu train_loss 0.0037 val_acc 0.9985
+[mlp_tune] epoch 21: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9983
+[mlp_tune] epoch 22: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9982
+[mlp_tune] epoch 23: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9982
+[mlp_tune] epoch 24: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9986
+[mlp_tune] epoch 25: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9985
+[mlp_tune] epoch 26: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9987
+[mlp_tune] epoch 27: 0.1 s/epoch on cpu train_loss 0.0029 val_acc 0.9986
+[mlp_tune] epoch 28: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9986
+[mlp_tune] epoch 29: 0.1 s/epoch on cpu train_loss 0.0029 val_acc 0.9985
+[mlp_tune] epoch 30: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9985
+[mlp_tune] epoch 31: 0.1 s/epoch on cpu train_loss 0.0029 val_acc 0.9987
+[mlp_tune] epoch 32: 0.1 s/epoch on cpu train_loss 0.0029 val_acc 0.9986
+[mlp_tune] epoch 33: 0.1 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_tune] epoch 34: 0.1 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_tune] epoch 35: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9983
+[mlp_tune] epoch 36: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9986
+[mlp_tune] epoch 37: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9987
+[mlp_tune] epoch 38: 0.1 s/epoch on cpu train_loss 0.0023 val_acc 0.9984
+[mlp_tune] epoch 39: 0.0 s/epoch on cpu train_loss 0.0027 val_acc 0.9987
+[mlp_tune] epoch 40: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9988
+[mlp_tune] epoch 41: 0.1 s/epoch on cpu train_loss 0.0023 val_acc 0.9987
+[mlp_tune] epoch 42: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9986
+[mlp_tune] epoch 43: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9987
+[mlp_tune] 43 epochs, best val loss 0.0059
+[mlp_tune] epoch 1: 0.0 s/epoch on cpu train_loss 0.6945 val_acc 0.9779
+[mlp_tune] epoch 2: 0.0 s/epoch on cpu train_loss 0.1362 val_acc 0.9848
+[mlp_tune] epoch 3: 0.0 s/epoch on cpu train_loss 0.0637 val_acc 0.9896
+[mlp_tune] epoch 4: 0.0 s/epoch on cpu train_loss 0.0411 val_acc 0.9923
+[mlp_tune] epoch 5: 0.0 s/epoch on cpu train_loss 0.0300 val_acc 0.9939
+[mlp_tune] epoch 6: 0.0 s/epoch on cpu train_loss 0.0235 val_acc 0.9947
+[mlp_tune] epoch 7: 0.0 s/epoch on cpu train_loss 0.0192 val_acc 0.9955
+[mlp_tune] epoch 8: 0.0 s/epoch on cpu train_loss 0.0162 val_acc 0.9961
+[mlp_tune] epoch 9: 0.0 s/epoch on cpu train_loss 0.0140 val_acc 0.9965
+[mlp_tune] epoch 10: 0.0 s/epoch on cpu train_loss 0.0123 val_acc 0.9965
+[mlp_tune] epoch 11: 0.0 s/epoch on cpu train_loss 0.0110 val_acc 0.9971
+[mlp_tune] epoch 12: 0.0 s/epoch on cpu train_loss 0.0099 val_acc 0.9973
+[mlp_tune] epoch 13: 0.0 s/epoch on cpu train_loss 0.0091 val_acc 0.9973
+[mlp_tune] epoch 14: 0.0 s/epoch on cpu train_loss 0.0084 val_acc 0.9974
+[mlp_tune] epoch 15: 0.0 s/epoch on cpu train_loss 0.0078 val_acc 0.9975
+[mlp_tune] epoch 16: 0.0 s/epoch on cpu train_loss 0.0073 val_acc 0.9979
+[mlp_tune] epoch 17: 0.0 s/epoch on cpu train_loss 0.0069 val_acc 0.9979
+[mlp_tune] epoch 18: 0.0 s/epoch on cpu train_loss 0.0065 val_acc 0.9978
+[mlp_tune] epoch 19: 0.0 s/epoch on cpu train_loss 0.0061 val_acc 0.9979
+[mlp_tune] epoch 20: 0.0 s/epoch on cpu train_loss 0.0058 val_acc 0.9979
+[mlp_tune] epoch 21: 0.0 s/epoch on cpu train_loss 0.0056 val_acc 0.9980
+[mlp_tune] epoch 22: 0.0 s/epoch on cpu train_loss 0.0053 val_acc 0.9979
+[mlp_tune] epoch 23: 0.0 s/epoch on cpu train_loss 0.0051 val_acc 0.9981
+[mlp_tune] epoch 24: 0.0 s/epoch on cpu train_loss 0.0049 val_acc 0.9981
+[mlp_tune] epoch 25: 0.0 s/epoch on cpu train_loss 0.0048 val_acc 0.9983
+[mlp_tune] epoch 26: 0.0 s/epoch on cpu train_loss 0.0046 val_acc 0.9982
+[mlp_tune] epoch 27: 0.0 s/epoch on cpu train_loss 0.0044 val_acc 0.9982
+[mlp_tune] epoch 28: 0.0 s/epoch on cpu train_loss 0.0043 val_acc 0.9984
+[mlp_tune] epoch 29: 0.0 s/epoch on cpu train_loss 0.0042 val_acc 0.9984
+[mlp_tune] epoch 30: 0.0 s/epoch on cpu train_loss 0.0041 val_acc 0.9984
+[mlp_tune] epoch 31: 0.1 s/epoch on cpu train_loss 0.0039 val_acc 0.9984
+[mlp_tune] epoch 32: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9984
+[mlp_tune] epoch 33: 0.1 s/epoch on cpu train_loss 0.0037 val_acc 0.9984
+[mlp_tune] epoch 34: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9984
+[mlp_tune] epoch 35: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9984
+[mlp_tune] epoch 36: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9984
+[mlp_tune] epoch 37: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9984
+[mlp_tune] epoch 38: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9984
+[mlp_tune] epoch 39: 0.0 s/epoch on cpu train_loss 0.0033 val_acc 0.9984
+[mlp_tune] epoch 40: 0.0 s/epoch on cpu train_loss 0.0032 val_acc 0.9984
+[mlp_tune] epoch 41: 0.0 s/epoch on cpu train_loss 0.0031 val_acc 0.9984
+[mlp_tune] epoch 42: 0.0 s/epoch on cpu train_loss 0.0031 val_acc 0.9984
+[mlp_tune] epoch 43: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9984
+[mlp_tune] epoch 44: 0.0 s/epoch on cpu train_loss 0.0030 val_acc 0.9985
+[mlp_tune] epoch 45: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9984
+[mlp_tune] epoch 46: 0.1 s/epoch on cpu train_loss 0.0029 val_acc 0.9984
+[mlp_tune] epoch 47: 0.0 s/epoch on cpu train_loss 0.0028 val_acc 0.9984
+[mlp_tune] epoch 48: 0.0 s/epoch on cpu train_loss 0.0028 val_acc 0.9984
+[mlp_tune] epoch 49: 0.0 s/epoch on cpu train_loss 0.0027 val_acc 0.9984
+[mlp_tune] epoch 50: 0.0 s/epoch on cpu train_loss 0.0027 val_acc 0.9985
+[mlp_tune] epoch 51: 0.0 s/epoch on cpu train_loss 0.0027 val_acc 0.9984
+[mlp_tune] epoch 52: 0.0 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_tune] epoch 53: 0.1 s/epoch on cpu train_loss 0.0026 val_acc 0.9986
+[mlp_tune] epoch 54: 0.0 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_tune] epoch 55: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9984
+[mlp_tune] epoch 56: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9986
+[mlp_tune] epoch 57: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9985
+[mlp_tune] epoch 58: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9984
+[mlp_tune] epoch 59: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9984
+[mlp_tune] epoch 60: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9984
+[mlp_tune] epoch 61: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_tune] epoch 62: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_tune] epoch 63: 0.0 s/epoch on cpu train_loss 0.0023 val_acc 0.9986
+[mlp_tune] 63 epochs, best val loss 0.0062
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.7074 val_acc 0.9776
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.1473 val_acc 0.9846
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0713 val_acc 0.9892
+[mlp_tune] epoch 4: 0.1 s/epoch on cpu train_loss 0.0463 val_acc 0.9921
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0342 val_acc 0.9937
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0273 val_acc 0.9945
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0226 val_acc 0.9953
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0196 val_acc 0.9959
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0171 val_acc 0.9964
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0149 val_acc 0.9965
+[mlp_tune] epoch 11: 0.1 s/epoch on cpu train_loss 0.0136 val_acc 0.9968
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0124 val_acc 0.9972
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0114 val_acc 0.9974
+[mlp_tune] epoch 14: 0.1 s/epoch on cpu train_loss 0.0104 val_acc 0.9975
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0100 val_acc 0.9979
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0090 val_acc 0.9979
+[mlp_tune] epoch 17: 0.1 s/epoch on cpu train_loss 0.0088 val_acc 0.9979
+[mlp_tune] epoch 18: 0.1 s/epoch on cpu train_loss 0.0081 val_acc 0.9978
+[mlp_tune] epoch 19: 0.1 s/epoch on cpu train_loss 0.0076 val_acc 0.9979
+[mlp_tune] epoch 20: 0.1 s/epoch on cpu train_loss 0.0075 val_acc 0.9979
+[mlp_tune] epoch 21: 0.1 s/epoch on cpu train_loss 0.0071 val_acc 0.9980
+[mlp_tune] epoch 22: 0.1 s/epoch on cpu train_loss 0.0068 val_acc 0.9981
+[mlp_tune] epoch 23: 0.1 s/epoch on cpu train_loss 0.0063 val_acc 0.9980
+[mlp_tune] epoch 24: 0.1 s/epoch on cpu train_loss 0.0062 val_acc 0.9982
+[mlp_tune] epoch 25: 0.1 s/epoch on cpu train_loss 0.0061 val_acc 0.9984
+[mlp_tune] epoch 26: 0.1 s/epoch on cpu train_loss 0.0059 val_acc 0.9982
+[mlp_tune] epoch 27: 0.1 s/epoch on cpu train_loss 0.0056 val_acc 0.9983
+[mlp_tune] epoch 28: 0.1 s/epoch on cpu train_loss 0.0057 val_acc 0.9984
+[mlp_tune] epoch 29: 0.1 s/epoch on cpu train_loss 0.0054 val_acc 0.9983
+[mlp_tune] epoch 30: 0.1 s/epoch on cpu train_loss 0.0052 val_acc 0.9984
+[mlp_tune] epoch 31: 0.1 s/epoch on cpu train_loss 0.0051 val_acc 0.9984
+[mlp_tune] epoch 32: 0.1 s/epoch on cpu train_loss 0.0051 val_acc 0.9984
+[mlp_tune] epoch 33: 0.1 s/epoch on cpu train_loss 0.0049 val_acc 0.9984
+[mlp_tune] epoch 34: 0.1 s/epoch on cpu train_loss 0.0047 val_acc 0.9984
+[mlp_tune] epoch 35: 0.1 s/epoch on cpu train_loss 0.0046 val_acc 0.9984
+[mlp_tune] epoch 36: 0.1 s/epoch on cpu train_loss 0.0046 val_acc 0.9984
+[mlp_tune] epoch 37: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9984
+[mlp_tune] epoch 38: 0.1 s/epoch on cpu train_loss 0.0042 val_acc 0.9984
+[mlp_tune] epoch 39: 0.1 s/epoch on cpu train_loss 0.0044 val_acc 0.9984
+[mlp_tune] epoch 40: 0.1 s/epoch on cpu train_loss 0.0043 val_acc 0.9984
+[mlp_tune] epoch 41: 0.1 s/epoch on cpu train_loss 0.0042 val_acc 0.9984
+[mlp_tune] epoch 42: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9985
+[mlp_tune] epoch 43: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9985
+[mlp_tune] epoch 44: 0.1 s/epoch on cpu train_loss 0.0039 val_acc 0.9984
+[mlp_tune] epoch 45: 0.1 s/epoch on cpu train_loss 0.0039 val_acc 0.9985
+[mlp_tune] epoch 46: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9985
+[mlp_tune] epoch 47: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9986
+[mlp_tune] epoch 48: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9985
+[mlp_tune] epoch 49: 0.1 s/epoch on cpu train_loss 0.0039 val_acc 0.9986
+[mlp_tune] epoch 50: 0.1 s/epoch on cpu train_loss 0.0037 val_acc 0.9985
+[mlp_tune] epoch 51: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9985
+[mlp_tune] epoch 52: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9985
+[mlp_tune] epoch 53: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9985
+[mlp_tune] epoch 54: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9986
+[mlp_tune] epoch 55: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9986
+[mlp_tune] epoch 56: 0.1 s/epoch on cpu train_loss 0.0037 val_acc 0.9985
+[mlp_tune] epoch 57: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9986
+[mlp_tune] epoch 58: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9986
+[mlp_tune] epoch 59: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9986
+[mlp_tune] epoch 60: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9986
+[mlp_tune] epoch 61: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9986
+[mlp_tune] epoch 62: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9986
+[mlp_tune] epoch 63: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9986
+[mlp_tune] 63 epochs, best val loss 0.0062
+[mlp_tune] epoch 1: 0.0 s/epoch on cpu train_loss 0.3975 val_acc 0.9903
+[mlp_tune] epoch 2: 0.0 s/epoch on cpu train_loss 0.0197 val_acc 0.9967
+[mlp_tune] epoch 3: 0.0 s/epoch on cpu train_loss 0.0096 val_acc 0.9979
+[mlp_tune] epoch 4: 0.0 s/epoch on cpu train_loss 0.0069 val_acc 0.9981
+[mlp_tune] epoch 5: 0.0 s/epoch on cpu train_loss 0.0056 val_acc 0.9980
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0048 val_acc 0.9984
+[mlp_tune] epoch 7: 0.0 s/epoch on cpu train_loss 0.0044 val_acc 0.9985
+[mlp_tune] epoch 8: 0.0 s/epoch on cpu train_loss 0.0038 val_acc 0.9986
+[mlp_tune] epoch 9: 0.0 s/epoch on cpu train_loss 0.0036 val_acc 0.9985
+[mlp_tune] epoch 10: 0.0 s/epoch on cpu train_loss 0.0034 val_acc 0.9985
+[mlp_tune] epoch 11: 0.0 s/epoch on cpu train_loss 0.0035 val_acc 0.9984
+[mlp_tune] epoch 12: 0.0 s/epoch on cpu train_loss 0.0029 val_acc 0.9985
+[mlp_tune] epoch 13: 0.0 s/epoch on cpu train_loss 0.0028 val_acc 0.9984
+[mlp_tune] epoch 14: 0.0 s/epoch on cpu train_loss 0.0031 val_acc 0.9984
+[mlp_tune] epoch 15: 0.0 s/epoch on cpu train_loss 0.0026 val_acc 0.9982
+[mlp_tune] epoch 16: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9984
+[mlp_tune] epoch 17: 0.0 s/epoch on cpu train_loss 0.0022 val_acc 0.9982
+[mlp_tune] epoch 18: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_tune] epoch 19: 0.0 s/epoch on cpu train_loss 0.0020 val_acc 0.9984
+[mlp_tune] epoch 20: 0.0 s/epoch on cpu train_loss 0.0021 val_acc 0.9982
+[mlp_tune] epoch 21: 0.0 s/epoch on cpu train_loss 0.0022 val_acc 0.9985
+[mlp_tune] epoch 22: 0.0 s/epoch on cpu train_loss 0.0019 val_acc 0.9983
+[mlp_tune] epoch 23: 0.0 s/epoch on cpu train_loss 0.0018 val_acc 0.9982
+[mlp_tune] epoch 24: 0.0 s/epoch on cpu train_loss 0.0019 val_acc 0.9983
+[mlp_tune] epoch 25: 0.0 s/epoch on cpu train_loss 0.0020 val_acc 0.9983
+[mlp_tune] epoch 26: 0.0 s/epoch on cpu train_loss 0.0017 val_acc 0.9986
+[mlp_tune] 26 epochs, best val loss 0.0066
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.4336 val_acc 0.9888
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.0351 val_acc 0.9962
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0189 val_acc 0.9974
+[mlp_tune] epoch 4: 0.0 s/epoch on cpu train_loss 0.0141 val_acc 0.9976
+[mlp_tune] epoch 5: 0.0 s/epoch on cpu train_loss 0.0115 val_acc 0.9980
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0090 val_acc 0.9979
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0088 val_acc 0.9984
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0085 val_acc 0.9985
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0071 val_acc 0.9982
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0069 val_acc 0.9981
+[mlp_tune] epoch 11: 0.0 s/epoch on cpu train_loss 0.0062 val_acc 0.9982
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0057 val_acc 0.9985
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0055 val_acc 0.9982
+[mlp_tune] epoch 14: 0.1 s/epoch on cpu train_loss 0.0054 val_acc 0.9984
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0048 val_acc 0.9984
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0045 val_acc 0.9987
+[mlp_tune] epoch 17: 0.1 s/epoch on cpu train_loss 0.0048 val_acc 0.9987
+[mlp_tune] epoch 18: 0.1 s/epoch on cpu train_loss 0.0047 val_acc 0.9984
+[mlp_tune] epoch 19: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9984
+[mlp_tune] epoch 20: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9984
+[mlp_tune] epoch 21: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9987
+[mlp_tune] epoch 22: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9986
+[mlp_tune] 22 epochs, best val loss 0.0069
+[mlp_tune] epoch 1: 0.0 s/epoch on cpu train_loss 0.9935 val_acc 0.9742
+[mlp_tune] epoch 2: 0.0 s/epoch on cpu train_loss 0.1513 val_acc 0.9837
+[mlp_tune] epoch 3: 0.0 s/epoch on cpu train_loss 0.0519 val_acc 0.9896
+[mlp_tune] epoch 4: 0.0 s/epoch on cpu train_loss 0.0299 val_acc 0.9938
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0199 val_acc 0.9954
+[mlp_tune] epoch 6: 0.0 s/epoch on cpu train_loss 0.0147 val_acc 0.9964
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0117 val_acc 0.9969
+[mlp_tune] epoch 8: 0.0 s/epoch on cpu train_loss 0.0097 val_acc 0.9973
+[mlp_tune] epoch 9: 0.0 s/epoch on cpu train_loss 0.0084 val_acc 0.9977
+[mlp_tune] epoch 10: 0.0 s/epoch on cpu train_loss 0.0074 val_acc 0.9978
+[mlp_tune] epoch 11: 0.0 s/epoch on cpu train_loss 0.0067 val_acc 0.9981
+[mlp_tune] epoch 12: 0.0 s/epoch on cpu train_loss 0.0061 val_acc 0.9982
+[mlp_tune] epoch 13: 0.0 s/epoch on cpu train_loss 0.0057 val_acc 0.9982
+[mlp_tune] epoch 14: 0.0 s/epoch on cpu train_loss 0.0053 val_acc 0.9983
+[mlp_tune] epoch 15: 0.0 s/epoch on cpu train_loss 0.0049 val_acc 0.9983
+[mlp_tune] epoch 16: 0.0 s/epoch on cpu train_loss 0.0047 val_acc 0.9986
+[mlp_tune] epoch 17: 0.0 s/epoch on cpu train_loss 0.0044 val_acc 0.9986
+[mlp_tune] epoch 18: 0.0 s/epoch on cpu train_loss 0.0042 val_acc 0.9984
+[mlp_tune] epoch 19: 0.0 s/epoch on cpu train_loss 0.0040 val_acc 0.9986
+[mlp_tune] epoch 20: 0.0 s/epoch on cpu train_loss 0.0038 val_acc 0.9986
+[mlp_tune] epoch 21: 0.0 s/epoch on cpu train_loss 0.0037 val_acc 0.9987
+[mlp_tune] epoch 22: 0.0 s/epoch on cpu train_loss 0.0036 val_acc 0.9985
+[mlp_tune] epoch 23: 0.0 s/epoch on cpu train_loss 0.0035 val_acc 0.9986
+[mlp_tune] epoch 24: 0.0 s/epoch on cpu train_loss 0.0034 val_acc 0.9985
+[mlp_tune] epoch 25: 0.0 s/epoch on cpu train_loss 0.0033 val_acc 0.9987
+[mlp_tune] epoch 26: 0.0 s/epoch on cpu train_loss 0.0032 val_acc 0.9985
+[mlp_tune] epoch 27: 0.0 s/epoch on cpu train_loss 0.0030 val_acc 0.9984
+[mlp_tune] epoch 28: 0.0 s/epoch on cpu train_loss 0.0030 val_acc 0.9986
+[mlp_tune] epoch 29: 0.0 s/epoch on cpu train_loss 0.0029 val_acc 0.9986
+[mlp_tune] epoch 30: 0.0 s/epoch on cpu train_loss 0.0029 val_acc 0.9986
+[mlp_tune] epoch 31: 0.0 s/epoch on cpu train_loss 0.0028 val_acc 0.9985
+[mlp_tune] epoch 32: 0.0 s/epoch on cpu train_loss 0.0027 val_acc 0.9986
+[mlp_tune] epoch 33: 0.0 s/epoch on cpu train_loss 0.0027 val_acc 0.9985
+[mlp_tune] epoch 34: 0.0 s/epoch on cpu train_loss 0.0026 val_acc 0.9986
+[mlp_tune] epoch 35: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9985
+[mlp_tune] epoch 36: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9986
+[mlp_tune] epoch 37: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9986
+[mlp_tune] epoch 38: 0.0 s/epoch on cpu train_loss 0.0025 val_acc 0.9985
+[mlp_tune] epoch 39: 0.0 s/epoch on cpu train_loss 0.0024 val_acc 0.9984
+[mlp_tune] epoch 40: 0.0 s/epoch on cpu train_loss 0.0023 val_acc 0.9984
+[mlp_tune] epoch 41: 0.0 s/epoch on cpu train_loss 0.0023 val_acc 0.9985
+[mlp_tune] epoch 42: 0.0 s/epoch on cpu train_loss 0.0022 val_acc 0.9985
+[mlp_tune] epoch 43: 0.0 s/epoch on cpu train_loss 0.0022 val_acc 0.9984
+[mlp_tune] epoch 44: 0.0 s/epoch on cpu train_loss 0.0021 val_acc 0.9985
+[mlp_tune] epoch 45: 0.0 s/epoch on cpu train_loss 0.0022 val_acc 0.9985
+[mlp_tune] epoch 46: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9984
+[mlp_tune] epoch 47: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9985
+[mlp_tune] 47 epochs, best val loss 0.0065
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 1.0339 val_acc 0.9724
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.1937 val_acc 0.9827
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0770 val_acc 0.9877
+[mlp_tune] epoch 4: 0.1 s/epoch on cpu train_loss 0.0498 val_acc 0.9922
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0362 val_acc 0.9946
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0275 val_acc 0.9954
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0236 val_acc 0.9963
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0210 val_acc 0.9971
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0175 val_acc 0.9971
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0159 val_acc 0.9973
+[mlp_tune] epoch 11: 0.0 s/epoch on cpu train_loss 0.0142 val_acc 0.9974
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0128 val_acc 0.9976
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0118 val_acc 0.9978
+[mlp_tune] epoch 14: 0.0 s/epoch on cpu train_loss 0.0107 val_acc 0.9979
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0101 val_acc 0.9979
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0091 val_acc 0.9983
+[mlp_tune] epoch 17: 0.1 s/epoch on cpu train_loss 0.0095 val_acc 0.9983
+[mlp_tune] epoch 18: 0.1 s/epoch on cpu train_loss 0.0091 val_acc 0.9984
+[mlp_tune] epoch 19: 0.1 s/epoch on cpu train_loss 0.0085 val_acc 0.9984
+[mlp_tune] epoch 20: 0.1 s/epoch on cpu train_loss 0.0076 val_acc 0.9985
+[mlp_tune] epoch 21: 0.1 s/epoch on cpu train_loss 0.0076 val_acc 0.9984
+[mlp_tune] epoch 22: 0.1 s/epoch on cpu train_loss 0.0073 val_acc 0.9984
+[mlp_tune] epoch 23: 0.1 s/epoch on cpu train_loss 0.0074 val_acc 0.9986
+[mlp_tune] epoch 24: 0.1 s/epoch on cpu train_loss 0.0067 val_acc 0.9985
+[mlp_tune] epoch 25: 0.1 s/epoch on cpu train_loss 0.0068 val_acc 0.9984
+[mlp_tune] epoch 26: 0.1 s/epoch on cpu train_loss 0.0066 val_acc 0.9985
+[mlp_tune] epoch 27: 0.1 s/epoch on cpu train_loss 0.0066 val_acc 0.9984
+[mlp_tune] epoch 28: 0.1 s/epoch on cpu train_loss 0.0064 val_acc 0.9985
+[mlp_tune] epoch 29: 0.1 s/epoch on cpu train_loss 0.0059 val_acc 0.9986
+[mlp_tune] epoch 30: 0.1 s/epoch on cpu train_loss 0.0063 val_acc 0.9985
+[mlp_tune] epoch 31: 0.1 s/epoch on cpu train_loss 0.0058 val_acc 0.9985
+[mlp_tune] epoch 32: 0.1 s/epoch on cpu train_loss 0.0058 val_acc 0.9984
+[mlp_tune] epoch 33: 0.0 s/epoch on cpu train_loss 0.0053 val_acc 0.9984
+[mlp_tune] epoch 34: 0.1 s/epoch on cpu train_loss 0.0052 val_acc 0.9984
+[mlp_tune] epoch 35: 0.0 s/epoch on cpu train_loss 0.0053 val_acc 0.9985
+[mlp_tune] epoch 36: 0.1 s/epoch on cpu train_loss 0.0055 val_acc 0.9984
+[mlp_tune] epoch 37: 0.0 s/epoch on cpu train_loss 0.0047 val_acc 0.9985
+[mlp_tune] epoch 38: 0.1 s/epoch on cpu train_loss 0.0054 val_acc 0.9984
+[mlp_tune] epoch 39: 0.1 s/epoch on cpu train_loss 0.0048 val_acc 0.9984
+[mlp_tune] epoch 40: 0.1 s/epoch on cpu train_loss 0.0047 val_acc 0.9984
+[mlp_tune] epoch 41: 0.1 s/epoch on cpu train_loss 0.0050 val_acc 0.9984
+[mlp_tune] 41 epochs, best val loss 0.0068
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.1730 val_acc 0.9966
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.0076 val_acc 0.9979
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0052 val_acc 0.9982
+[mlp_tune] epoch 4: 0.1 s/epoch on cpu train_loss 0.0044 val_acc 0.9984
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9984
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9981
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9983
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0027 val_acc 0.9982
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9974
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9987
+[mlp_tune] epoch 11: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9984
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9985
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9984
+[mlp_tune] epoch 14: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9986
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9980
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9981
+[mlp_tune] epoch 17: 0.1 s/epoch on cpu train_loss 0.0016 val_acc 0.9979
+[mlp_tune] epoch 18: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9981
+[mlp_tune] epoch 19: 0.1 s/epoch on cpu train_loss 0.0012 val_acc 0.9981
+[mlp_tune] epoch 20: 0.1 s/epoch on cpu train_loss 0.0014 val_acc 0.9983
+[mlp_tune] epoch 21: 0.1 s/epoch on cpu train_loss 0.0015 val_acc 0.9984
+[mlp_tune] epoch 22: 0.1 s/epoch on cpu train_loss 0.0011 val_acc 0.9979
+[mlp_tune] epoch 23: 0.1 s/epoch on cpu train_loss 0.0011 val_acc 0.9982
+[mlp_tune] 23 epochs, best val loss 0.0063
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.1768 val_acc 0.9965
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.0102 val_acc 0.9982
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0068 val_acc 0.9984
+[mlp_tune] epoch 4: 0.1 s/epoch on cpu train_loss 0.0058 val_acc 0.9983
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0050 val_acc 0.9982
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0047 val_acc 0.9987
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9984
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0037 val_acc 0.9983
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0039 val_acc 0.9982
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9986
+[mlp_tune] epoch 11: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9986
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9985
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9985
+[mlp_tune] epoch 14: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9986
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9986
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9983
+[mlp_tune] 16 epochs, best val loss 0.0064
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.4747 val_acc 0.9872
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.0292 val_acc 0.9952
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0140 val_acc 0.9970
+[mlp_tune] epoch 4: 0.1 s/epoch on cpu train_loss 0.0094 val_acc 0.9975
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0072 val_acc 0.9979
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0060 val_acc 0.9982
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0052 val_acc 0.9984
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0046 val_acc 0.9983
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9985
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9983
+[mlp_tune] epoch 11: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9983
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9986
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9987
+[mlp_tune] epoch 14: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9983
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9984
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0027 val_acc 0.9986
+[mlp_tune] epoch 17: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9983
+[mlp_tune] epoch 18: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9986
+[mlp_tune] epoch 19: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9984
+[mlp_tune] epoch 20: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9986
+[mlp_tune] epoch 21: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9986
+[mlp_tune] epoch 22: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9985
+[mlp_tune] epoch 23: 0.1 s/epoch on cpu train_loss 0.0019 val_acc 0.9985
+[mlp_tune] epoch 24: 0.1 s/epoch on cpu train_loss 0.0019 val_acc 0.9986
+[mlp_tune] epoch 25: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9982
+[mlp_tune] epoch 26: 0.1 s/epoch on cpu train_loss 0.0017 val_acc 0.9986
+[mlp_tune] epoch 27: 0.1 s/epoch on cpu train_loss 0.0016 val_acc 0.9985
+[mlp_tune] 27 epochs, best val loss 0.0062
+[mlp_tune] epoch 1: 0.1 s/epoch on cpu train_loss 0.4811 val_acc 0.9872
+[mlp_tune] epoch 2: 0.1 s/epoch on cpu train_loss 0.0343 val_acc 0.9951
+[mlp_tune] epoch 3: 0.1 s/epoch on cpu train_loss 0.0170 val_acc 0.9964
+[mlp_tune] epoch 4: 0.1 s/epoch on cpu train_loss 0.0117 val_acc 0.9976
+[mlp_tune] epoch 5: 0.1 s/epoch on cpu train_loss 0.0092 val_acc 0.9979
+[mlp_tune] epoch 6: 0.1 s/epoch on cpu train_loss 0.0076 val_acc 0.9981
+[mlp_tune] epoch 7: 0.1 s/epoch on cpu train_loss 0.0067 val_acc 0.9982
+[mlp_tune] epoch 8: 0.1 s/epoch on cpu train_loss 0.0059 val_acc 0.9983
+[mlp_tune] epoch 9: 0.1 s/epoch on cpu train_loss 0.0058 val_acc 0.9984
+[mlp_tune] epoch 10: 0.1 s/epoch on cpu train_loss 0.0050 val_acc 0.9983
+[mlp_tune] epoch 11: 0.1 s/epoch on cpu train_loss 0.0055 val_acc 0.9985
+[mlp_tune] epoch 12: 0.1 s/epoch on cpu train_loss 0.0043 val_acc 0.9985
+[mlp_tune] epoch 13: 0.1 s/epoch on cpu train_loss 0.0042 val_acc 0.9986
+[mlp_tune] epoch 14: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9985
+[mlp_tune] epoch 15: 0.1 s/epoch on cpu train_loss 0.0040 val_acc 0.9984
+[mlp_tune] epoch 16: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9987
+[mlp_tune] epoch 17: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9986
+[mlp_tune] epoch 18: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9986
+[mlp_tune] epoch 19: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9986
+[mlp_tune] epoch 20: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9986
+[mlp_tune] epoch 21: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9985
+[mlp_tune] epoch 22: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9986
+[mlp_tune] epoch 23: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9987
+[mlp_tune] epoch 24: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9988
+[mlp_tune] epoch 25: 0.1 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_tune] epoch 26: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9987
+[mlp_tune] epoch 27: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_tune] epoch 28: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_tune] epoch 29: 0.1 s/epoch on cpu train_loss 0.0027 val_acc 0.9986
+[mlp_tune] epoch 30: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9985
+[mlp_tune] epoch 31: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9986
+[mlp_tune] epoch 32: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9987
+[mlp_tune] epoch 33: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9984
+[mlp_tune] epoch 34: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9986
+[mlp_tune] epoch 35: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9987
+[mlp_tune] epoch 36: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9987
+[mlp_tune] epoch 37: 0.1 s/epoch on cpu train_loss 0.0018 val_acc 0.9987
+[mlp_tune] epoch 38: 0.1 s/epoch on cpu train_loss 0.0019 val_acc 0.9987
+[mlp_tune] epoch 39: 0.1 s/epoch on cpu train_loss 0.0018 val_acc 0.9987
+[mlp_tune] epoch 40: 0.1 s/epoch on cpu train_loss 0.0019 val_acc 0.9987
+[mlp_tune] epoch 41: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9986
+[mlp_tune] epoch 42: 0.1 s/epoch on cpu train_loss 0.0017 val_acc 0.9987
+[mlp_tune] 42 epochs, best val loss 0.0061
+wrote /Users/y/Academic/courses/f20dl/results/neural/tuning_mlp.csv
+[mlp_seed0] epoch 1: 0.1 s/epoch on cpu train_loss 0.4811 val_acc 0.9872
+[mlp_seed0] epoch 2: 0.1 s/epoch on cpu train_loss 0.0343 val_acc 0.9951
+[mlp_seed0] epoch 3: 0.1 s/epoch on cpu train_loss 0.0170 val_acc 0.9964
+[mlp_seed0] epoch 4: 0.1 s/epoch on cpu train_loss 0.0117 val_acc 0.9976
+[mlp_seed0] epoch 5: 0.1 s/epoch on cpu train_loss 0.0092 val_acc 0.9979
+[mlp_seed0] epoch 6: 0.1 s/epoch on cpu train_loss 0.0076 val_acc 0.9981
+[mlp_seed0] epoch 7: 0.1 s/epoch on cpu train_loss 0.0067 val_acc 0.9982
+[mlp_seed0] epoch 8: 0.1 s/epoch on cpu train_loss 0.0059 val_acc 0.9983
+[mlp_seed0] epoch 9: 0.1 s/epoch on cpu train_loss 0.0058 val_acc 0.9984
+[mlp_seed0] epoch 10: 0.1 s/epoch on cpu train_loss 0.0050 val_acc 0.9983
+[mlp_seed0] epoch 11: 0.1 s/epoch on cpu train_loss 0.0055 val_acc 0.9985
+[mlp_seed0] epoch 12: 0.1 s/epoch on cpu train_loss 0.0043 val_acc 0.9985
+[mlp_seed0] epoch 13: 0.1 s/epoch on cpu train_loss 0.0042 val_acc 0.9986
+[mlp_seed0] epoch 14: 0.1 s/epoch on cpu train_loss 0.0041 val_acc 0.9985
+[mlp_seed0] epoch 15: 0.1 s/epoch on cpu train_loss 0.0040 val_acc 0.9984
+[mlp_seed0] epoch 16: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9987
+[mlp_seed0] epoch 17: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9986
+[mlp_seed0] epoch 18: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9986
+[mlp_seed0] epoch 19: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9986
+[mlp_seed0] epoch 20: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9986
+[mlp_seed0] epoch 21: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9985
+[mlp_seed0] epoch 22: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9986
+[mlp_seed0] epoch 23: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9987
+[mlp_seed0] epoch 24: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9988
+[mlp_seed0] epoch 25: 0.1 s/epoch on cpu train_loss 0.0026 val_acc 0.9985
+[mlp_seed0] epoch 26: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9987
+[mlp_seed0] epoch 27: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_seed0] epoch 28: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_seed0] epoch 29: 0.1 s/epoch on cpu train_loss 0.0027 val_acc 0.9986
+[mlp_seed0] epoch 30: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9985
+[mlp_seed0] epoch 31: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9986
+[mlp_seed0] epoch 32: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9987
+[mlp_seed0] epoch 33: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9984
+[mlp_seed0] epoch 34: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9986
+[mlp_seed0] epoch 35: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9987
+[mlp_seed0] epoch 36: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9987
+[mlp_seed0] epoch 37: 0.1 s/epoch on cpu train_loss 0.0018 val_acc 0.9987
+[mlp_seed0] epoch 38: 0.1 s/epoch on cpu train_loss 0.0019 val_acc 0.9987
+[mlp_seed0] epoch 39: 0.1 s/epoch on cpu train_loss 0.0018 val_acc 0.9987
+[mlp_seed0] epoch 40: 0.1 s/epoch on cpu train_loss 0.0019 val_acc 0.9987
+[mlp_seed0] epoch 41: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9986
+[mlp_seed0] epoch 42: 0.1 s/epoch on cpu train_loss 0.0017 val_acc 0.9987
+[mlp_seed0] 42 epochs, best val loss 0.0061
+wrote /Users/y/Academic/courses/f20dl/results/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/mlp__all106__seed0__val.parquet
+[mlp_seed1] epoch 1: 0.1 s/epoch on cpu train_loss 0.4546 val_acc 0.9880
+[mlp_seed1] epoch 2: 0.1 s/epoch on cpu train_loss 0.0333 val_acc 0.9948
+[mlp_seed1] epoch 3: 0.1 s/epoch on cpu train_loss 0.0170 val_acc 0.9963
+[mlp_seed1] epoch 4: 0.1 s/epoch on cpu train_loss 0.0119 val_acc 0.9970
+[mlp_seed1] epoch 5: 0.1 s/epoch on cpu train_loss 0.0093 val_acc 0.9974
+[mlp_seed1] epoch 6: 0.1 s/epoch on cpu train_loss 0.0079 val_acc 0.9982
+[mlp_seed1] epoch 7: 0.1 s/epoch on cpu train_loss 0.0069 val_acc 0.9983
+[mlp_seed1] epoch 8: 0.1 s/epoch on cpu train_loss 0.0059 val_acc 0.9982
+[mlp_seed1] epoch 9: 0.1 s/epoch on cpu train_loss 0.0055 val_acc 0.9983
+[mlp_seed1] epoch 10: 0.1 s/epoch on cpu train_loss 0.0052 val_acc 0.9981
+[mlp_seed1] epoch 11: 0.1 s/epoch on cpu train_loss 0.0048 val_acc 0.9986
+[mlp_seed1] epoch 12: 0.1 s/epoch on cpu train_loss 0.0044 val_acc 0.9985
+[mlp_seed1] epoch 13: 0.1 s/epoch on cpu train_loss 0.0040 val_acc 0.9984
+[mlp_seed1] epoch 14: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9984
+[mlp_seed1] epoch 15: 0.1 s/epoch on cpu train_loss 0.0042 val_acc 0.9984
+[mlp_seed1] epoch 16: 0.1 s/epoch on cpu train_loss 0.0036 val_acc 0.9984
+[mlp_seed1] epoch 17: 0.1 s/epoch on cpu train_loss 0.0035 val_acc 0.9984
+[mlp_seed1] epoch 18: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9985
+[mlp_seed1] epoch 19: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9985
+[mlp_seed1] epoch 20: 0.1 s/epoch on cpu train_loss 0.0032 val_acc 0.9987
+[mlp_seed1] epoch 21: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9987
+[mlp_seed1] epoch 22: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9986
+[mlp_seed1] epoch 23: 0.2 s/epoch on cpu train_loss 0.0027 val_acc 0.9987
+[mlp_seed1] epoch 24: 0.1 s/epoch on cpu train_loss 0.0029 val_acc 0.9986
+[mlp_seed1] epoch 25: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_seed1] epoch 26: 0.1 s/epoch on cpu train_loss 0.0027 val_acc 0.9988
+[mlp_seed1] epoch 27: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9987
+[mlp_seed1] epoch 28: 0.2 s/epoch on cpu train_loss 0.0026 val_acc 0.9987
+[mlp_seed1] epoch 29: 0.1 s/epoch on cpu train_loss 0.0025 val_acc 0.9987
+[mlp_seed1] epoch 30: 0.1 s/epoch on cpu train_loss 0.0024 val_acc 0.9985
+[mlp_seed1] epoch 31: 0.1 s/epoch on cpu train_loss 0.0023 val_acc 0.9984
+[mlp_seed1] epoch 32: 0.1 s/epoch on cpu train_loss 0.0020 val_acc 0.9987
+[mlp_seed1] epoch 33: 0.1 s/epoch on cpu train_loss 0.0018 val_acc 0.9988
+[mlp_seed1] epoch 34: 0.1 s/epoch on cpu train_loss 0.0021 val_acc 0.9986
+[mlp_seed1] epoch 35: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9984
+[mlp_seed1] 35 epochs, best val loss 0.0064
+wrote /Users/y/Academic/courses/f20dl/results/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/mlp__all106__seed1__val.parquet
+[mlp_seed2] epoch 1: 0.1 s/epoch on cpu train_loss 0.4478 val_acc 0.9886
+[mlp_seed2] epoch 2: 0.1 s/epoch on cpu train_loss 0.0318 val_acc 0.9953
+[mlp_seed2] epoch 3: 0.1 s/epoch on cpu train_loss 0.0166 val_acc 0.9969
+[mlp_seed2] epoch 4: 0.1 s/epoch on cpu train_loss 0.0119 val_acc 0.9971
+[mlp_seed2] epoch 5: 0.1 s/epoch on cpu train_loss 0.0092 val_acc 0.9979
+[mlp_seed2] epoch 6: 0.1 s/epoch on cpu train_loss 0.0076 val_acc 0.9982
+[mlp_seed2] epoch 7: 0.1 s/epoch on cpu train_loss 0.0065 val_acc 0.9981
+[mlp_seed2] epoch 8: 0.1 s/epoch on cpu train_loss 0.0062 val_acc 0.9982
+[mlp_seed2] epoch 9: 0.1 s/epoch on cpu train_loss 0.0055 val_acc 0.9984
+[mlp_seed2] epoch 10: 0.1 s/epoch on cpu train_loss 0.0050 val_acc 0.9983
+[mlp_seed2] epoch 11: 0.1 s/epoch on cpu train_loss 0.0049 val_acc 0.9984
+[mlp_seed2] epoch 12: 0.1 s/epoch on cpu train_loss 0.0047 val_acc 0.9984
+[mlp_seed2] epoch 13: 0.1 s/epoch on cpu train_loss 0.0043 val_acc 0.9984
+[mlp_seed2] epoch 14: 0.1 s/epoch on cpu train_loss 0.0040 val_acc 0.9985
+[mlp_seed2] epoch 15: 0.1 s/epoch on cpu train_loss 0.0037 val_acc 0.9981
+[mlp_seed2] epoch 16: 0.1 s/epoch on cpu train_loss 0.0038 val_acc 0.9984
+[mlp_seed2] epoch 17: 0.1 s/epoch on cpu train_loss 0.0034 val_acc 0.9984
+[mlp_seed2] epoch 18: 0.1 s/epoch on cpu train_loss 0.0033 val_acc 0.9986
+[mlp_seed2] epoch 19: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9987
+[mlp_seed2] epoch 20: 0.2 s/epoch on cpu train_loss 0.0030 val_acc 0.9986
+[mlp_seed2] epoch 21: 0.2 s/epoch on cpu train_loss 0.0031 val_acc 0.9984
+[mlp_seed2] epoch 22: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9986
+[mlp_seed2] epoch 23: 0.1 s/epoch on cpu train_loss 0.0028 val_acc 0.9985
+[mlp_seed2] epoch 24: 0.1 s/epoch on cpu train_loss 0.0029 val_acc 0.9987
+[mlp_seed2] epoch 25: 0.1 s/epoch on cpu train_loss 0.0027 val_acc 0.9984
+[mlp_seed2] epoch 26: 0.1 s/epoch on cpu train_loss 0.0031 val_acc 0.9982
+[mlp_seed2] epoch 27: 0.1 s/epoch on cpu train_loss 0.0030 val_acc 0.9988
+[mlp_seed2] epoch 28: 0.1 s/epoch on cpu train_loss 0.0027 val_acc 0.9984
+[mlp_seed2] epoch 29: 0.1 s/epoch on cpu train_loss 0.0023 val_acc 0.9985
+[mlp_seed2] epoch 30: 0.1 s/epoch on cpu train_loss 0.0022 val_acc 0.9985
+[mlp_seed2] 30 epochs, best val loss 0.0063
+wrote /Users/y/Academic/courses/f20dl/results/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/mlp__all106__seed2__val.parquet
+row 6a: pass
+[cnn_tune] epoch 1: 14.3 s/epoch on mps train_loss 0.8263 val_acc 0.4194
+[cnn_tune] epoch 2: 11.8 s/epoch on mps train_loss 0.2743 val_acc 0.7290
+[cnn_tune] epoch 3: 12.1 s/epoch on mps train_loss 0.1243 val_acc 0.6894
+[cnn_tune] epoch 4: 12.3 s/epoch on mps train_loss 0.0786 val_acc 0.9793
+[cnn_tune] epoch 5: 11.5 s/epoch on mps train_loss 0.0587 val_acc 0.9766
+[cnn_tune] epoch 6: 11.3 s/epoch on mps train_loss 0.0515 val_acc 0.9874
+[cnn_tune] epoch 7: 11.4 s/epoch on mps train_loss 0.0410 val_acc 0.9879
+[cnn_tune] epoch 8: 11.7 s/epoch on mps train_loss 0.0360 val_acc 0.9930
+[cnn_tune] epoch 1: 11.6 s/epoch on mps train_loss 0.8173 val_acc 0.6851
+[cnn_tune] epoch 2: 11.4 s/epoch on mps train_loss 0.2682 val_acc 0.7716
+[cnn_tune] epoch 3: 11.5 s/epoch on mps train_loss 0.1655 val_acc 0.5524
+[cnn_tune] epoch 4: 11.6 s/epoch on mps train_loss 0.1174 val_acc 0.9376
+[cnn_tune] epoch 5: 11.7 s/epoch on mps train_loss 0.0828 val_acc 0.9814
+[cnn_tune] epoch 6: 11.5 s/epoch on mps train_loss 0.0711 val_acc 0.9870
+[cnn_tune] epoch 7: 11.4 s/epoch on mps train_loss 0.0599 val_acc 0.9839
+[cnn_tune] epoch 8: 11.6 s/epoch on mps train_loss 0.0535 val_acc 0.9901
+[cnn_tune] epoch 1: 11.7 s/epoch on mps train_loss 1.0876 val_acc 0.5009
+[cnn_tune] epoch 2: 12.6 s/epoch on mps train_loss 0.6147 val_acc 0.8071
+[cnn_tune] epoch 3: 12.0 s/epoch on mps train_loss 0.3592 val_acc 0.6546
+[cnn_tune] epoch 4: 11.3 s/epoch on mps train_loss 0.2419 val_acc 0.9671
+[cnn_tune] epoch 5: 11.2 s/epoch on mps train_loss 0.1898 val_acc 0.9620
+[cnn_tune] epoch 6: 11.5 s/epoch on mps train_loss 0.1657 val_acc 0.9778
+[cnn_tune] epoch 7: 11.5 s/epoch on mps train_loss 0.1509 val_acc 0.9747
+[cnn_tune] epoch 8: 11.9 s/epoch on mps train_loss 0.1445 val_acc 0.9817
+[cnn_tune] epoch 1: 11.6 s/epoch on mps train_loss 1.1407 val_acc 0.5855
+[cnn_tune] epoch 2: 11.4 s/epoch on mps train_loss 0.6920 val_acc 0.8992
+[cnn_tune] epoch 3: 11.2 s/epoch on mps train_loss 0.4446 val_acc 0.4486
+[cnn_tune] epoch 4: 11.1 s/epoch on mps train_loss 0.2936 val_acc 0.9611
+[cnn_tune] epoch 5: 11.1 s/epoch on mps train_loss 0.2281 val_acc 0.9650
+[cnn_tune] epoch 6: 10.8 s/epoch on mps train_loss 0.2009 val_acc 0.9774
+[cnn_tune] epoch 7: 11.8 s/epoch on mps train_loss 0.1853 val_acc 0.9759
+[cnn_tune] epoch 8: 11.8 s/epoch on mps train_loss 0.1765 val_acc 0.9805
+[cnn_tune] epoch 1: 20.5 s/epoch on mps train_loss 0.5356 val_acc 0.8548
+[cnn_tune] epoch 2: 19.7 s/epoch on mps train_loss 0.1295 val_acc 0.7748
+[cnn_tune] epoch 3: 18.3 s/epoch on mps train_loss 0.0778 val_acc 0.8955
+[cnn_tune] epoch 4: 18.7 s/epoch on mps train_loss 0.0516 val_acc 0.9792
+[cnn_tune] epoch 5: 18.3 s/epoch on mps train_loss 0.0363 val_acc 0.9891
+[cnn_tune] epoch 6: 18.5 s/epoch on mps train_loss 0.0329 val_acc 0.9664
+[cnn_tune] epoch 7: 18.4 s/epoch on mps train_loss 0.0232 val_acc 0.9594
+[cnn_tune] epoch 8: 18.4 s/epoch on mps train_loss 0.0196 val_acc 0.9954
+[cnn_tune] epoch 1: 18.3 s/epoch on mps train_loss 0.5643 val_acc 0.9483
+[cnn_tune] epoch 2: 18.3 s/epoch on mps train_loss 0.1606 val_acc 0.7796
+[cnn_tune] epoch 3: 18.4 s/epoch on mps train_loss 0.0889 val_acc 0.9257
+[cnn_tune] epoch 4: 18.3 s/epoch on mps train_loss 0.0690 val_acc 0.9862
+[cnn_tune] epoch 5: 18.3 s/epoch on mps train_loss 0.0411 val_acc 0.9841
+[cnn_tune] epoch 6: 18.9 s/epoch on mps train_loss 0.0413 val_acc 0.9028
+[cnn_tune] epoch 7: 18.4 s/epoch on mps train_loss 0.0295 val_acc 0.9763
+[cnn_tune] epoch 8: 18.3 s/epoch on mps train_loss 0.0254 val_acc 0.9954
+[cnn_tune] epoch 1: 18.8 s/epoch on mps train_loss 0.7632 val_acc 0.6569
+[cnn_tune] epoch 2: 18.7 s/epoch on mps train_loss 0.2706 val_acc 0.9723
+[cnn_tune] epoch 3: 18.5 s/epoch on mps train_loss 0.1467 val_acc 0.7812
+[cnn_tune] epoch 4: 18.3 s/epoch on mps train_loss 0.1068 val_acc 0.9803
+[cnn_tune] epoch 5: 18.2 s/epoch on mps train_loss 0.0771 val_acc 0.9666
+[cnn_tune] epoch 6: 17.6 s/epoch on mps train_loss 0.0664 val_acc 0.9875
+[cnn_tune] epoch 7: 17.5 s/epoch on mps train_loss 0.0577 val_acc 0.9888
+[cnn_tune] epoch 8: 17.6 s/epoch on mps train_loss 0.0527 val_acc 0.9924
+[cnn_tune] epoch 1: 17.6 s/epoch on mps train_loss 0.8082 val_acc 0.6345
+[cnn_tune] epoch 2: 17.6 s/epoch on mps train_loss 0.3027 val_acc 0.9481
+[cnn_tune] epoch 3: 17.5 s/epoch on mps train_loss 0.1688 val_acc 0.8470
+[cnn_tune] epoch 4: 17.6 s/epoch on mps train_loss 0.1187 val_acc 0.9456
+[cnn_tune] epoch 5: 17.7 s/epoch on mps train_loss 0.0880 val_acc 0.9813
+[cnn_tune] epoch 6: 17.6 s/epoch on mps train_loss 0.0771 val_acc 0.9892
+[cnn_tune] epoch 7: 17.5 s/epoch on mps train_loss 0.0657 val_acc 0.9887
+[cnn_tune] epoch 8: 17.5 s/epoch on mps train_loss 0.0609 val_acc 0.9926
+wrote /Users/y/Academic/courses/f20dl/results/neural/tuning_cnn.csv
+[cnn_seed0] epoch 1: 98.6 s/epoch on mps train_loss 0.1653 val_acc 0.9929
+[cnn_seed0] epoch 2: 94.1 s/epoch on mps train_loss 0.0283 val_acc 0.7299
+[cnn_seed0] epoch 3: 94.7 s/epoch on mps train_loss 0.0217 val_acc 0.2024
+[cnn_seed0] epoch 4: 93.1 s/epoch on mps train_loss 0.0176 val_acc 0.9938
+[cnn_seed0] epoch 5: 101.9 s/epoch on mps train_loss 0.0128 val_acc 0.5038
+[cnn_seed0] epoch 6: 103.6 s/epoch on mps train_loss 0.0118 val_acc 0.8626
+[cnn_seed0] epoch 7: 104.5 s/epoch on mps train_loss 0.0102 val_acc 0.9533
+[cnn_seed0] epoch 8: 100.7 s/epoch on mps train_loss 0.0080 val_acc 0.7661
+wrote /Users/y/Academic/courses/f20dl/results/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/cnn__image__seed0__val.parquet
+row 6b: pass
+cnn: reusing the tuned config {'width': 32, 'lr': 0.001, 'dropout': 0.0} for seeds [1]
+[cnn_seed1] epoch 1: 101.6 s/epoch on mps train_loss 0.1625 val_acc 0.8967
+[cnn_seed1] epoch 2: 100.7 s/epoch on mps train_loss 0.0300 val_acc 0.9894
+[cnn_seed1] epoch 3: 97.3 s/epoch on mps train_loss 0.0225 val_acc 0.9898
+[cnn_seed1] epoch 4: 99.2 s/epoch on mps train_loss 0.0180 val_acc 0.9485
+[cnn_seed1] epoch 5: 96.1 s/epoch on mps train_loss 0.0143 val_acc 0.9381
+[cnn_seed1] epoch 6: 96.8 s/epoch on mps train_loss 0.0119 val_acc 0.9494
+[cnn_seed1] epoch 7: 92.6 s/epoch on mps train_loss 0.0131 val_acc 0.9891
+[cnn_seed1] epoch 8: 90.9 s/epoch on mps train_loss 0.0082 val_acc 0.9236
+[cnn_seed1] epoch 9: 90.9 s/epoch on mps train_loss 0.0072 val_acc 0.9973
+[cnn_seed1] epoch 10: 91.4 s/epoch on mps train_loss 0.0068 val_acc 0.9985
+[cnn_seed1] epoch 11: 91.4 s/epoch on mps train_loss 0.0060 val_acc 0.9931
+[cnn_seed1] epoch 12: 92.0 s/epoch on mps train_loss 0.0058 val_acc 0.9279
+[cnn_seed1] epoch 13: 91.7 s/epoch on mps train_loss 0.0045 val_acc 0.9942
+[cnn_seed1] epoch 14: 91.5 s/epoch on mps train_loss 0.0042 val_acc 0.9944
+wrote /Users/y/Academic/courses/f20dl/results/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/cnn__image__seed1__val.parquet
+row 6c: pass
+cnn: reusing the tuned config {'width': 32, 'lr': 0.001, 'dropout': 0.0} for seeds [2]
+[cnn_seed2] epoch 1: 97.5 s/epoch on mps train_loss 0.1377 val_acc 0.9931
+[cnn_seed2] epoch 2: 92.3 s/epoch on mps train_loss 0.0285 val_acc 0.9775
+[cnn_seed2] epoch 3: 92.8 s/epoch on mps train_loss 0.0185 val_acc 0.9956
+[cnn_seed2] epoch 4: 91.1 s/epoch on mps train_loss 0.0157 val_acc 0.6477
+[cnn_seed2] epoch 5: 91.1 s/epoch on mps train_loss 0.0128 val_acc 0.9915
+[cnn_seed2] epoch 6: 91.1 s/epoch on mps train_loss 0.0098 val_acc 0.9946
+[cnn_seed2] epoch 7: 97.5 s/epoch on mps train_loss 0.0137 val_acc 0.9023
+wrote /Users/y/Academic/courses/f20dl/results/neural/curves.csv
+wrote /Users/y/Academic/courses/f20dl/results/preds/cnn__image__seed2__val.parquet
+row 6d: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/05_baselines.py --control
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.4710397144132084}
+{'model': 'gmm', 'featureset': 'shape16', 'val_accuracy': 0.3412762159750112}
+{'model': 'tree', 'featureset': 'shape16', 'val_accuracy': 0.12360553324408746}
+{'model': 'logreg', 'featureset': 'shape16', 'val_accuracy': 0.3531459170013387}
+{'model': 'hgb', 'featureset': 'shape16', 'val_accuracy': 0.22793395805443997}
+{'model': 'perceptron', 'featureset': 'shape16', 'val_accuracy': 0.4221329763498438}
+{'model': 'knn', 'featureset': 'shape16', 'val_accuracy': 0.19883980365908077}
+{'model': 'nb', 'featureset': 'colour90', 'val_accuracy': 0.23685854529228023}
+{'model': 'gmm', 'featureset': 'colour90', 'val_accuracy': 0.21213743864346274}
+{'model': 'tree', 'featureset': 'colour90', 'val_accuracy': 0.23712628290941545}
+{'model': 'logreg', 'featureset': 'colour90', 'val_accuracy': 0.2989736724676484}
+{'model': 'hgb', 'featureset': 'colour90', 'val_accuracy': 0.2145470771976796}
+{'model': 'perceptron', 'featureset': 'colour90', 'val_accuracy': 0.03141454707719768}
+{'model': 'knn', 'featureset': 'colour90', 'val_accuracy': 0.19821508255243195}
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 0.24328424810352522}
+{'model': 'gmm', 'featureset': 'all106', 'val_accuracy': 0.24828201695671576}
+{'model': 'tree', 'featureset': 'all106', 'val_accuracy': 0.24141008478357875}
+{'model': 'logreg', 'featureset': 'all106', 'val_accuracy': 0.3003123605533244}
+{'model': 'hgb', 'featureset': 'all106', 'val_accuracy': 0.20767514502454262}
+{'model': 'perceptron', 'featureset': 'all106', 'val_accuracy': 0.028737170905845606}
+{'model': 'knn', 'featureset': 'all106', 'val_accuracy': 0.2001784917447568}
+{'model': 'nb', 'featureset': 'selected', 'val_accuracy': 0.40892458723784025}
+{'model': 'gmm', 'featureset': 'selected', 'val_accuracy': 0.32021419009370816}
+{'model': 'tree', 'featureset': 'selected', 'val_accuracy': 0.21213743864346274}
+{'model': 'logreg', 'featureset': 'selected', 'val_accuracy': 0.2821062025881303}
+{'model': 'hgb', 'featureset': 'selected', 'val_accuracy': 0.23471664435519857}
+{'model': 'perceptron', 'featureset': 'selected', 'val_accuracy': 0.07675145024542615}
+{'model': 'knn', 'featureset': 'selected', 'val_accuracy': 0.19732262382864793}
+{'model': 'nb', 'featureset': 'distinct91', 'val_accuracy': 0.2362338241856314}
+wrote /Users/y/Academic/courses/f20dl/results/baselines/control.csv
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/baselines/control.csv
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/06_neural.py --control
+[control_cnn] epoch 1: 20.3 s/epoch on mps train_loss 1.6168 val_acc 0.2008
+[control_cnn] epoch 2: 17.6 s/epoch on mps train_loss 1.6136 val_acc 0.2517
+[control_cnn] epoch 3: 17.5 s/epoch on mps train_loss 1.6158 val_acc 0.1968
+[control_cnn] epoch 4: 17.3 s/epoch on mps train_loss 1.6133 val_acc 0.0973
+[control_cnn] epoch 5: 17.2 s/epoch on mps train_loss 1.6103 val_acc 0.1452
+[control_cnn] epoch 6: 17.2 s/epoch on mps train_loss 1.6091 val_acc 0.1448
+[control_mlp] epoch 1: 0.1 s/epoch on cpu train_loss 1.6123 val_acc 0.2330
+[control_mlp] epoch 2: 0.1 s/epoch on cpu train_loss 1.6105 val_acc 0.2436
+[control_mlp] epoch 3: 0.1 s/epoch on cpu train_loss 1.6095 val_acc 0.2425
+[control_mlp] epoch 4: 0.1 s/epoch on cpu train_loss 1.6095 val_acc 0.2674
+[control_mlp] epoch 5: 0.1 s/epoch on cpu train_loss 1.6088 val_acc 0.2225
+[control_mlp] epoch 6: 0.1 s/epoch on cpu train_loss 1.6085 val_acc 0.2555
+[control_mlp] epoch 7: 0.1 s/epoch on cpu train_loss 1.6083 val_acc 0.2383
+[control_mlp] epoch 8: 0.1 s/epoch on cpu train_loss 1.6081 val_acc 0.3797
+[control_mlp] epoch 9: 0.1 s/epoch on cpu train_loss 1.6080 val_acc 0.3318
+[control_mlp] epoch 10: 0.1 s/epoch on cpu train_loss 1.6079 val_acc 0.2458
+[control_mlp] epoch 11: 0.1 s/epoch on cpu train_loss 1.6076 val_acc 0.1997
+[control_mlp] epoch 12: 0.1 s/epoch on cpu train_loss 1.6072 val_acc 0.1897
+[control_mlp] epoch 13: 0.1 s/epoch on cpu train_loss 1.6072 val_acc 0.2576
+[control_mlp] epoch 14: 0.1 s/epoch on cpu train_loss 1.6066 val_acc 0.4377
+[control_mlp] epoch 15: 0.1 s/epoch on cpu train_loss 1.6065 val_acc 0.2386
+[control_mlp] epoch 16: 0.1 s/epoch on cpu train_loss 1.6061 val_acc 0.2361
+[control_mlp] epoch 17: 0.1 s/epoch on cpu train_loss 1.6057 val_acc 0.2741
+[control_mlp] epoch 18: 0.1 s/epoch on cpu train_loss 1.6059 val_acc 0.2615
+[control_mlp] epoch 19: 0.1 s/epoch on cpu train_loss 1.6054 val_acc 0.2378
+[control_mlp] epoch 20: 0.1 s/epoch on cpu train_loss 1.6055 val_acc 0.3008
+[control_mlp] epoch 21: 0.1 s/epoch on cpu train_loss 1.6049 val_acc 0.2703
+[control_mlp] epoch 22: 0.1 s/epoch on cpu train_loss 1.6045 val_acc 0.2362
+[control_mlp] epoch 23: 0.1 s/epoch on cpu train_loss 1.6047 val_acc 0.2655
+[control_mlp] epoch 24: 0.1 s/epoch on cpu train_loss 1.6043 val_acc 0.2860
+[control_mlp] 24 epochs, best val loss 1.5853
+wrote /Users/y/Academic/courses/f20dl/results/neural/control.csv
+  model  val_accuracy  train_n  in_18_22_band
+0   cnn      0.144846    10000          False
+1   mlp      0.437662    52292          False
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/neural/control.csv
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/neural/control.csv
+row 7: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/07_compare.py --split val
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_recall.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_by_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_by_angle.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_by_angle_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_confusion.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_seed_spread.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/val_mcnemar.csv
+     model featureset  accuracy  errors  macro_f1
+       hgb   selected   0.99830      19   0.99831
+        nb   selected   0.99045     107   0.99050
+       gmm   selected   0.99839      18   0.99840
+      tree   selected   0.99670      37   0.99671
+    logreg   selected   0.99786      24   0.99787
+perceptron   selected   0.99366      71   0.99368
+       knn   selected   0.99804      22   0.99804
+       hgb    shape16   0.98153     207   0.98159
+        nb    shape16   0.97019     334   0.97032
+       gmm    shape16   0.97617     267   0.97626
+      tree    shape16   0.97680     260   0.97687
+    logreg    shape16   0.97671     261   0.97679
+perceptron    shape16   0.96162     430   0.96168
+       knn    shape16   0.97903     235   0.97910
+       hgb   colour90   0.99116      99   0.99120
+        nb   colour90   0.95199     538   0.95217
+       gmm   colour90   0.98188     203   0.98196
+      tree   colour90   0.97153     319   0.97164
+    logreg   colour90   0.98965     116   0.98969
+perceptron   colour90   0.97492     281   0.97501
+       knn   colour90   0.98233     198   0.98239
+       hgb     all106   0.99848      17   0.99849
+        nb     all106   0.99090     102   0.99094
+       gmm     all106   0.99705      33   0.99707
+      tree     all106   0.99554      50   0.99555
+    logreg     all106   0.99830      19   0.99831
+perceptron     all106   0.99652      39   0.99653
+       knn     all106   0.99777      25   0.99778
+        nb distinct91   0.98983     114   0.98987
+     tree4     all106   0.99018     110   0.99022
+       mlp     all106   0.99866      15   0.99867
+       cnn      image   0.99375      70   0.99378
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                 62                  9             71  0.00000        17        70   0.00473  0.00330  0.00625    primary 0.00000
+    0 hgb:all106 mlp:all106                  3                  5              8  0.72656        17        15  -0.00018 -0.00071  0.00036    primary 0.72656
+    0 mlp:all106  cnn:image                 62                  7             69  0.00000        15        70   0.00491  0.00348  0.00634    primary 0.00000
+    1 hgb:all106  cnn:image                  6                  6             12  1.00000        17        17   0.00000 -0.00062  0.00062 seed_check 1.00000
+    1 hgb:all106 mlp:all106                  4                  4              8  1.00000        17        17   0.00000 -0.00045  0.00054 seed_check 1.00000
+    1 mlp:all106  cnn:image                  9                  9             18  1.00000        17        17   0.00000 -0.00072  0.00071 seed_check 1.00000
+    2 hgb:all106  cnn:image                 38                  6             44  0.00000        17        49   0.00286  0.00170  0.00411 seed_check 0.00000
+    2 hgb:all106 mlp:all106                  3                  4              7  1.00000        17        16  -0.00009 -0.00054  0.00036 seed_check 1.00000
+    2 mlp:all106  cnn:image                 40                  7             47  0.00000        16        49   0.00295  0.00178  0.00419 seed_check 0.00000
+wrote /Users/y/Academic/courses/f20dl/figures/compare_confusion_val.png
+row 8: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/08_routing.py --fit
+wrote /Users/y/Academic/courses/f20dl/models/routing.json
+wrote /Users/y/Academic/courses/f20dl/results/routing/val_calibration.csv
+wrote /Users/y/Academic/courses/f20dl/results/routing/val_routes.csv
+split     model     n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+  val       hgb 11205   0.99848  0.00139         0.00058      2.13944             0.00009
+  val cnn_seed0 11205   0.99375  0.00406         0.00157      0.72788             0.00038
+  val cnn_seed1 11205   0.99848  0.00181         0.00083      0.75036             0.00009
+  val cnn_seed2 11205   0.99563  0.00359         0.00117      0.77075             0.00019
+split  seed                    route  grains   share  errors  accuracy
+  val     0                      hgb   10916 0.97421     4.0   0.99963
+  val     0                      cnn      82 0.00732    22.0   0.73171
+  val     0                   unsure       0 0.00000     NaN       NaN
+  val     0               unfamiliar     207 0.01847     NaN       NaN
+  val     0           answered_total   10998 0.98153    26.0   0.99764
+  val     0    unfamiliar_table_gate     113 0.01008     NaN       NaN
+  val     0    unfamiliar_image_gate     113 0.01008     NaN       NaN
+  val     0 chain_err_at_95_coverage   11205 0.95000     NaN   0.99981
+  val     1                      hgb   10916 0.97421     4.0   0.99963
+  val     1                      cnn      82 0.00732     7.0   0.91463
+  val     1                   unsure       0 0.00000     NaN       NaN
+  val     1               unfamiliar     207 0.01847     NaN       NaN
+  val     1           answered_total   10998 0.98153    11.0   0.99900
+  val     1    unfamiliar_table_gate     113 0.01008     NaN       NaN
+  val     1    unfamiliar_image_gate     113 0.01008     NaN       NaN
+  val     1 chain_err_at_95_coverage   11205 0.95000     NaN   0.99991
+  val     2                      hgb   10916 0.97421     4.0   0.99963
+  val     2                      cnn      82 0.00732    14.0   0.82927
+  val     2                   unsure       0 0.00000     NaN       NaN
+  val     2               unfamiliar     207 0.01847     NaN       NaN
+  val     2           answered_total   10998 0.98153    18.0   0.99836
+  val     2    unfamiliar_table_gate     113 0.01008     NaN       NaN
+  val     2    unfamiliar_image_gate     113 0.01008     NaN       NaN
+  val     2 chain_err_at_95_coverage   11205 0.95000     NaN   0.99972
+wrote /Users/y/Academic/courses/f20dl/figures/routing_risk_coverage_val.png
+wrote /Users/y/Academic/courses/f20dl/figures/routing_reliability_val.png
+row 9: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/09_robustness.py --train
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/neural/control.csv
+hold-out train 49994 val 10712 (late dropped: 2298 + 493)
+[holdout_cnn_seed0] epoch 1: 97.9 s/epoch on mps train_loss 0.1595 val_acc 0.9426
+[holdout_cnn_seed0] epoch 2: 88.1 s/epoch on mps train_loss 0.0218 val_acc 0.9652
+[holdout_cnn_seed0] epoch 3: 87.4 s/epoch on mps train_loss 0.0204 val_acc 0.9953
+[holdout_cnn_seed0] epoch 4: 87.2 s/epoch on mps train_loss 0.0155 val_acc 0.9474
+[holdout_cnn_seed0] epoch 5: 91.8 s/epoch on mps train_loss 0.0099 val_acc 0.9794
+[holdout_cnn_seed0] epoch 6: 100.5 s/epoch on mps train_loss 0.0098 val_acc 0.9924
+[holdout_cnn_seed0] epoch 7: 90.3 s/epoch on mps train_loss 0.0083 val_acc 0.9667
+[holdout_cnn_seed1] epoch 1: 87.4 s/epoch on mps train_loss 0.1538 val_acc 0.8621
+[holdout_cnn_seed1] epoch 2: 86.9 s/epoch on mps train_loss 0.0276 val_acc 0.9750
+[holdout_cnn_seed1] epoch 3: 87.8 s/epoch on mps train_loss 0.0188 val_acc 0.9732
+[holdout_cnn_seed1] epoch 4: 87.8 s/epoch on mps train_loss 0.0155 val_acc 0.9945
+[holdout_cnn_seed1] epoch 5: 87.0 s/epoch on mps train_loss 0.0106 val_acc 0.8079
+[holdout_cnn_seed1] epoch 6: 87.6 s/epoch on mps train_loss 0.0146 val_acc 0.8292
+[holdout_cnn_seed1] epoch 7: 86.9 s/epoch on mps train_loss 0.0093 val_acc 0.8982
+[holdout_cnn_seed1] epoch 8: 86.9 s/epoch on mps train_loss 0.0077 val_acc 0.9895
+[holdout_cnn_seed2] epoch 1: 87.1 s/epoch on mps train_loss 0.1494 val_acc 0.8251
+[holdout_cnn_seed2] epoch 2: 89.5 s/epoch on mps train_loss 0.0286 val_acc 0.9943
+[holdout_cnn_seed2] epoch 3: 94.5 s/epoch on mps train_loss 0.0170 val_acc 0.7365
+[holdout_cnn_seed2] epoch 4: 88.5 s/epoch on mps train_loss 0.0137 val_acc 0.8697
+[holdout_cnn_seed2] epoch 5: 93.8 s/epoch on mps train_loss 0.0155 val_acc 0.9942
+[holdout_cnn_seed2] epoch 6: 100.9 s/epoch on mps train_loss 0.0110 val_acc 0.9603
+[holdout_cnn_seed2] epoch 7: 101.6 s/epoch on mps train_loss 0.0101 val_acc 0.9965
+[holdout_cnn_seed2] epoch 8: 99.9 s/epoch on mps train_loss 0.0087 val_acc 0.9947
+[holdout_cnn_seed2] epoch 9: 96.6 s/epoch on mps train_loss 0.0076 val_acc 0.9975
+[holdout_cnn_seed2] epoch 10: 92.9 s/epoch on mps train_loss 0.0057 val_acc 0.7803
+[holdout_cnn_seed2] epoch 11: 90.7 s/epoch on mps train_loss 0.0050 val_acc 0.9952
+[holdout_cnn_seed2] epoch 12: 90.6 s/epoch on mps train_loss 0.0049 val_acc 0.9976
+[holdout_cnn_seed2] epoch 13: 95.6 s/epoch on mps train_loss 0.0043 val_acc 0.9977
+[holdout_cnn_seed2] epoch 14: 96.5 s/epoch on mps train_loss 0.0034 val_acc 0.9964
+[holdout_cnn_seed2] epoch 15: 96.4 s/epoch on mps train_loss 0.0030 val_acc 0.9966
+[holdout_cnn_seed2] epoch 16: 95.4 s/epoch on mps train_loss 0.0028 val_acc 0.9938
+[holdout_cnn_seed2] epoch 17: 95.3 s/epoch on mps train_loss 0.0026 val_acc 0.9979
+[holdout_cnn_seed2] epoch 18: 95.6 s/epoch on mps train_loss 0.0022 val_acc 0.9983
+[holdout_cnn_seed2] epoch 19: 95.5 s/epoch on mps train_loss 0.0020 val_acc 0.9987
+[holdout_cnn_seed2] epoch 20: 95.6 s/epoch on mps train_loss 0.0018 val_acc 0.9988
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/models/holdout/routing.json
+row 10: pass
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+rescore: every model matches its saved validation predictions and every freeze file opens
+row 10a: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python tools/freeze.py
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/neural/control.csv
+frozen d1a6342f7ab458ae1c7b4b1178074ede4e2d40b5f5058f89e40b67ac9db37e88 -> /Users/y/Academic/courses/f20dl/results/frozen.json
+row 11: pass

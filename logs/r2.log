@@ -1,0 +1,224 @@
+.venv/bin/python src/01_build_grains.py
+table (75000, 107), images 75000
+  measured 0/75000
+  measured 10000/75000
+  measured 20000/75000
+  measured 30000/75000
+  measured 40000/75000
+  measured 50000/75000
+  measured 60000/75000
+  measured 70000/75000
+  linked Arborio: 15000 images, unique rows 15000
+  linked Basmati: 15000 images, unique rows 15000
+  linked Ipsala: 15000 images, unique rows 15000
+  linked Jasmine: 15000 images, unique rows 15000
+  linked Karacadag: 15000 images, unique rows 15000
+/Users/y/Academic/courses/f20dl/src/01_build_grains.py:231: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  g = imgs.merge(msc.reset_index().rename(columns={"index": "msc_row"}), on="msc_row")
+Traceback (most recent call last):
+  File "/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7726, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7734, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'class'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/y/Academic/courses/f20dl/src/01_build_grains.py", line 278, in <module>
+    main()
+  File "/Users/y/Academic/courses/f20dl/src/01_build_grains.py", line 242, in main
+    write_quality(msc, imgs, g, len(drop_idx), len(drop_idx), full)
+  File "/Users/y/Academic/courses/f20dl/src/01_build_grains.py", line 173, in write_quality
+    mc = [dict(grain_id=r.grain_id, **{"class": r["class"]}, column=c, file_no=int(r.file_no)) for _, r in cm.iterrows() for c in C.ALL106 if pd.isna(r[c])]
+                                                ~^^^^^^^^^
+  File "/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/pandas/core/series.py", line 1102, in __getitem__
+    return self._get_value(key)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/pandas/core/series.py", line 1189, in _get_value
+    loc = self.index.get_loc(label)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 3823, in get_loc
+    raise KeyError(key) from err
+KeyError: 'class'
+make: *** [grains] Error 1
+=== relaunch 17:35:27 after stage 1 fix ===
+.venv/bin/python src/01_build_grains.py
+table (75000, 107), images 75000
+reusing measures /Users/y/Academic/courses/f20dl/data/derived/measures.parquet
+  linked Arborio: 15000 images, unique rows 15000
+  linked Basmati: 15000 images, unique rows 15000
+  linked Ipsala: 15000 images, unique rows 15000
+  linked Jasmine: 15000 images, unique rows 15000
+  linked Karacadag: 15000 images, unique rows 15000
+/Users/y/Academic/courses/f20dl/src/01_build_grains.py:231: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  g = imgs.merge(msc.reset_index().rename(columns={"index": "msc_row"}), on="msc_row")
+wrote /Users/y/Academic/courses/f20dl/results/quality/missing_cells.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/link_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/figures/quality_link_area.png
+links 75000, drops 297, grains 74703, late 3283
+splits.csv agrees with committed copy
+wrote /Users/y/Academic/courses/f20dl/data/derived/grains.parquet
+  cached 0/74703
+  cached 10000/74703
+  cached 20000/74703
+  cached 30000/74703
+  cached 40000/74703
+  cached 50000/74703
+  cached 60000/74703
+  cached 70000/74703
+wrote /Users/y/Academic/courses/f20dl/data/derived/images128.u8
+           n    late  share
+split                      
+test   11206  0.0439   0.15
+train  52292  0.0439   0.70
+val    11205  0.0440   0.15
+split        test   train     val
+class                            
+Arborio    0.2008  0.2008  0.2008
+Basmati    0.2008  0.2008  0.2008
+Ipsala     0.1969  0.1968  0.1968
+Jasmine    0.2008  0.2008  0.2008
+Karacadag  0.2008  0.2008  0.2008
+.venv/bin/python src/02_eda.py
+wrote /Users/y/Academic/courses/f20dl/results/eda/class_balance.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_class_balance.png
+wrote /Users/y/Academic/courses/f20dl/figures/eda_distributions.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/corr_clusters.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_correlation.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/tint_by_class.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_tint.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/jasmine_lots.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_jasmine_break.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/entropy_vs_logarea.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_entropy_vs_area.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/copy_columns.csv
+{False: 15} copy columns identical to their mean column
+wrote /Users/y/Academic/courses/f20dl/figures/eda_examples.png
+wrote /Users/y/Academic/courses/f20dl/results/quality/data_dictionary.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/entropy_check.csv
+   column scale   n  pearson  median_ratio  min_ratio  max_ratio
+entropyRR 0-255 200 1.000000      1.000303   1.000081   1.000982
+entropyRG 0-255 200 1.000000      1.000301   1.000081   1.000984
+entropyRB 0-255 200 1.000000      1.000424   1.000079   1.001122
+ entropyH   0-1 200 0.966614      1.256850   1.007729   1.520029
+ entropyS   0-1 200 0.962005      2.205136   1.333625  12.723977
+ entropyV   0-1 200 0.999961      1.021614   1.005662   1.063678
+wrote /Users/y/Academic/courses/f20dl/results/quality/validity.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/outliers.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/outlier_picks.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_outlier_montage.png
+wrote /Users/y/Academic/courses/f20dl/results/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_file_order.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/file_order.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_mean_images.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/resize_area_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/eda/insights.csv
+.venv/bin/python src/03_features.py
+wrote /Users/y/Academic/courses/f20dl/results/features/ranking.csv
+44 correlation clusters, one representative each
+{'k': 1, 'hgb_val_accuracy': 0.8827309236947791, 'logreg_val_accuracy': 0.8828201695671575}
+{'k': 2, 'hgb_val_accuracy': 0.9736724676483712, 'logreg_val_accuracy': 0.966086568496207}
+{'k': 3, 'hgb_val_accuracy': 0.9769745649263721, 'logreg_val_accuracy': 0.9694779116465864}
+{'k': 5, 'hgb_val_accuracy': 0.977153056671129, 'logreg_val_accuracy': 0.9737617135207497}
+{'k': 8, 'hgb_val_accuracy': 0.9948237394020527, 'logreg_val_accuracy': 0.9917001338688086}
+{'k': 12, 'hgb_val_accuracy': 0.9956269522534583, 'logreg_val_accuracy': 0.9943775100401606}
+{'k': 16, 'hgb_val_accuracy': 0.9978580990629183, 'logreg_val_accuracy': 0.9978580990629183}
+{'k': 24, 'hgb_val_accuracy': 0.998215082552432, 'logreg_val_accuracy': 0.9976796073181615}
+{'k': 32, 'hgb_val_accuracy': 0.998215082552432, 'logreg_val_accuracy': 0.9979473449352967}
+{'k': 48, 'hgb_val_accuracy': 0.9983935742971888, 'logreg_val_accuracy': 0.998215082552432}
+{'k': 64, 'hgb_val_accuracy': 0.9985720660419456, 'logreg_val_accuracy': 0.9978580990629183}
+{'k': 91, 'hgb_val_accuracy': 0.9983935742971888, 'logreg_val_accuracy': 0.998215082552432}
+wrote /Users/y/Academic/courses/f20dl/results/features/accuracy_vs_k.csv
+wrote /Users/y/Academic/courses/f20dl/results/features/selected.json
+selected k=16 (by model {'hgb': 16, 'logreg': 16}): ['ROUNDNESS', 'SHAPEFACTOR_1', 'PERIMETER', 'MAJOR_AXIS', 'CONVEX_AREA', 'meanB', 'entropyL', 'meanA', 'StdDevV', 'StdDevL', 'entropyXX', 'meanS', 'meanH', 'StdDevCb', 'kurtosisYY', 'entropyH']
+wrote /Users/y/Academic/courses/f20dl/results/features/selected_info.csv
+wrote /Users/y/Academic/courses/f20dl/results/features/stability.csv
+{'featureset': 'all106', 'n_features': 106, 'model': 'hgb', 'val_accuracy': 0.9984828201695671, 'val_macro_f1': 0.9984890270244062, 'n_val': 11205}
+{'featureset': 'all106', 'n_features': 106, 'model': 'logreg', 'val_accuracy': 0.9981258366800535, 'val_macro_f1': 0.9981337253508737, 'n_val': 11205}
+{'featureset': 'distinct91', 'n_features': 91, 'model': 'hgb', 'val_accuracy': 0.9983043284248103, 'val_macro_f1': 0.9983114071923446, 'n_val': 11205}
+{'featureset': 'distinct91', 'n_features': 91, 'model': 'logreg', 'val_accuracy': 0.998215082552432, 'val_macro_f1': 0.9982225745007997, 'n_val': 11205}
+{'featureset': 'shape16', 'n_features': 16, 'model': 'hgb', 'val_accuracy': 0.9809013833110218, 'val_macro_f1': 0.9809681129486207, 'n_val': 11205}
+{'featureset': 'shape16', 'n_features': 16, 'model': 'logreg', 'val_accuracy': 0.9756358768406961, 'val_macro_f1': 0.9757307755845777, 'n_val': 11205}
+{'featureset': 'colour90', 'n_features': 90, 'model': 'hgb', 'val_accuracy': 0.9891120035698349, 'val_macro_f1': 0.9891511990413093, 'n_val': 11205}
+{'featureset': 'colour90', 'n_features': 90, 'model': 'logreg', 'val_accuracy': 0.9875055778670236, 'val_macro_f1': 0.987558097026309, 'n_val': 11205}
+{'featureset': 'sizefree7', 'n_features': 7, 'model': 'hgb', 'val_accuracy': 0.9147701918786256, 'val_macro_f1': 0.9145775179360554, 'n_val': 11205}
+{'featureset': 'sizefree7', 'n_features': 7, 'model': 'logreg', 'val_accuracy': 0.9113788487282464, 'val_macro_f1': 0.9110970868121868, 'n_val': 11205}
+{'featureset': 'sizefree22', 'n_features': 22, 'model': 'hgb', 'val_accuracy': 0.9933958054439982, 'val_macro_f1': 0.993411416718416, 'n_val': 11205}
+{'featureset': 'sizefree22', 'n_features': 22, 'model': 'logreg', 'val_accuracy': 0.9890227576974565, 'val_macro_f1': 0.9890423804116593, 'n_val': 11205}
+{'featureset': 'selected', 'n_features': 16, 'model': 'hgb', 'val_accuracy': 0.9978580990629183, 'val_macro_f1': 0.9978672387644563, 'n_val': 11205}
+{'featureset': 'selected', 'n_features': 16, 'model': 'logreg', 'val_accuracy': 0.9978580990629183, 'val_macro_f1': 0.9978664066122158, 'n_val': 11205}
+{'featureset': 'authors_top5', 'n_features': 5, 'model': 'hgb', 'val_accuracy': 0.8905845604640785, 'val_macro_f1': 0.8901417266634948, 'n_val': 11205}
+{'featureset': 'authors_top5', 'n_features': 5, 'model': 'logreg', 'val_accuracy': 0.892458723784025, 'val_macro_f1': 0.8919921319063648, 'n_val': 11205}
+wrote /Users/y/Academic/courses/f20dl/results/features/set_comparison.csv
+wrote /Users/y/Academic/courses/f20dl/figures/features_accuracy_vs_k.png
+.venv/bin/python src/04_cluster.py
+all106: PCA-20 cumulative explained variance 0.9818
+{'featureset': 'all106', 'method': 'kmeans', 'k': 2, 'silhouette': 0.4052980277680958, 'bic': nan, 'inertia': 4217704.502541734, 'ARI': 0.20228395523656625, 'NMI': 0.4288202560678738, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 2, 'silhouette': 0.3369572390119553, 'bic': 3522409.9282312533, 'inertia': nan, 'ARI': 0.19397431991716543, 'NMI': 0.3491532410679981, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 3, 'silhouette': 0.2990464451376962, 'bic': nan, 'inertia': 3361473.03597934, 'ARI': 0.45833555525082276, 'NMI': 0.6377381896328806, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 3, 'silhouette': 0.26557506947265624, 'bic': 3077080.4365218244, 'inertia': nan, 'ARI': 0.573925111980231, 'NMI': 0.7265027075467984, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 4, 'silhouette': 0.28382768949014, 'bic': nan, 'inertia': 2961943.9069353426, 'ARI': 0.7043236159517776, 'NMI': 0.78986212756081, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 4, 'silhouette': 0.2459536448659409, 'bic': 2785244.100393416, 'inertia': nan, 'ARI': 0.5677228308265196, 'NMI': 0.6750975976210436, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 5, 'silhouette': 0.31207871279220206, 'bic': nan, 'inertia': 2625943.5351559133, 'ARI': 0.8395583498406147, 'NMI': 0.8499270247412023, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 5, 'silhouette': 0.2952399702474849, 'bic': 2622871.72839585, 'inertia': nan, 'ARI': 0.9429568011322278, 'NMI': 0.9370243401239703, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 6, 'silhouette': 0.3319317134151856, 'bic': nan, 'inertia': 2367016.284502884, 'ARI': 0.8947114689217767, 'NMI': 0.8893223263012413, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 6, 'silhouette': 0.2713798182901277, 'bic': 2496026.135280124, 'inertia': nan, 'ARI': 0.7919821478641601, 'NMI': 0.8336909115274223, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 7, 'silhouette': 0.30505395206418945, 'bic': nan, 'inertia': 2135878.486271173, 'ARI': 0.8292712749327621, 'NMI': 0.8557782706243394, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 7, 'silhouette': 0.22229919088630815, 'bic': 2387181.0810796497, 'inertia': nan, 'ARI': 0.7270094154756993, 'NMI': 0.8035821024480854, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 8, 'silhouette': 0.2871678330043289, 'bic': nan, 'inertia': 2012486.8727080284, 'ARI': 0.747292159310032, 'NMI': 0.8112988425648171, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 8, 'silhouette': 0.2463922997975324, 'bic': 2280922.5315171853, 'inertia': nan, 'ARI': 0.7734037113769082, 'NMI': 0.8370782696080189, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 9, 'silhouette': 0.2886257407576827, 'bic': nan, 'inertia': 1925887.7064560554, 'ARI': 0.7328882070066789, 'NMI': 0.798174394407029, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 9, 'silhouette': 0.21958167721421895, 'bic': 2210058.2373389397, 'inertia': nan, 'ARI': 0.7044851511767611, 'NMI': 0.8145556437184666, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'kmeans', 'k': 10, 'silhouette': 0.2475538348500919, 'bic': nan, 'inertia': 1856297.0820795612, 'ARI': 0.6442663049206199, 'NMI': 0.7788027380362947, 'pca_cum_var': 0.9818079605843518}
+{'featureset': 'all106', 'method': 'gmm', 'k': 10, 'silhouette': 0.2132398067258666, 'bic': 2168423.521298619, 'inertia': nan, 'ARI': 0.6956166350974653, 'NMI': 0.8100748968140115, 'pca_cum_var': 0.9818079605843518}
+distinct91: PCA-20 cumulative explained variance 0.9799
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 2, 'silhouette': 0.40928004530265816, 'bic': nan, 'inertia': 3640350.287295821, 'ARI': 0.2008381706622463, 'NMI': 0.42737177672596294, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 2, 'silhouette': 0.3358925613019268, 'bic': 3424634.9123905553, 'inertia': nan, 'ARI': 0.1938012129473713, 'NMI': 0.34819069968056227, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 3, 'silhouette': 0.29519373362283297, 'bic': nan, 'inertia': 2924256.6657612347, 'ARI': 0.4607749416136377, 'NMI': 0.6482502751658457, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 3, 'silhouette': 0.2749409150791479, 'bic': 2990398.2892346983, 'inertia': nan, 'ARI': 0.5720493565322047, 'NMI': 0.7251337089450016, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 4, 'silhouette': 0.2892868294478901, 'bic': nan, 'inertia': 2551426.8549131495, 'ARI': 0.6613367765176975, 'NMI': 0.7574125994253808, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 4, 'silhouette': 0.2743721436874901, 'bic': 2710883.858769031, 'inertia': nan, 'ARI': 0.7153895851773399, 'NMI': 0.8109857975910532, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 5, 'silhouette': 0.31428758149218006, 'bic': nan, 'inertia': 2256572.501776359, 'ARI': 0.853358081340017, 'NMI': 0.860668625461245, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 5, 'silhouette': 0.30112973960281986, 'bic': 2551176.8431388233, 'inertia': nan, 'ARI': 0.8609550991060235, 'NMI': 0.8841525952694529, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 6, 'silhouette': 0.2903777914289459, 'bic': nan, 'inertia': 2023802.0420289398, 'ARI': 0.7966670120660605, 'NMI': 0.8310115052828261, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 6, 'silhouette': 0.2886239477856746, 'bic': 2425614.5503498125, 'inertia': nan, 'ARI': 0.8129551361141467, 'NMI': 0.8416694203232641, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 7, 'silhouette': 0.307427635424804, 'bic': nan, 'inertia': 1850978.7434367537, 'ARI': 0.8428973068801061, 'NMI': 0.8691552058667769, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 7, 'silhouette': 0.2385926604921756, 'bic': 2313658.879804271, 'inertia': nan, 'ARI': 0.749619793206432, 'NMI': 0.8115355991495444, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 8, 'silhouette': 0.2828820682250739, 'bic': nan, 'inertia': 1771857.2706910493, 'ARI': 0.7793716053678132, 'NMI': 0.8461016695475231, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 8, 'silhouette': 0.26891793790424007, 'bic': 2202842.7442666544, 'inertia': nan, 'ARI': 0.7971288144722142, 'NMI': 0.8461244208768224, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 9, 'silhouette': 0.27003935697132486, 'bic': nan, 'inertia': 1700805.9931866373, 'ARI': 0.7038820791120328, 'NMI': 0.8147643548694958, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 9, 'silhouette': 0.20021558733634146, 'bic': 2159049.8767529256, 'inertia': nan, 'ARI': 0.7248874049477821, 'NMI': 0.822224979575977, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'kmeans', 'k': 10, 'silhouette': 0.2715999686610974, 'bic': nan, 'inertia': 1616844.3723031678, 'ARI': 0.693036918931573, 'NMI': 0.8041665695071759, 'pca_cum_var': 0.9798729056797931}
+{'featureset': 'distinct91', 'method': 'gmm', 'k': 10, 'silhouette': 0.1915597808201781, 'bic': 2104417.822186361, 'inertia': nan, 'ARI': 0.6647363795836175, 'NMI': 0.7847786005177336, 'pca_cum_var': 0.9798729056797931}
+sizefree22: PCA-20 cumulative explained variance 1.0000
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 2, 'silhouette': 0.30087976282290324, 'bic': nan, 'inertia': 945158.4338923565, 'ARI': 0.24641185320162007, 'NMI': 0.3496525724302586, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 2, 'silhouette': 0.26520857064069375, 'bic': -2808927.5901712333, 'inertia': nan, 'ARI': 0.3729986037028133, 'NMI': 0.581325299489768, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 3, 'silhouette': 0.3843120883951483, 'bic': nan, 'inertia': 635467.0400875448, 'ARI': 0.46532450397770897, 'NMI': 0.5968175898722542, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 3, 'silhouette': 0.35242449860803343, 'bic': -3192053.72946487, 'inertia': nan, 'ARI': 0.5791667651239675, 'NMI': 0.7257239433400497, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 4, 'silhouette': 0.37692113335342503, 'bic': nan, 'inertia': 504280.48450637347, 'ARI': 0.6390283813132336, 'NMI': 0.7179512805898455, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 4, 'silhouette': 0.33149526378909167, 'bic': -3383384.454868117, 'inertia': nan, 'ARI': 0.6653897559405779, 'NMI': 0.7514731896310161, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 5, 'silhouette': 0.39666268020896983, 'bic': nan, 'inertia': 426656.878078523, 'ARI': 0.6630403649439458, 'NMI': 0.7224397136326576, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 5, 'silhouette': 0.307150096534326, 'bic': -3527304.024414213, 'inertia': nan, 'ARI': 0.731326873427556, 'NMI': 0.8022906293796833, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 6, 'silhouette': 0.3761878355512212, 'bic': nan, 'inertia': 371257.882575036, 'ARI': 0.6818584099035979, 'NMI': 0.7170372440027692, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 6, 'silhouette': 0.30227669765752824, 'bic': -3645566.410422011, 'inertia': nan, 'ARI': 0.7453498342757083, 'NMI': 0.8081545548991786, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 7, 'silhouette': 0.36219230022646925, 'bic': nan, 'inertia': 337915.91510988615, 'ARI': 0.7183345480944796, 'NMI': 0.7419217299577134, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 7, 'silhouette': 0.30503017949799377, 'bic': -3752728.809211004, 'inertia': nan, 'ARI': 0.8026067069104275, 'NMI': 0.8356383184612036, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 8, 'silhouette': 0.325750489036489, 'bic': nan, 'inertia': 316653.6420298928, 'ARI': 0.6497949642555229, 'NMI': 0.7169519912521041, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 8, 'silhouette': 0.30288783164217875, 'bic': -3806492.4291449618, 'inertia': nan, 'ARI': 0.8302063179152549, 'NMI': 0.8487801679053391, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 9, 'silhouette': 0.29858698235041686, 'bic': nan, 'inertia': 297734.6790179882, 'ARI': 0.5960513373563934, 'NMI': 0.7100594533233389, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 9, 'silhouette': 0.26782441854302297, 'bic': -3844405.860095445, 'inertia': nan, 'ARI': 0.7885721825849334, 'NMI': 0.8342781070616876, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'kmeans', 'k': 10, 'silhouette': 0.2819414974092186, 'bic': nan, 'inertia': 279696.92653149716, 'ARI': 0.5895056875412438, 'NMI': 0.732041810528255, 'pca_cum_var': 0.9999997690828802}
+{'featureset': 'sizefree22', 'method': 'gmm', 'k': 10, 'silhouette': 0.21892306466075462, 'bic': -3888522.2859116257, 'inertia': nan, 'ARI': 0.7212344751838161, 'NMI': 0.8100599165060163, 'pca_cum_var': 0.9999997690828802}
+wrote /Users/y/Academic/courses/f20dl/results/cluster/cluster_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/cluster/gmm_stability.csv
+wrote /Users/y/Academic/courses/f20dl/results/cluster/profiles.csv
+wrote /Users/y/Academic/courses/f20dl/results/cluster/late_lot_check.csv
+{('all106', 'gmm'): False, ('all106', 'kmeans'): True, ('distinct91', 'gmm'): False, ('distinct91', 'kmeans'): False, ('sizefree22', 'gmm'): False, ('sizefree22', 'kmeans'): False} late-lot cluster found (>=80% share at >=80% purity)
+wrote /Users/y/Academic/courses/f20dl/figures/cluster_heatmaps.png
+wrote /Users/y/Academic/courses/f20dl/figures/cluster_overview.png

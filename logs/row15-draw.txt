@@ -1,0 +1,4 @@
+seeded draw: random.Random(0).sample(sorted test grain_ids), n_test=11206
+Ipsala-7837 Ipsala main data/raw/Rice_Image_Dataset/Ipsala/Ipsala (7837).jpg
+Jasmine-11145 Jasmine main data/raw/Rice_Image_Dataset/Jasmine/Jasmine (11145).jpg
+Arborio-1395 Arborio main data/raw/Rice_Image_Dataset/Arborio/Arborio (1395).jpg

@@ -1,0 +1,9 @@
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/report.py
+wrote /Users/y/Academic/courses/f20dl/results/SUMMARY.csv
+wrote /Users/y/Academic/courses/f20dl/results/DISCLOSURES.csv
+wrote /Users/y/Academic/courses/f20dl/results/MANIFEST.csv
+wrote /Users/y/Academic/courses/f20dl/figures/summary_comparison.png
+wrote /Users/y/Academic/courses/f20dl/figures/report_learning_curves.png
+wrote /Users/y/Academic/courses/f20dl/figures/report_late_lot_recall.png
+row 16: pass
+exit 0

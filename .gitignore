@@ -9,7 +9,7 @@ figures/smoke/
 models/smoke/
 models/baselines/
 models/holdout/
-logs/
+logs/*.pid
 __pycache__/
 .pytest_cache/
 *.pyc

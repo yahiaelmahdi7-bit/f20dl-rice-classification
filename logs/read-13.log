@@ -1,0 +1,38 @@
+AC power 01:17:23, row 13
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/08_routing.py --score
+test read: 11206 grains, 0 infinite cells made missing
+wrote /Users/y/Academic/courses/f20dl/results/routing/test_calibration.csv
+wrote /Users/y/Academic/courses/f20dl/results/routing/test_routes.csv
+split     model     n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb 11206   0.99884  0.00113         0.00043      2.13944             0.00000
+ test cnn_seed0 11206   0.99554  0.00447         0.00168      0.72788             0.00009
+ test cnn_seed1 11206   0.99866  0.00160         0.00053      0.75036             0.00000
+ test cnn_seed2 11206   0.99652  0.00327         0.00111      0.77075             0.00009
+split  seed                    route  grains   share  errors  accuracy
+ test     0                      hgb   10952 0.97733     2.0   0.99982
+ test     0                      cnn      27 0.00241     0.0   1.00000
+ test     0                   unsure      52 0.00464     NaN       NaN
+ test     0               unfamiliar     175 0.01562     NaN       NaN
+ test     0           answered_total   10979 0.97974     2.0   0.99982
+ test     0    unfamiliar_table_gate     109 0.00973     NaN       NaN
+ test     0    unfamiliar_image_gate      87 0.00776     NaN       NaN
+ test     0 chain_err_at_95_coverage   11206 0.95000     NaN   0.99991
+ test     1                      hgb   10952 0.97733     2.0   0.99982
+ test     1                      cnn      48 0.00428     0.0   1.00000
+ test     1                   unsure      31 0.00277     NaN       NaN
+ test     1               unfamiliar     175 0.01562     NaN       NaN
+ test     1           answered_total   11000 0.98162     2.0   0.99982
+ test     1    unfamiliar_table_gate     109 0.00973     NaN       NaN
+ test     1    unfamiliar_image_gate      87 0.00776     NaN       NaN
+ test     1 chain_err_at_95_coverage   11206 0.95000     NaN   1.00000
+ test     2                      hgb   10952 0.97733     2.0   0.99982
+ test     2                      cnn      40 0.00357     1.0   0.97500
+ test     2                   unsure      39 0.00348     NaN       NaN
+ test     2               unfamiliar     175 0.01562     NaN       NaN
+ test     2           answered_total   10992 0.98090     3.0   0.99973
+ test     2    unfamiliar_table_gate     109 0.00973     NaN       NaN
+ test     2    unfamiliar_image_gate      87 0.00776     NaN       NaN
+ test     2 chain_err_at_95_coverage   11206 0.95000     NaN   1.00000
+wrote /Users/y/Academic/courses/f20dl/figures/routing_risk_coverage_test.png
+wrote /Users/y/Academic/courses/f20dl/figures/routing_reliability_test.png
+row 13: pass

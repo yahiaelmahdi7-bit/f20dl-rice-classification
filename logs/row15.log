@@ -1,0 +1,36 @@
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/predict.py "data/raw/Rice_Image_Dataset/Ipsala/Ipsala (7837).jpg"
+/Users/y/Academic/courses/f20dl/src/common.py:732: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+image: Ipsala (7837).jpg
+image side: Ipsala (confidence 1.0000)
+table side: Ipsala (confidence 0.9996)
+route: hgb
+familiarity: familiar (table gate False, image gate False)
+answer: Ipsala (confidence 0.9996)
+row 15a: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/predict.py "data/raw/Rice_Image_Dataset/Jasmine/Jasmine (11145).jpg"
+/Users/y/Academic/courses/f20dl/src/common.py:732: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+image: Jasmine (11145).jpg
+image side: Jasmine (confidence 0.9968)
+table side: Jasmine (confidence 0.9995)
+route: hgb
+familiarity: familiar (table gate False, image gate False)
+answer: Jasmine (confidence 0.9995)
+row 15b: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/predict.py "data/raw/Rice_Image_Dataset/Arborio/Arborio (1395).jpg"
+/Users/y/Academic/courses/f20dl/src/common.py:732: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:214.)
+  x = torch.from_numpy(np.ascontiguousarray(b)).to(dev).permute(0, 3, 1, 2).float() / 255.0
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+image: Arborio (1395).jpg
+image side: Arborio (confidence 1.0000)
+table side: Arborio (confidence 0.9998)
+route: hgb
+familiarity: familiar (table gate False, image gate False)
+answer: Arborio (confidence 0.9998)
+row 15c: pass

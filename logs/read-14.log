@@ -1,0 +1,62 @@
+AC power 01:18:09, row 14
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/09_robustness.py --score
+test read: 11206 grains, 0 infinite cells made missing
+late grains: all 3283, test 492
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/robustness/late_recall.csv
+                 model    subset    n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all 3283  0.0122  0.0090   0.0165           0.9213               2143            
+    holdout_hgb:all106 late_test  492  0.0142  0.0069   0.0291           0.9263                334            
+   holdout_hgb:shape16  late_all 3283  0.0000  0.0000   0.0012           0.9725               2910            
+   holdout_hgb:shape16 late_test  492  0.0000  0.0000   0.0077           0.9677                422            
+ holdout_hgb:sizefree7  late_all 3283  0.8319  0.8187   0.8443           0.8975                207  hgb:all106
+ holdout_hgb:sizefree7 late_test  492  0.8455  0.8109   0.8748           0.8990                 27  hgb:all106
+holdout_hgb:sizefree22  late_all 3283  0.7511  0.7361   0.7656           0.9434                507  hgb:all106
+holdout_hgb:sizefree22 late_test  492  0.7500  0.7099   0.7862           0.9463                 85  hgb:all106
+    full_hgb:sizefree7 late_test  492  0.9248  0.8981   0.9450           0.9154                 13  hgb:all106
+   full_hgb:sizefree22 late_test  492  1.0000  0.9923   1.0000           0.9997                  0  hgb:all106
+       full_hgb:all106 late_test  492  1.0000  0.9923   1.0000           1.0000                  0            
+      full_hgb:shape16 late_test  492  0.9187  0.8912   0.9397           0.9706                 14            
+     holdout_cnn:seed0  late_all 3283  0.0015  0.0007   0.0036           0.8306               1087            
+     holdout_cnn:seed0 late_test  492  0.0041  0.0011   0.0147           0.8357                169            
+        full_cnn:seed0 late_test  492  1.0000  0.9923   1.0000           0.9968                  0            
+     holdout_cnn:seed1  late_all 3283  0.0110  0.0079   0.0151           0.8206                938            
+     holdout_cnn:seed1 late_test  492  0.0142  0.0069   0.0291           0.8189                147            
+        full_cnn:seed1 late_test  492  0.9980  0.9886   0.9996           0.9972                  0            
+     holdout_cnn:seed2  late_all 3283  0.1691  0.1566   0.1823           0.6760                246            
+     holdout_cnn:seed2 late_test  492  0.1606  0.1308   0.1956           0.6745                 41            
+        full_cnn:seed2 late_test  492  1.0000  0.9923   1.0000           0.9988                  0            
+wrote /Users/y/Academic/courses/f20dl/results/robustness/late_chain.csv
+wrote /Users/y/Academic/courses/f20dl/results/robustness/greyworld_gain_vs_area.csv
+wrote /Users/y/Academic/courses/f20dl/results/robustness/mean_colour_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/robustness/greyworld_results.csv
+wrote /Users/y/Academic/courses/f20dl/results/robustness/greyworld_control.csv
+              arm       variant   n  accuracy
+mean_colour_model           raw 492    0.9939
+mean_colour_model    grey_world 492    0.0000
+        cnn_seed0 raw_same_path 492    1.0000
+        cnn_seed0    grey_world 492    0.0711
+        cnn_seed1 raw_same_path 492    0.9980
+        cnn_seed1    grey_world 492    0.0183
+        cnn_seed2 raw_same_path 492    1.0000
+        cnn_seed2    grey_world 492    0.0305
+ seed   n  max_abs_diff  argmax_equal
+    0 492           0.0          True
+    1 492           0.0          True
+    2 492           0.0          True
+row 14: pass

@@ -1,0 +1,34 @@
+wrote /Users/y/Academic/courses/f20dl/results/eda/class_balance.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_class_balance.png
+wrote /Users/y/Academic/courses/f20dl/figures/eda_distributions.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/corr_clusters.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_correlation.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/tint_by_class.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_tint.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/jasmine_lots.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_jasmine_break.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/entropy_vs_logarea.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_entropy_vs_area.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/copy_columns.csv
+{False: 15} copy columns identical to their mean column
+wrote /Users/y/Academic/courses/f20dl/figures/eda_examples.png
+wrote /Users/y/Academic/courses/f20dl/results/quality/data_dictionary.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/entropy_check.csv
+   column scale   n  pearson  median_ratio  min_ratio  max_ratio
+entropyRR 0-255 200 1.000000      1.000303   1.000081   1.000982
+entropyRG 0-255 200 1.000000      1.000301   1.000081   1.000984
+entropyRB 0-255 200 1.000000      1.000424   1.000079   1.001122
+ entropyH   0-1 200 0.966614      1.256850   1.007729   1.520029
+ entropyS   0-1 200 0.962005      2.205136   1.333625  12.723977
+ entropyV   0-1 200 0.999961      1.021614   1.005662   1.063678
+wrote /Users/y/Academic/courses/f20dl/results/quality/validity.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/outliers.csv
+wrote /Users/y/Academic/courses/f20dl/results/quality/outlier_picks.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_outlier_montage.png
+wrote /Users/y/Academic/courses/f20dl/results/quality/cleaning_log.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_file_order.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/file_order.csv
+wrote /Users/y/Academic/courses/f20dl/figures/eda_mean_images.png
+wrote /Users/y/Academic/courses/f20dl/results/eda/resize_area_check.csv
+wrote /Users/y/Academic/courses/f20dl/results/eda/insights.csv

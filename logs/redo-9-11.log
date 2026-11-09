@@ -1,0 +1,142 @@
+waiting for AC from 2026-11-07 21:27:38
+AC power 2026-11-08 00:31:35
+row 9: reopened
+row 10: reopened
+row 10a: reopened
+row 11: reopened
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/08_routing.py --fit
+wrote /Users/y/Academic/courses/f20dl/models/routing.json
+wrote /Users/y/Academic/courses/f20dl/results/routing/val_calibration.csv
+wrote /Users/y/Academic/courses/f20dl/results/routing/val_routes.csv
+split     model     n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+  val       hgb 11205   0.99848  0.00139         0.00058      2.13944             0.00009
+  val cnn_seed0 11205   0.99375  0.00406         0.00157      0.72788             0.00038
+  val cnn_seed1 11205   0.99848  0.00181         0.00083      0.75036             0.00009
+  val cnn_seed2 11205   0.99563  0.00359         0.00117      0.77075             0.00019
+split  seed                    route  grains   share  errors  accuracy
+  val     0                      hgb   10916 0.97421     4.0   0.99963
+  val     0                      cnn      22 0.00196     0.0   1.00000
+  val     0                   unsure      60 0.00535     NaN       NaN
+  val     0               unfamiliar     207 0.01847     NaN       NaN
+  val     0           answered_total   10938 0.97617     4.0   0.99963
+  val     0    unfamiliar_table_gate     113 0.01008     NaN       NaN
+  val     0    unfamiliar_image_gate     113 0.01008     NaN       NaN
+  val     0 chain_err_at_95_coverage   11205 0.95000     NaN   0.99981
+  val     1                      hgb   10916 0.97421     4.0   0.99963
+  val     1                      cnn      48 0.00428     0.0   1.00000
+  val     1                   unsure      34 0.00303     NaN       NaN
+  val     1               unfamiliar     207 0.01847     NaN       NaN
+  val     1           answered_total   10964 0.97849     4.0   0.99964
+  val     1    unfamiliar_table_gate     113 0.01008     NaN       NaN
+  val     1    unfamiliar_image_gate     113 0.01008     NaN       NaN
+  val     1 chain_err_at_95_coverage   11205 0.95000     NaN   0.99991
+  val     2                      hgb   10916 0.97421     4.0   0.99963
+  val     2                      cnn      36 0.00321     0.0   1.00000
+  val     2                   unsure      46 0.00411     NaN       NaN
+  val     2               unfamiliar     207 0.01847     NaN       NaN
+  val     2           answered_total   10952 0.97742     4.0   0.99963
+  val     2    unfamiliar_table_gate     113 0.01008     NaN       NaN
+  val     2    unfamiliar_image_gate     113 0.01008     NaN       NaN
+  val     2 chain_err_at_95_coverage   11205 0.95000     NaN   0.99972
+wrote /Users/y/Academic/courses/f20dl/figures/routing_risk_coverage_val.png
+wrote /Users/y/Academic/courses/f20dl/figures/routing_reliability_val.png
+row 9: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/09_robustness.py --train
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/neural/control.csv
+hold-out train 49994 val 10712 (late dropped: 2298 + 493)
+[holdout_cnn_seed0] epoch 1: 99.3 s/epoch on mps train_loss 0.1595 val_acc 0.9426
+[holdout_cnn_seed0] epoch 2: 97.5 s/epoch on mps train_loss 0.0218 val_acc 0.9652
+[holdout_cnn_seed0] epoch 3: 101.3 s/epoch on mps train_loss 0.0204 val_acc 0.9953
+[holdout_cnn_seed0] epoch 4: 100.8 s/epoch on mps train_loss 0.0155 val_acc 0.9474
+[holdout_cnn_seed0] epoch 5: 101.2 s/epoch on mps train_loss 0.0099 val_acc 0.9794
+[holdout_cnn_seed0] epoch 6: 100.8 s/epoch on mps train_loss 0.0098 val_acc 0.9924
+[holdout_cnn_seed0] epoch 7: 99.4 s/epoch on mps train_loss 0.0083 val_acc 0.9667
+[holdout_cnn_seed1] epoch 1: 98.0 s/epoch on mps train_loss 0.1538 val_acc 0.8621
+[holdout_cnn_seed1] epoch 2: 98.9 s/epoch on mps train_loss 0.0273 val_acc 0.9951
+[holdout_cnn_seed1] epoch 3: 101.3 s/epoch on mps train_loss 0.0193 val_acc 0.9612
+[holdout_cnn_seed1] epoch 4: 102.0 s/epoch on mps train_loss 0.0150 val_acc 0.6896
+[holdout_cnn_seed1] epoch 5: 99.5 s/epoch on mps train_loss 0.0103 val_acc 0.8715
+[holdout_cnn_seed1] epoch 6: 102.0 s/epoch on mps train_loss 0.0121 val_acc 0.9830
+[holdout_cnn_seed2] epoch 1: 101.9 s/epoch on mps train_loss 0.1496 val_acc 0.7432
+[holdout_cnn_seed2] epoch 2: 104.5 s/epoch on mps train_loss 0.0278 val_acc 0.9678
+[holdout_cnn_seed2] epoch 3: 100.1 s/epoch on mps train_loss 0.0197 val_acc 0.9285
+[holdout_cnn_seed2] epoch 4: 98.9 s/epoch on mps train_loss 0.0141 val_acc 0.7855
+[holdout_cnn_seed2] epoch 5: 100.5 s/epoch on mps train_loss 0.0183 val_acc 0.8156
+[holdout_cnn_seed2] epoch 6: 105.8 s/epoch on mps train_loss 0.0107 val_acc 0.9476
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/models/holdout/routing.json
+row 10: pass
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+rescore: every model matches its saved validation predictions and every freeze file opens
+row 10a: pass
+/Users/y/Academic/courses/f20dl/.venv/bin/python tools/freeze.py
+controls passed: 29 rows below 90% in /Users/y/Academic/courses/f20dl/results/baselines/control.csv
+controls passed: 2 rows below 90% in /Users/y/Academic/courses/f20dl/results/neural/control.csv
+frozen 724a3634fae72cabecebaf3607dbff38539364554c2414beac9ee583ba76c9fb -> /Users/y/Academic/courses/f20dl/results/frozen.json
+row 11: pass
+through 11 exit 0 at 2026-11-08 01:06:32

@@ -1,0 +1,1950 @@
+F20DL unit test report
+commit: 8fdc753
+run: 2026-11-09 12:29 +04
+
+============================= test session starts ==============================
+platform darwin -- Python 3.12.13, pytest-9.2.0, pluggy-1.7.0 -- /Users/y/Academic/courses/f20dl/.venv/bin/python
+rootdir: /Users/y/Academic/courses/f20dl
+configfile: pyproject.toml
+testpaths: tests
+collecting ... collected 439 items
+
+tests/test_awaiting_go.py::test_predict_exit_2_on_missing_file SKIPPED   [  0%]
+tests/test_awaiting_go.py::test_predict_exit_2_on_wrong_size SKIPPED     [  0%]
+tests/test_awaiting_go.py::test_predict_exit_3_names_missing_model SKIPPED [  0%]
+tests/test_awaiting_go.py::test_unchanged_image_control_matches_stage7 SKIPPED [  0%]
+tests/test_awaiting_go.py::test_holdout_training_excludes_late_lot SKIPPED [  1%]
+tests/test_awaiting_go.py::test_every_read_is_kept_under_one_hash_and_extras_are_disclosed SKIPPED [  1%]
+tests/test_awaiting_go.py::test_stage7_tables_reproduce_from_saved_predictions SKIPPED [  1%]
+tests/test_awaiting_go.py::test_no_go_test_loads_a_test_predictions_file PASSED [  1%]
+tests/test_awaiting_go.py::test_the_test_preds_check_fires_on_a_fault_and_stays_quiet_on_clean_text PASSED [  2%]
+tests/test_awaiting_go.py::test_every_control_stayed_below_the_ceiling SKIPPED [  2%]
+tests/test_awaiting_go.py::test_hgb_beats_chance_on_validation SKIPPED   [  2%]
+tests/test_contract.py::test_a_readers_ask_only_for_written_columns PASSED [  2%]
+tests/test_contract.py::test_a_one_name_per_column PASSED                [  2%]
+tests/test_contract.py::test_b_csv_header_matches_entry[data/splits.csv] PASSED [  3%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/cleaning_log.csv] PASSED [  3%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/missing_cells.csv] PASSED [  3%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/link_check.csv] PASSED [  3%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/data_dictionary.csv] PASSED [  4%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/entropy_check.csv] PASSED [  4%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/validity.csv] PASSED [  4%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/outliers.csv] PASSED [  4%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/leak_audit.csv] PASSED [  5%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/outlier_picks.csv] PASSED [  5%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/class_balance.csv] PASSED [  5%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/copy_columns.csv] PASSED [  5%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/corr_clusters.csv] PASSED [  5%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/entropy_vs_logarea.csv] PASSED [  6%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/file_order.csv] PASSED [  6%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/insights.csv] PASSED [  6%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/jasmine_lots.csv] PASSED [  6%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/resize_area_check.csv] PASSED [  7%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/shift_accounting.csv] PASSED [  7%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/tint_by_class.csv] PASSED [  7%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/features/accuracy_vs_k.csv] PASSED [  7%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/features/cluster_representatives.csv] PASSED [  7%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/features/ranking.csv] PASSED [  8%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/features/selected_info.csv] PASSED [  8%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/features/set_comparison.csv] PASSED [  8%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/features/stability.csv] PASSED [  8%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/cluster_metrics.csv] PASSED [  9%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/heldout.csv] PASSED [  9%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/gmm_stability.csv] PASSED [  9%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/late_lot_check.csv] PASSED [  9%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/pca_variance.csv] PASSED [ 10%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/profiles.csv] PASSED [ 10%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/checks/recheck_clusters.csv] PASSED [ 10%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/checks/recheck_features.csv] PASSED [ 10%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/checks/recheck_summary.csv] PASSED [ 10%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/baselines/grid.csv] PASSED [ 11%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/baselines/val_results.csv] PASSED [ 11%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/baselines/control.csv] PASSED [ 11%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/epoch_times.csv] PASSED [ 11%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/curves.csv] PASSED [ 12%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/tuning_mlp.csv] PASSED [ 12%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/tuning_cnn.csv] PASSED [ 12%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/control.csv] PASSED [ 12%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_metrics.csv] PASSED [ 12%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_metrics.csv] PASSED [ 13%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_by_lot.csv] PASSED [ 13%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_by_lot.csv] PASSED [ 13%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_by_angle.csv] PASSED [ 13%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_by_angle.csv] PASSED [ 14%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_by_angle_lot.csv] PASSED [ 14%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_by_angle_lot.csv] PASSED [ 14%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_recall.csv] PASSED [ 14%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_recall.csv] PASSED [ 15%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_confusion.csv] PASSED [ 15%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_confusion.csv] PASSED [ 15%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_seed_spread.csv] PASSED [ 15%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_seed_spread.csv] PASSED [ 15%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_mcnemar.csv] PASSED [ 16%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_mcnemar.csv] PASSED [ 16%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/val_calibration.csv] PASSED [ 16%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/test_calibration.csv] PASSED [ 16%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/val_routes.csv] PASSED [ 17%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/test_routes.csv] PASSED [ 17%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/late_recall.csv] PASSED [ 17%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/late_chain.csv] PASSED [ 17%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/greyworld_gain_vs_area.csv] PASSED [ 17%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/mean_colour_check.csv] PASSED [ 18%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/greyworld_results.csv] PASSED [ 18%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/greyworld_control.csv] PASSED [ 18%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/test_reads.csv] PASSED [ 18%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/run_log.csv] PASSED [ 19%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/test_reads_disclosed.csv] PASSED [ 19%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/DISCLOSURES.csv] PASSED [ 19%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/SUMMARY.csv] PASSED [ 19%]
+tests/test_contract.py::test_b_csv_header_matches_entry[results/MANIFEST.csv] PASSED [ 20%]
+tests/test_contract.py::test_c_no_stage_redefines_common PASSED          [ 20%]
+tests/test_contract.py::test_names_match_the_code PASSED                 [ 20%]
+tests/test_contract.py::test_settle_passes_listed_and_fails_new_or_stale PASSED [ 20%]
+tests/test_contract.py::test_known_list_parsing PASSED                   [ 20%]
+tests/test_contract.py::test_scan_finds_a_column_the_writer_lacks PASSED [ 21%]
+tests/test_contract.py::test_writer_check_finds_a_column_the_code_never_names PASSED [ 21%]
+tests/test_contract.py::test_alias_check_flags_a_banned_name PASSED      [ 21%]
+tests/test_contract.py::test_function_check_ignores_methods PASSED       [ 21%]
+tests/test_contract.py::test_header_check_on_a_made_up_file PASSED       [ 22%]
+tests/test_control_gate.py::test_clean_control_passes[stage5] PASSED     [ 22%]
+tests/test_control_gate.py::test_clean_control_passes[stage6_mlp] PASSED [ 22%]
+tests/test_control_gate.py::test_shuffle_that_does_nothing_stops_the_run[stage5] PASSED [ 22%]
+tests/test_control_gate.py::test_shuffle_that_does_nothing_stops_the_run[stage6_mlp] PASSED [ 23%]
+tests/test_control_gate.py::test_cnn_shuffle_that_does_nothing_stops_the_run PASSED [ 23%]
+tests/test_control_gate.py::test_real_labels_reaching_the_model_stops_the_run[stage5] PASSED [ 23%]
+tests/test_control_gate.py::test_real_labels_reaching_the_model_stops_the_run[stage6_mlp] PASSED [ 23%]
+tests/test_control_gate.py::test_cnn_row_reaches_the_gate[0.2-False] PASSED [ 23%]
+tests/test_control_gate.py::test_cnn_row_reaches_the_gate[0.99-True] PASSED [ 24%]
+tests/test_control_gate.py::test_clean_scores_outside_the_band_do_not_stop[0.0004] PASSED [ 24%]
+tests/test_control_gate.py::test_clean_scores_outside_the_band_do_not_stop[0.478] PASSED [ 24%]
+tests/test_control_gate.py::test_clean_scores_outside_the_band_do_not_stop[0.731] PASSED [ 24%]
+tests/test_control_gate.py::test_missing_score_stops PASSED              [ 25%]
+tests/test_control_gate.py::test_old_failed_row_cannot_hide_behind_a_rerun PASSED [ 25%]
+tests/test_control_gate.py::test_fair_shuffle_passes_and_smoke_only_prints PASSED [ 25%]
+tests/test_data.py::test_jasmine_lots_index_is_named PASSED              [ 25%]
+tests/test_data.py::test_jasmine_lots_header_on_made_up_frame PASSED     [ 25%]
+tests/test_data.py::test_manual_text_names_get_data_target PASSED        [ 26%]
+tests/test_data.py::test_download_dropped_connection_leaves_no_partial_file PASSED [ 26%]
+tests/test_data.py::test_download_success_publishes_complete_file PASSED [ 26%]
+tests/test_data.py::test_make_read_only_handles_apostrophe_in_path PASSED [ 26%]
+tests/test_data.py::test_eda_uses_splits_for_class_counts_only PASSED    [ 27%]
+tests/test_data.py::test_make_runs_features_before_eda PASSED            [ 27%]
+tests/test_data.py::test_write_derived_success_publishes_both_and_leaves_no_tmp PASSED [ 27%]
+tests/test_data.py::test_write_derived_crash_in_cache_keeps_old_files_byte_identical PASSED [ 27%]
+tests/test_data.py::test_write_derived_crash_in_parquet_keeps_old_files PASSED [ 28%]
+tests/test_data.py::test_atomic_parquet_crash_keeps_old_file PASSED      [ 28%]
+tests/test_data.py::test_main_publishes_through_the_safe_helpers PASSED  [ 28%]
+tests/test_data.py::test_subset_outside_smoke_is_refused_before_any_write PASSED [ 28%]
+tests/test_data.py::test_leak_audit_clean_data_reports_no_overlap PASSED [ 28%]
+tests/test_data.py::test_leak_audit_detects_planted_overlaps PASSED      [ 29%]
+tests/test_data.py::test_leak_audit_flatten_names_and_values PASSED      [ 29%]
+tests/test_data.py::test_leak_audit_csv_columns_and_atomic_write PASSED  [ 29%]
+tests/test_data.py::test_leak_audit_source_rules PASSED                  [ 29%]
+tests/test_data.py::test_make_read_only_raises_when_chmod_fails PASSED   [ 30%]
+tests/test_data.py::test_write_derived_renames_memmap_before_parquet PASSED [ 30%]
+tests/test_data.py::test_leak_audit_crash_mid_write_keeps_old_csv PASSED [ 30%]
+tests/test_data.py::test_insight_n_defaults_to_all_grains_and_takes_the_rows_used PASSED [ 30%]
+tests/test_data.py::test_each_insight_on_a_subset_states_its_own_rows PASSED [ 30%]
+tests/test_data.py::test_validity_log_counts_rows_not_cells PASSED       [ 31%]
+tests/test_data.py::test_outlier_log_counts_rows_not_cells PASSED        [ 31%]
+tests/test_data.py::test_eda_titles_state_n PASSED                       [ 31%]
+tests/test_data.py::test_cluster_titles_state_their_own_n PASSED         [ 31%]
+tests/test_data.py::test_part_filled_folder_is_filled_from_the_zip PASSED [ 32%]
+tests/test_data.py::test_part_written_file_is_replaced PASSED            [ 32%]
+tests/test_data.py::test_part_filled_read_only_folder_stops_loudly PASSED [ 32%]
+tests/test_data.py::test_full_folder_is_left_alone PASSED                [ 32%]
+tests/test_data.py::test_leak_audit_counts_parquet_rows_not_in_csv PASSED [ 33%]
+tests/test_data.py::test_stage9_has_no_size_cols_constant PASSED         [ 33%]
+tests/test_evaluation.py::test_stage7_stops_before_the_read PASSED       [ 33%]
+tests/test_evaluation.py::test_stage7_never_drops_a_model_on_test PASSED [ 33%]
+tests/test_evaluation.py::test_stage7_validation_stays_tolerant PASSED   [ 33%]
+tests/test_evaluation.py::test_stage8_stops_before_the_read PASSED       [ 34%]
+tests/test_evaluation.py::test_stage9_stops_before_the_read PASSED       [ 34%]
+tests/test_evaluation.py::test_stage9_train_stops_before_any_fit PASSED  [ 34%]
+tests/test_evaluation.py::test_untuned_sets_take_the_all106_point_and_say_so PASSED [ 34%]
+tests/test_evaluation.py::test_late_grains_never_reach_a_holdout_fit PASSED [ 35%]
+tests/test_evaluation.py::test_control_records_and_carries_on PASSED     [ 35%]
+tests/test_evaluation.py::test_class_is_the_one_name PASSED              [ 35%]
+tests/test_evaluation.py::test_paired_hand_example PASSED                [ 35%]
+tests/test_evaluation.py::test_only_holdout_rows_cover_every_late_grain PASSED [ 35%]
+tests/test_evaluation.py::test_freeze_passes_clean_controls PASSED       [ 36%]
+tests/test_evaluation.py::test_freeze_refuses_missing_control PASSED     [ 36%]
+tests/test_evaluation.py::test_freeze_refuses_failed_control PASSED      [ 36%]
+tests/test_evaluation.py::test_freeze_refuses_a_control_with_a_row_missing PASSED [ 36%]
+tests/test_evaluation.py::test_freeze_checks_controls_in_smoke_too PASSED [ 37%]
+tests/test_evaluation.py::test_fit_stores_every_seed_and_keeps_the_keys_predict_reads PASSED [ 37%]
+tests/test_evaluation.py::test_cnn_floor_comes_from_the_grains_hgb_declines PASSED [ 37%]
+tests/test_evaluation.py::test_cnn_answers_nothing_when_hgb_declines_nothing PASSED [ 37%]
+tests/test_evaluation.py::test_holdout_routing_uses_the_same_floor_rule_and_keeps_its_keys PASSED [ 38%]
+tests/test_evaluation.py::test_route_table_has_one_block_per_seed_on_its_own_numbers PASSED [ 38%]
+tests/test_evaluation.py::test_fit_stops_on_a_seed_with_no_validation_predictions PASSED [ 38%]
+tests/test_evaluation.py::test_score_stops_before_the_read_on_a_routing_file_with_a_seed_missing PASSED [ 38%]
+tests/test_evaluation.py::test_a_saved_seed_counts_only_from_the_same_run PASSED [ 38%]
+tests/test_evaluation.py::test_a_missing_or_torn_file_is_never_reused PASSED [ 39%]
+tests/test_evaluation.py::test_holdout_cnn_trains_only_when_it_must PASSED [ 39%]
+tests/test_evaluation.py::test_grey_world_is_handed_the_late_test_grains_at_the_call_site PASSED [ 39%]
+tests/test_evaluation.py::test_grey_world_gets_the_late_stand_ins_in_smoke PASSED [ 39%]
+tests/test_evaluation.py::test_a_scored_grain_in_train_stops_the_tint_arms PASSED [ 40%]
+tests/test_evaluation.py::test_each_saved_table_record_holds_the_rows_it_was_fitted_on PASSED [ 40%]
+tests/test_evaluation.py::test_a_saved_cnn_record_holds_the_rows_it_was_fitted_on PASSED [ 40%]
+tests/test_evaluation.py::test_late_recall_says_which_arm_borrowed_its_point PASSED [ 40%]
+tests/test_evaluation.py::test_paired_gives_what_the_inline_lines_gave PASSED [ 41%]
+tests/test_evaluation.py::test_an_infinite_cell_is_missing_once_the_read_returns[src/07_compare.py] PASSED [ 41%]
+tests/test_evaluation.py::test_an_infinite_cell_is_missing_once_the_read_returns[src/08_routing.py] PASSED [ 41%]
+tests/test_evaluation.py::test_an_infinite_cell_is_missing_once_the_read_returns[src/09_robustness.py] PASSED [ 41%]
+tests/test_evaluation.py::test_a_stage_reads_test_in_one_place[src/07_compare.py] PASSED [ 41%]
+tests/test_evaluation.py::test_a_stage_reads_test_in_one_place[src/08_routing.py] PASSED [ 42%]
+tests/test_evaluation.py::test_a_stage_reads_test_in_one_place[src/09_robustness.py] PASSED [ 42%]
+tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[no disagreements] PASSED [ 42%]
+tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[class 4 absent] PASSED [ 42%]
+tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[one model wrong on every grain] PASSED [ 43%]
+tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[one grain right] PASSED [ 43%]
+tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[one grain wrong] PASSED [ 43%]
+tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[all on hgb] PASSED [ 43%]
+tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[all unfamiliar] PASSED [ 43%]
+tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[confidence exactly 1] PASSED [ 44%]
+tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[one grain] PASSED [ 44%]
+tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[all unsure] PASSED [ 44%]
+tests/test_evaluation.py::test_a_read_with_no_late_grain_in_test_leaves_empty_rows PASSED [ 44%]
+tests/test_evaluation.py::test_every_late_grain_on_one_route_and_a_missing_cell_stand PASSED [ 45%]
+tests/test_evaluation.py::test_empty_inputs_give_a_stated_answer PASSED  [ 45%]
+tests/test_evaluation.py::test_missing_output_folders_are_made PASSED    [ 45%]
+tests/test_evaluation.py::test_a_channel_with_no_answer_fails_the_gain_check PASSED [ 45%]
+tests/test_evaluation.py::test_no_late_test_grain_keeps_the_gain_tables_and_stops_before_the_tint_arms PASSED [ 46%]
+tests/test_evaluation.py::test_stage9_stops_before_the_read_with_no_late_rows PASSED [ 46%]
+tests/test_evaluation.py::test_freeze_hashes_each_file_under_its_own_path PASSED [ 46%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[results/baselines/best_params.json] PASSED [ 46%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[results/neural/best_config.json] PASSED [ 46%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[results/features/selected.json] PASSED [ 47%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[data/splits.csv] PASSED [ 47%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/routing.json] PASSED [ 47%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/gate_table.joblib] PASSED [ 47%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/gate_image.joblib] PASSED [ 48%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/routing.json] PASSED [ 48%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/gate_table.joblib] PASSED [ 48%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/gate_image.joblib] PASSED [ 48%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/cnn_seed1.pt] PASSED [ 48%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/mlp_seed2.pt] PASSED [ 49%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/mlp_prep.joblib] PASSED [ 49%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/hgb_all106.joblib] PASSED [ 49%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/baselines/hgb__all106.joblib] PASSED [ 49%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/cnn_seed2.pt] PASSED [ 50%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/hgb__shape16.joblib] PASSED [ 50%]
+tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/full_hgb__sizefree7.joblib] PASSED [ 50%]
+tests/test_evaluation.py::test_freeze_hashes_nothing_a_read_writes PASSED [ 50%]
+tests/test_evaluation.py::test_freeze_refuses_a_missing_file[models/holdout/routing.json] PASSED [ 51%]
+tests/test_evaluation.py::test_freeze_refuses_a_missing_file[models/holdout/cnn_seed0.pt] PASSED [ 51%]
+tests/test_evaluation.py::test_freeze_refuses_a_missing_file[models/cnn_seed1.pt] PASSED [ 51%]
+tests/test_evaluation.py::test_freeze_refuses_a_missing_file[results/features/selected.json] PASSED [ 51%]
+tests/test_evaluation.py::test_no_refreeze_once_a_read_is_logged[none] PASSED [ 51%]
+tests/test_evaluation.py::test_no_refreeze_once_a_read_is_logged[control] PASSED [ 52%]
+tests/test_evaluation.py::test_no_refreeze_once_a_read_is_logged[part] PASSED [ 52%]
+tests/test_evaluation.py::test_a_failed_freeze_removes_the_older_file[control] PASSED [ 52%]
+tests/test_evaluation.py::test_a_failed_freeze_removes_the_older_file[part] PASSED [ 52%]
+tests/test_evaluation.py::test_a_failed_freeze_removes_the_older_file[crash] PASSED [ 53%]
+tests/test_evaluation.py::test_a_log_with_no_rows_does_not_stop_a_freeze[] PASSED [ 53%]
+tests/test_evaluation.py::test_a_log_with_no_rows_does_not_stop_a_freeze[caller,time,frozen_hash\n] PASSED [ 53%]
+tests/test_evaluation.py::test_a_read_after_freeze_passes_and_logs PASSED [ 53%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/routing.json-changed] PASSED [ 53%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/routing.json-gone] PASSED [ 54%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/holdout/cnn_seed0.pt-changed] PASSED [ 54%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/holdout/cnn_seed0.pt-gone] PASSED [ 54%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[results/features/selected.json-changed] PASSED [ 54%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[results/features/selected.json-gone] PASSED [ 55%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[data/splits.csv-changed] PASSED [ 55%]
+tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[data/splits.csv-gone] PASSED [ 55%]
+tests/test_evaluation.py::test_a_change_between_reads_stops_the_second_read PASSED [ 55%]
+tests/test_evaluation.py::test_a_redirected_models_folder_stops_the_read_unlogged PASSED [ 56%]
+tests/test_evaluation.py::test_freeze_refuses_a_redirected_models_folder PASSED [ 56%]
+tests/test_evaluation.py::test_the_per_batch_gate_hashes_nothing PASSED  [ 56%]
+tests/test_evaluation.py::test_a_smoke_read_goes_through_the_gate_and_the_log PASSED [ 56%]
+tests/test_evaluation.py::test_stage9_train_stops_on_the_controls_before_any_fit[kw0-control.csv: missing] PASSED [ 56%]
+tests/test_evaluation.py::test_stage9_train_stops_on_the_controls_before_any_fit[kw1-baselines/control.csv] PASSED [ 57%]
+tests/test_evaluation.py::test_stage9_train_stops_on_the_controls_before_any_fit[kw2-no row for mlp] PASSED [ 57%]
+tests/test_evaluation.py::test_stage9_controls_pass_when_clean_and_smoke_checks_them_too PASSED [ 57%]
+tests/test_foundation.py::test_floor_ignores_a_tie_that_would_let_a_wrong_answer_in PASSED [ 57%]
+tests/test_foundation.py::test_smoke_predict_passes_each_path_whole PASSED [ 58%]
+tests/test_foundation.py::test_smoke_predict_fails_when_a_step_fails PASSED [ 58%]
+tests/test_foundation.py::test_smoke_goes_through_the_runner_and_starts_with_stage_0 PASSED [ 58%]
+tests/test_foundation.py::test_smoke_images_prints_one_path_per_line PASSED [ 58%]
+tests/test_foundation.py::test_each_stage_stamps_its_own_prompt PASSED   [ 58%]
+tests/test_foundation.py::test_report_writes_inside_results PASSED       [ 59%]
+tests/test_foundation.py::test_manifest_points_at_real_artefacts PASSED  [ 59%]
+tests/test_foundation.py::test_manifest_control_rows_point_at_the_control_files PASSED [ 59%]
+tests/test_foundation.py::test_read_images_gates_test_rows_in_full_mode PASSED [ 59%]
+tests/test_foundation.py::test_grain_mask_on_a_blank_image_is_none PASSED [ 60%]
+tests/test_foundation.py::test_wilson_with_no_grains_is_nan PASSED       [ 60%]
+tests/test_foundation.py::test_selected_features_come_from_stage_3 PASSED [ 60%]
+tests/test_gate.py::test_unlisted_caller_refused PASSED                  [ 60%]
+tests/test_gate.py::test_other_stage_name_refused PASSED                 [ 61%]
+tests/test_gate.py::test_refused_when_not_frozen PASSED                  [ 61%]
+tests/test_gate.py::test_permitted_read_is_logged_with_hash PASSED       [ 61%]
+tests/test_gate.py::test_routing_only_reads_test_when_scoring PASSED     [ 61%]
+tests/test_gate.py::test_train_and_val_loads_need_no_gate PASSED         [ 61%]
+tests/test_gate.py::test_only_holdout_models_score_every_late_grain PASSED [ 62%]
+tests/test_gate.py::test_tint_arms_score_late_test_grains_only PASSED    [ 62%]
+tests/test_harden_seal.py::test_pool_keeps_train_and_val_only_and_drops_unlisted_twins PASSED [ 62%]
+tests/test_harden_seal.py::test_pool_keeps_everything_when_no_test_rows PASSED [ 62%]
+tests/test_harden_seal.py::test_slice_stops_when_a_class_lacks_a_split PASSED [ 63%]
+tests/test_harden_seal.py::test_slice_passes_when_every_class_has_every_split PASSED [ 63%]
+tests/test_harden_seal.py::test_main_restricts_the_pool_before_it_slices PASSED [ 63%]
+tests/test_harden_seal.py::test_real_mode_keeps_todays_exact_paths PASSED [ 63%]
+tests/test_harden_seal.py::test_smoke_freeze_file_log_and_models_sit_in_smoke_folders PASSED [ 64%]
+tests/test_harden_seal.py::test_a_smoke_read_writes_only_inside_the_smoke_folders PASSED [ 64%]
+tests/test_harden_seal.py::test_a_smoke_read_by_an_unlisted_caller_is_refused_and_logs_nothing PASSED [ 64%]
+tests/test_harden_seal.py::test_smoke_runs_overfit_and_both_controls_before_freeze PASSED [ 64%]
+tests/test_harden_seal.py::test_smoke_runs_each_stage_once_and_stage_3_before_2 PASSED [ 64%]
+tests/test_harden_seal.py::test_all_stops_after_freeze_unless_reads_is_yes PASSED [ 65%]
+tests/test_harden_seal.py::test_smoke_clears_its_folders_and_the_controls_check_follows_the_mode PASSED [ 65%]
+tests/test_harden_seal.py::test_perceptron_reloads_in_a_fresh_process_with_equal_predictions PASSED [ 65%]
+tests/test_harden_seal.py::test_stage5_has_29_jobs_and_the_two_new_grids PASSED [ 65%]
+tests/test_harden_seal.py::test_stage5_builds_the_two_new_models_behind_the_shared_preprocessing PASSED [ 66%]
+tests/test_harden_seal.py::test_stage7_scores_the_two_new_models_on_every_feature_set PASSED [ 66%]
+tests/test_harden_seal.py::test_tree4_is_a_scored_model_but_not_a_job PASSED [ 66%]
+tests/test_harden_seal.py::test_val_results_has_fit_seconds_as_last_column PASSED [ 66%]
+tests/test_harden_seal.py::test_stage7_test_tables_use_the_read_frame_and_leave_blanks PASSED [ 66%]
+tests/test_harden_seal.py::test_stage7_test_tables_stop_on_a_prediction_with_no_grain PASSED [ 67%]
+tests/test_harden_seal.py::test_stage7_val_tables_still_use_load_grains PASSED [ 67%]
+tests/test_harden_seal.py::test_stage7_main_passes_the_read_frame_and_reads_once PASSED [ 67%]
+tests/test_harden_seal.py::test_report_draws_learning_curve_and_late_recall_figures_with_an_empty_cell PASSED [ 67%]
+tests/test_harden_seal.py::test_wilson_ends_are_exact_and_every_interval_holds_its_point PASSED [ 68%]
+tests/test_harden_seal.py::test_report_figures_draw_an_interval_that_misses_its_point PASSED [ 68%]
+tests/test_harden_seal.py::test_cnn_stops_after_patience_and_returns_the_best_epochs_weights PASSED [ 68%]
+tests/test_harden_seal.py::test_predict_takes_the_cnn_route_when_only_the_image_side_clears_its_floor PASSED [ 68%]
+tests/test_harden_seal.py::test_predict_exits_2_with_no_argument_and_on_an_unreadable_image PASSED [ 69%]
+tests/test_harden_seal.py::test_report_figures_draw_nothing_from_a_missing_or_empty_file PASSED [ 69%]
+tests/test_harden_seal.py::test_code_digest_ignores_the_prompt_record_block_and_sees_an_edit PASSED [ 69%]
+tests/test_harden_seal.py::test_code_digest_ignores_any_edit_inside_a_real_stamped_record PASSED [ 69%]
+tests/test_harden_seal.py::test_holdout_cnn_retrains_when_the_code_digest_changed PASSED [ 69%]
+tests/test_harden_seal.py::test_report_main_runs_with_run_log_and_ledger_missing PASSED [ 70%]
+tests/test_harden_seal.py::test_disclosures_count_the_ledger_and_name_it PASSED [ 70%]
+tests/test_harden_seal.py::test_every_evidence_file_and_new_output_is_in_the_manifest PASSED [ 70%]
+tests/test_harden_seal.py::test_disclosures_state_the_overlap_and_the_control_as_found PASSED [ 70%]
+tests/test_harden_seal.py::test_go_tests_skip_without_rice_go_and_read_the_mode_folders PASSED [ 71%]
+tests/test_metrics.py::test_macro_precision_recall_hand_worked PASSED    [ 71%]
+tests/test_models.py::test_epoch_log_rows_parse PASSED                   [ 71%]
+tests/test_models.py::test_mlp_logs_each_epoch_as_cpu PASSED             [ 71%]
+tests/test_models.py::test_curves_keep_contract_order[order0] PASSED     [ 71%]
+tests/test_models.py::test_curves_keep_contract_order[order1] PASSED     [ 72%]
+tests/test_models.py::test_curves_saved_inside_each_seed_loop PASSED     [ 72%]
+tests/test_models.py::test_crash_mid_write_keeps_last_good_file[merge_rows-k] PASSED [ 72%]
+tests/test_models.py::test_crash_mid_write_keeps_last_good_file[merge_csv-key1] PASSED [ 72%]
+tests/test_models.py::test_control_rows_merge_by_model PASSED            [ 73%]
+tests/test_models.py::test_main_merges_control_csv PASSED                [ 73%]
+tests/test_models.py::test_must_tune_reuses_only_the_winner[cnn-grid0] PASSED [ 73%]
+tests/test_models.py::test_must_tune_reuses_only_the_winner[mlp-grid1] PASSED [ 73%]
+tests/test_models.py::test_mlp_config_saved_before_its_seeds PASSED      [ 74%]
+tests/test_models.py::test_crash_keeps_finished_jobs_and_full_run_clears PASSED [ 74%]
+tests/test_models.py::test_full_run_calls_clear_results PASSED           [ 74%]
+tests/test_models.py::test_chan_stats_hold_at_full_sample PASSED         [ 74%]
+tests/test_models.py::test_controls_target_text PASSED                   [ 74%]
+tests/test_models.py::test_table_row_reads_no_labels_and_survives_gaps PASSED [ 75%]
+tests/test_models.py::test_wrong_image_exits_2[size0-RGB] PASSED         [ 75%]
+tests/test_models.py::test_wrong_image_exits_2[size1-L] PASSED           [ 75%]
+tests/test_models.py::test_missing_file_exits_3_and_names_both_targets PASSED [ 75%]
+tests/test_models.py::test_overfit_limit_raised_and_bar_kept PASSED      [ 76%]
+tests/test_r2_fixes.py::test_first_silhouette_draw_keeps_its_old_stream PASSED [ 76%]
+tests/test_r2_fixes.py::test_silhouette_row_keeps_first_draw_and_adds_spread PASSED [ 76%]
+tests/test_r2_fixes.py::test_recheck_agrees_with_the_stages_on_every_row PASSED [ 76%]
+tests/test_r2_fixes.py::test_recheck_fails_on_a_changed_saved_value[cluster/cluster_metrics.csv-ARI-clusters] PASSED [ 76%]
+tests/test_r2_fixes.py::test_recheck_fails_on_a_changed_saved_value[features/accuracy_vs_k.csv-hgb_val_accuracy-features] PASSED [ 77%]
+tests/test_r2_fixes.py::test_recheck_tolerance_is_stated_and_applied PASSED [ 77%]
+tests/test_r2_fixes.py::test_recheck_draws_the_same_silhouette_samples_as_stage_4_when_sampling_bites PASSED [ 77%]
+tests/test_r2_fixes.py::test_heldout_fits_on_train_rows_and_predicts_validation_rows PASSED [ 77%]
+tests/test_r2_fixes.py::test_heldout_table_sits_beside_the_existing_rows PASSED [ 78%]
+tests/test_r2_fixes.py::test_rule_k_is_the_smallest_near_best_k_then_the_larger_model PASSED [ 78%]
+tests/test_r2_fixes.py::test_selection_follows_the_inner_curve_and_keeps_the_old_rule_beside_it PASSED [ 78%]
+tests/test_r2_fixes.py::test_sweep_inner_columns_fit_and_score_on_train_rows_only PASSED [ 78%]
+tests/test_r2_fixes.py::test_inner_split_is_stratified_seeded_and_covers_train_once PASSED [ 79%]
+tests/test_r2_fixes.py::test_stage_3_saves_both_rules_and_recheck_covers_the_inner_columns PASSED [ 79%]
+tests/test_r2_fixes.py::test_effect_is_signed_against_the_reference_with_an_interval PASSED [ 79%]
+tests/test_r2_fixes.py::test_column_effects_flag_the_late_shift_and_not_the_control PASSED [ 79%]
+tests/test_r2_fixes.py::test_split_shares_come_from_counts_and_sum_to_one PASSED [ 79%]
+tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[0-0] PASSED [ 80%]
+tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[90-0] PASSED [ 80%]
+tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[45-45] PASSED [ 80%]
+tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[135-45] PASSED [ 80%]
+tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[20-20] PASSED [ 81%]
+tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[110-20] PASSED [ 81%]
+tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[70-20] PASSED [ 81%]
+tests/test_r2_fixes.py::test_extent_effect_shrinks_when_angle_explains_it PASSED [ 81%]
+tests/test_r2_fixes.py::test_late_drift_reports_a_median_per_file_block PASSED [ 82%]
+tests/test_r2_fixes.py::test_rows_with_no_usable_mask_are_dropped_from_the_angle_check PASSED [ 82%]
+tests/test_r2_fixes.py::test_shift_run_section_writes_the_contract_table_and_survives_a_slice_with_no_late_rows[True-sections0] PASSED [ 82%]
+tests/test_r2_fixes.py::test_shift_run_section_writes_the_contract_table_and_survives_a_slice_with_no_late_rows[False-sections1] PASSED [ 82%]
+tests/test_r2_fixes.py::test_eda_shift_table_uses_counts_only_from_splits PASSED [ 82%]
+tests/test_r2_fixes.py::test_val_by_lot_scores_each_class_and_lot_on_its_own_rows PASSED [ 83%]
+tests/test_r2_fixes.py::test_val_by_lot_hook_lines_up_on_grain_id_and_runs_on_validation_only PASSED [ 83%]
+tests/test_r2_fixes.py::test_angle_bands_are_the_ones_fixed_before_scoring_and_cover_the_fold PASSED [ 83%]
+tests/test_r2_fixes.py::test_angle_band_edges[0-0-10] PASSED             [ 83%]
+tests/test_r2_fixes.py::test_angle_band_edges[9.99-0-10] PASSED          [ 84%]
+tests/test_r2_fixes.py::test_angle_band_edges[10-10-20] PASSED           [ 84%]
+tests/test_r2_fixes.py::test_angle_band_edges[19.99-10-20] PASSED        [ 84%]
+tests/test_r2_fixes.py::test_angle_band_edges[20-20-30] PASSED           [ 84%]
+tests/test_r2_fixes.py::test_angle_band_edges[29.99-20-30] PASSED        [ 84%]
+tests/test_r2_fixes.py::test_angle_band_edges[30-30-45] PASSED           [ 85%]
+tests/test_r2_fixes.py::test_angle_band_edges[44.9-30-45] PASSED         [ 85%]
+tests/test_r2_fixes.py::test_angle_band_edges[45-30-45] PASSED           [ 85%]
+tests/test_r2_fixes.py::test_angle_band_edges[nan-no_mask] PASSED        [ 85%]
+tests/test_r2_fixes.py::test_angle_band_does_not_move_with_the_rows_it_is_given PASSED [ 86%]
+tests/test_r2_fixes.py::test_angle_rows_score_each_band_overall_and_per_class PASSED [ 86%]
+tests/test_r2_fixes.py::test_band_macro_f1_averages_only_the_classes_with_rows_in_that_band PASSED [ 86%]
+tests/test_r2_fixes.py::test_every_band_is_listed_and_the_counts_add_up_to_all_rows PASSED [ 86%]
+tests/test_r2_fixes.py::test_band_counts_do_not_depend_on_the_predictions PASSED [ 87%]
+tests/test_r2_fixes.py::test_angles_read_the_image_and_no_table_column PASSED [ 87%]
+tests/test_r2_fixes.py::test_val_by_angle_hook_lines_up_on_grain_id_uses_image_angle_and_runs_on_validation_only PASSED [ 87%]
+tests/test_r2_fixes.py::test_angle_lot_rows_scores_each_band_class_and_lot_on_its_own_rows PASSED [ 87%]
+tests/test_r2_fixes.py::test_no_output_name_or_table_column_carries_a_reading_of_the_angle PASSED [ 87%]
+tests/test_rescore.py::test_rescore_passes_clean_models_and_float_noise PASSED [ 88%]
+tests/test_rescore.py::test_rescore_sees_infinite_cells_as_missing PASSED [ 88%]
+tests/test_rescore.py::test_rescore_catches_a_class_flip_at_a_clear_margin PASSED [ 88%]
+tests/test_rescore.py::test_rescore_allows_a_flip_between_a_true_near_tie PASSED [ 88%]
+tests/test_rescore.py::test_rescore_catches_a_model_with_no_saved_predictions PASSED [ 89%]
+tests/test_rescore.py::test_rescore_reports_a_model_it_cannot_score PASSED [ 89%]
+tests/test_rescore.py::test_rescore_catches_a_corrupted_weight_file PASSED [ 89%]
+tests/test_rescore.py::test_rescore_main_needs_the_validation_split PASSED [ 89%]
+tests/test_run_order.py::test_stops_at_first_failed_check_and_resumes_without_repeating PASSED [ 89%]
+tests/test_run_order.py::test_a_nonzero_exit_fails_the_row_even_when_the_check_would_pass PASSED [ 90%]
+tests/test_run_order.py::test_a_torn_log_line_stops_the_runner_and_nothing_runs PASSED [ 90%]
+tests/test_run_order.py::test_a_complete_log_line_is_read_back_as_passed PASSED [ 90%]
+tests/test_run_order.py::test_a_second_runner_is_refused_and_a_stale_lock_is_cleared PASSED [ 90%]
+tests/test_run_order.py::test_a_stage_left_by_a_killed_runner_keeps_the_lock PASSED [ 91%]
+tests/test_run_order.py::test_a_check_that_raises_fails_the_row_and_is_logged PASSED [ 91%]
+tests/test_run_order.py::test_epoch_check_reads_the_full_size_epoch_and_not_the_overfit_rows PASSED [ 91%]
+tests/test_run_order.py::test_control_check_names_each_stage_that_failed PASSED [ 91%]
+tests/test_run_order.py::test_start_checks_stop_the_runner_before_any_row PASSED [ 92%]
+tests/test_run_order.py::test_raw_checksums_catch_a_changed_file_and_pass_a_clean_one PASSED [ 92%]
+tests/test_run_order.py::test_smoke_start_checks_skip_power_and_disk PASSED [ 92%]
+tests/test_run_order.py::test_read_rows_need_spend_read_and_through_stops_before_them PASSED [ 92%]
+tests/test_run_order.py::test_a_spent_read_that_fails_its_check_is_never_retried PASSED [ 92%]
+tests/test_run_order.py::test_a_read_survives_a_dead_process_before_the_log_row PASSED [ 93%]
+tests/test_run_order.py::test_rerun_read_runs_again_discloses_the_extra_read_and_goes_on PASSED [ 93%]
+tests/test_run_order.py::test_a_clean_read_leaves_an_empty_ledger PASSED [ 93%]
+tests/test_run_order.py::test_a_kill_between_a_rerun_and_its_ledger_row_recovers_through_rerun_read PASSED [ 93%]
+tests/test_run_order.py::test_a_stray_read_then_a_passing_rerun_ends_done_with_no_further_read PASSED [ 94%]
+tests/test_run_order.py::test_a_rerun_that_fails_after_a_pass_stops_next_and_runs_nothing_after_it PASSED [ 94%]
+tests/test_run_order.py::test_a_read_later_than_the_last_pass_is_incomplete_even_when_disclosed PASSED [ 94%]
+tests/test_run_order.py::test_rerun_read_is_refused_for_an_unspent_read PASSED [ 94%]
+tests/test_run_order.py::test_start_stops_when_an_extra_read_is_not_in_the_ledger PASSED [ 94%]
+tests/test_run_order.py::test_code_lock_records_then_refuses_a_changed_file_until_given_a_reason PASSED [ 95%]
+tests/test_run_order.py::test_code_lock_ignores_report_py_and_a_restamp PASSED [ 95%]
+tests/test_run_order.py::test_code_lock_covers_freeze_and_the_makefile PASSED [ 95%]
+tests/test_run_order.py::test_row_order_is_the_handoff_list_plus_10a PASSED [ 95%]
+tests/test_run_order.py::test_every_row_from_the_first_lock_on_is_locked_and_the_reads_stay_awake PASSED [ 96%]
+tests/test_run_order.py::test_wedge_is_off_unless_asked PASSED           [ 96%]
+tests/test_run_order.py::test_smoke_list_has_no_row_one_and_runs_stage_three_before_two PASSED [ 96%]
+tests/test_run_order.py::test_row_fifteen_without_images_stops_with_a_message PASSED [ 96%]
+tests/test_run_order.py::test_table_prints_every_row PASSED              [ 97%]
+tests/test_run_order.py::test_reopen_reruns_from_that_row_up_to_the_read_and_keeps_every_log_line PASSED [ 97%]
+tests/test_run_order.py::test_status_shows_a_reopened_row_as_pending PASSED [ 97%]
+tests/test_run_order.py::test_next_cannot_spend_a_read_past_a_reopened_row PASSED [ 97%]
+tests/test_run_order.py::test_reopen_is_refused_once_a_read_is_spent PASSED [ 97%]
+tests/test_run_order.py::test_reopen_needs_a_reason_and_a_row_before_the_first_read PASSED [ 98%]
+tests/test_run_order.py::test_a_step_that_fails_after_a_pass_counts_as_not_done PASSED [ 98%]
+tests/test_splits_features.py::test_grain_ids_unique_and_disjoint PASSED [ 98%]
+tests/test_splits_features.py::test_class_and_lot_shares_match PASSED    [ 98%]
+tests/test_splits_features.py::test_sizefree_lists_have_no_size_columns PASSED [ 99%]
+tests/test_splits_features.py::test_feature_sets_are_inside_all106 PASSED [ 99%]
+tests/test_splits_features.py::test_grey_world_gains_use_mask_only PASSED [ 99%]
+tests/test_splits_features.py::test_unit_gain_leaves_image_unchanged PASSED [ 99%]
+tests/test_splits_features.py::test_floor_for_and_wilson PASSED          [100%]
+
+=============================== warnings summary ===============================
+tests/test_evaluation.py: 21 warnings
+tests/test_harden_seal.py: 3 warnings
+tests/test_r2_fixes.py: 48 warnings
+  /Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/metrics/_classification.py:1879: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no true nor predicted samples. Use `zero_division` parameter to control this behavior.
+    _warn_prf(average, modifier, f"{metric.capitalize()} is", result.shape[0])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+______________________ test_clean_control_passes[stage5] _______________________
+----------------------------- Captured stdout call -----------------------------
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 0.688}
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_clean_control_passes_stag0/control.csv
+____________________ test_clean_control_passes[stage6_mlp] _____________________
+----------------------------- Captured stdout call -----------------------------
+[control_mlp] epoch 1: 0.1 s/epoch on cpu train_loss 1.6177 val_acc 0.2220
+[control_mlp] epoch 2: 0.0 s/epoch on cpu train_loss 1.6053 val_acc 0.3900
+[control_mlp] epoch 3: 0.0 s/epoch on cpu train_loss 1.5971 val_acc 0.4780
+[control_mlp] epoch 4: 0.0 s/epoch on cpu train_loss 1.5901 val_acc 0.5240
+[control_mlp] epoch 5: 0.0 s/epoch on cpu train_loss 1.5869 val_acc 0.5400
+[control_mlp] epoch 6: 0.0 s/epoch on cpu train_loss 1.5791 val_acc 0.5680
+[control_mlp] epoch 7: 0.0 s/epoch on cpu train_loss 1.5766 val_acc 0.5440
+[control_mlp] epoch 8: 0.0 s/epoch on cpu train_loss 1.5748 val_acc 0.5360
+[control_mlp] epoch 9: 0.0 s/epoch on cpu train_loss 1.5707 val_acc 0.5160
+[control_mlp] epoch 10: 0.0 s/epoch on cpu train_loss 1.5705 val_acc 0.5080
+[control_mlp] epoch 11: 0.0 s/epoch on cpu train_loss 1.5648 val_acc 0.4980
+[control_mlp] epoch 12: 0.0 s/epoch on cpu train_loss 1.5679 val_acc 0.5000
+[control_mlp] 12 epochs, best val loss 1.5103
+  model  val_accuracy  train_n  in_18_22_band
+0   mlp         0.568     1500          False
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_clean_control_passes_stag1/control.csv
+__________ test_real_labels_reaching_the_model_stops_the_run[stage5] ___________
+----------------------------- Captured stdout call -----------------------------
+{'model': 'nb', 'featureset': 'all106', 'val_accuracy': 1.0}
+________ test_real_labels_reaching_the_model_stops_the_run[stage6_mlp] _________
+----------------------------- Captured stdout call -----------------------------
+[control_mlp] epoch 1: 0.0 s/epoch on cpu train_loss 1.4954 val_acc 1.0000
+[control_mlp] epoch 2: 0.0 s/epoch on cpu train_loss 1.1416 val_acc 1.0000
+[control_mlp] epoch 3: 0.0 s/epoch on cpu train_loss 0.7740 val_acc 1.0000
+[control_mlp] epoch 4: 0.0 s/epoch on cpu train_loss 0.4528 val_acc 1.0000
+[control_mlp] epoch 5: 0.0 s/epoch on cpu train_loss 0.2226 val_acc 1.0000
+[control_mlp] epoch 6: 0.0 s/epoch on cpu train_loss 0.1048 val_acc 1.0000
+[control_mlp] epoch 7: 0.0 s/epoch on cpu train_loss 0.0546 val_acc 1.0000
+[control_mlp] epoch 8: 0.0 s/epoch on cpu train_loss 0.0338 val_acc 1.0000
+[control_mlp] epoch 9: 0.0 s/epoch on cpu train_loss 0.0240 val_acc 1.0000
+[control_mlp] epoch 10: 0.0 s/epoch on cpu train_loss 0.0198 val_acc 1.0000
+[control_mlp] epoch 11: 0.0 s/epoch on cpu train_loss 0.0189 val_acc 1.0000
+[control_mlp] epoch 12: 0.0 s/epoch on cpu train_loss 0.0181 val_acc 1.0000
+[control_mlp] 12 epochs, best val loss 0.0132
+  model  val_accuracy  train_n  in_18_22_band
+0   mlp           1.0     1500          False
+___________________ test_cnn_row_reaches_the_gate[0.2-False] ___________________
+----------------------------- Captured stdout call -----------------------------
+  model  val_accuracy  train_n  in_18_22_band
+0   cnn           0.2     1500           True
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_cnn_row_reaches_the_gate_0/control.csv
+___________________ test_cnn_row_reaches_the_gate[0.99-True] ___________________
+----------------------------- Captured stdout call -----------------------------
+  model  val_accuracy  train_n  in_18_22_band
+0   cnn          0.99     1500          False
+____________ test_clean_scores_outside_the_band_do_not_stop[0.0004] ____________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_clean_scores_outside_the_0/control.csv
+____________ test_clean_scores_outside_the_band_do_not_stop[0.478] _____________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_clean_scores_outside_the_1/control.csv
+____________ test_clean_scores_outside_the_band_do_not_stop[0.731] _____________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_clean_scores_outside_the_2/control.csv
+________________ test_old_failed_row_cannot_hide_behind_a_rerun ________________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_old_failed_row_cannot_hid0/control.csv
+___________ test_download_dropped_connection_leaves_no_partial_file ____________
+----------------------------- Captured stdout call -----------------------------
+downloading https://www.kaggle.com/api/v1/datasets/download/muratkokludataset/rice-msc-dataset
+  rice-msc.zip: 0 MB
+________________ test_download_success_publishes_complete_file _________________
+----------------------------- Captured stdout call -----------------------------
+downloading https://www.kaggle.com/api/v1/datasets/download/muratkokludataset/rice-msc-dataset
+  rice-msc.zip: 0 MB  rice-msc.zip: 0 MB
+_________ test_write_derived_success_publishes_both_and_leaves_no_tmp __________
+----------------------------- Captured stdout call -----------------------------
+  cached 0/3
+_______ test_write_derived_crash_in_cache_keeps_old_files_byte_identical _______
+----------------------------- Captured stdout call -----------------------------
+  cached 0/3
+  cached 0/3
+_____________ test_write_derived_crash_in_parquet_keeps_old_files ______________
+----------------------------- Captured stdout call -----------------------------
+  cached 0/3
+_________________ test_make_read_only_raises_when_chmod_fails __________________
+----------------------------- Captured stderr call -----------------------------
+chmod: /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_make_read_only_raises_whe0/missing: No such file or directory
+_______________ test_write_derived_renames_memmap_before_parquet _______________
+----------------------------- Captured stdout call -----------------------------
+  cached 0/3
+______________________ test_part_written_file_is_replaced ______________________
+----------------------------- Captured stdout call -----------------------------
+verified rice-msc.zip sha256 ba9a487855bf6f8d...
+/private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_part_written_file_is_repl0/raw/D: 1 zip files missing or part-written, unpacking them
+unpacked /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_part_written_file_is_repl0/raw/D
+raw data verified and read-only
+______________________ test_freeze_passes_clean_controls _______________________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_passes_clean_contr0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_passes_clean_contr0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_passes_clean_contr0/frozen.json
+_____________________ test_freeze_refuses_missing_control ______________________
+----------------------------- Captured stdout call -----------------------------
+cannot freeze, controls:
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_missing_co0/results/baselines/control.csv: missing
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_missing_co0/results/neural/control.csv: missing
+______________________ test_freeze_refuses_failed_control ______________________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_failed_con0/results/neural/control.csv
+cannot freeze, controls:
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_failed_con0/results/baselines/control.csv: CONTROL FAILED: 2 of 2 rows in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_failed_con0/results/baselines/control.csv at or above 90% or empty
+  model featureset  val_accuracy
+0   hgb     all106          0.95
+1    nb     all106          0.95
+_______________ test_freeze_refuses_a_control_with_a_row_missing _______________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_a_control_0/results/baselines/control.csv
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_a_control_0/results/neural/control.csv
+cannot freeze, controls:
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_refuses_a_control_0/results/neural/control.csv: no row for mlp
+___________________ test_freeze_checks_controls_in_smoke_too ___________________
+----------------------------- Captured stdout call -----------------------------
+cannot freeze, controls:
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_checks_controls_in0/results/baselines/control.csv: missing
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_checks_controls_in0/results/neural/control.csv: missing
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_checks_controls_in0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_checks_controls_in0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_checks_controls_in0/frozen.json
+__________ test_route_table_has_one_block_per_seed_on_its_own_numbers __________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_route_table_has_one_block0/test_calibration.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_route_table_has_one_block0/test_routes.csv
+split     model  n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb  4       1.0      0.6          0.6000          1.0                 0.0
+ test cnn_seed0  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed1  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed2  4       1.0      0.1          0.5478          3.0                 0.0
+split  seed                    route  grains  share  errors  accuracy
+ test     0                      hgb       0   0.00     0.0       NaN
+ test     0                      cnn       3   0.75     0.0       1.0
+ test     0                   unsure       0   0.00     NaN       NaN
+ test     0               unfamiliar       1   0.25     NaN       NaN
+ test     0           answered_total       3   0.75     0.0       1.0
+ test     0    unfamiliar_table_gate       1   0.25     NaN       NaN
+ test     0    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     0 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     1                      hgb       0   0.00     0.0       NaN
+ test     1                      cnn       0   0.00     0.0       NaN
+ test     1                   unsure       3   0.75     NaN       NaN
+ test     1               unfamiliar       1   0.25     NaN       NaN
+ test     1           answered_total       0   0.00     0.0       NaN
+ test     1    unfamiliar_table_gate       1   0.25     NaN       NaN
+ test     1    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     1 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     2                      hgb       0   0.00     0.0       NaN
+ test     2                      cnn       0   0.00     0.0       NaN
+ test     2                   unsure       3   0.75     NaN       NaN
+ test     2               unfamiliar       1   0.25     NaN       NaN
+ test     2           answered_total       0   0.00     0.0       NaN
+ test     2    unfamiliar_table_gate       1   0.25     NaN       NaN
+ test     2    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     2 chain_err_at_95_coverage       4   0.95     NaN       1.0
+__________________ test_holdout_cnn_trains_only_when_it_must ___________________
+----------------------------- Captured stdout call -----------------------------
+reusing cnn_seed0.pt: same settings, same training rows
+_______ test_grey_world_is_handed_the_late_test_grains_at_the_call_site ________
+----------------------------- Captured stdout call -----------------------------
+late grains: all 5, test 2
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_grey_world_is_handed_the_0/RES/robustness/late_recall.csv
+                 model    subset  n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all  5     1.0  0.5655      1.0              0.9                  0            
+    holdout_hgb:all106 late_test  2     1.0  0.3424      1.0              0.9                  0            
+   holdout_hgb:shape16  late_all  5     1.0  0.5655      1.0              0.9                  0            
+   holdout_hgb:shape16 late_test  2     1.0  0.3424      1.0              0.9                  0            
+ holdout_hgb:sizefree7  late_all  5     1.0  0.5655      1.0              0.9                  0  hgb:all106
+ holdout_hgb:sizefree7 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22  late_all  5     1.0  0.5655      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+    full_hgb:sizefree7 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+   full_hgb:sizefree22 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+       full_hgb:all106 late_test  2     1.0  0.3424      1.0              0.9                  0            
+      full_hgb:shape16 late_test  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed0  late_all  5     1.0  0.5655      1.0              0.9                  0            
+     holdout_cnn:seed0 late_test  2     1.0  0.3424      1.0              0.9                  0            
+        full_cnn:seed0 late_test  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed1  late_all  5     1.0  0.5655      1.0              0.9                  0            
+     holdout_cnn:seed1 late_test  2     1.0  0.3424      1.0              0.9                  0            
+        full_cnn:seed1 late_test  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed2  late_all  5     1.0  0.5655      1.0              0.9                  0            
+     holdout_cnn:seed2 late_test  2     1.0  0.3424      1.0              0.9                  0            
+        full_cnn:seed2 late_test  2     1.0  0.3424      1.0              0.9                  0            
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_grey_world_is_handed_the_0/RES/robustness/late_chain.csv
+_______________ test_grey_world_gets_the_late_stand_ins_in_smoke _______________
+----------------------------- Captured stdout call -----------------------------
+late grains: all 2, test 1
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_grey_world_gets_the_late_0/RES/robustness/late_recall.csv
+                 model    subset  n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all  2     1.0  0.3424      1.0              0.9                  0            
+    holdout_hgb:all106 late_test  1     1.0  0.2065      1.0              0.9                  0            
+   holdout_hgb:shape16  late_all  2     1.0  0.3424      1.0              0.9                  0            
+   holdout_hgb:shape16 late_test  1     1.0  0.2065      1.0              0.9                  0            
+ holdout_hgb:sizefree7  late_all  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+ holdout_hgb:sizefree7 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22  late_all  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+    full_hgb:sizefree7 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+   full_hgb:sizefree22 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+       full_hgb:all106 late_test  1     1.0  0.2065      1.0              0.9                  0            
+      full_hgb:shape16 late_test  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed0  late_all  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed0 late_test  1     1.0  0.2065      1.0              0.9                  0            
+        full_cnn:seed0 late_test  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed1  late_all  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed1 late_test  1     1.0  0.2065      1.0              0.9                  0            
+        full_cnn:seed1 late_test  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed2  late_all  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed2 late_test  1     1.0  0.2065      1.0              0.9                  0            
+        full_cnn:seed2 late_test  1     1.0  0.2065      1.0              0.9                  0            
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_grey_world_gets_the_late_0/RES/robustness/late_chain.csv
+______________ test_late_recall_says_which_arm_borrowed_its_point ______________
+----------------------------- Captured stdout call -----------------------------
+late grains: all 1, test 1
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_late_recall_says_which_ar0/RES/robustness/late_recall.csv
+                 model    subset  n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all  1     1.0  0.2065      1.0              0.9                  0            
+    holdout_hgb:all106 late_test  1     1.0  0.2065      1.0              0.9                  0            
+   holdout_hgb:shape16  late_all  1     1.0  0.2065      1.0              0.9                  0            
+   holdout_hgb:shape16 late_test  1     1.0  0.2065      1.0              0.9                  0            
+ holdout_hgb:sizefree7  late_all  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+ holdout_hgb:sizefree7 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22  late_all  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+    full_hgb:sizefree7 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+   full_hgb:sizefree22 late_test  1     1.0  0.2065      1.0              0.9                  0  hgb:all106
+       full_hgb:all106 late_test  1     1.0  0.2065      1.0              0.9                  0            
+      full_hgb:shape16 late_test  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed0  late_all  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed0 late_test  1     1.0  0.2065      1.0              0.9                  0            
+        full_cnn:seed0 late_test  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed1  late_all  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed1 late_test  1     1.0  0.2065      1.0              0.9                  0            
+        full_cnn:seed1 late_test  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed2  late_all  1     1.0  0.2065      1.0              0.9                  0            
+     holdout_cnn:seed2 late_test  1     1.0  0.2065      1.0              0.9                  0            
+        full_cnn:seed2 late_test  1     1.0  0.2065      1.0              0.9                  0            
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_late_recall_says_which_ar0/RES/robustness/late_chain.csv
+__________ test_stage7_tables_stand_on_a_thin_read[no disagreements] ___________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_0/test_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_0/test_recall.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_0/test_confusion.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_0/test_seed_spread.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_0/test_mcnemar.csv
+model featureset  accuracy  errors  macro_f1
+  hgb     all106       1.0       0       1.0
+  cnn      image       1.0       0       1.0
+  mlp     all106       1.0       0       1.0
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0    primary     1.0
+    0 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0    primary     1.0
+    0 mlp:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0    primary     1.0
+    1 hgb:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    1 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    1 mlp:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    2 hgb:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    2 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    2 mlp:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_0/no/such/folder/compare_confusion_test.png
+___________ test_stage7_tables_stand_on_a_thin_read[class 4 absent] ____________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_1/test_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_1/test_recall.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_1/test_confusion.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_1/test_seed_spread.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_1/test_mcnemar.csv
+model featureset  accuracy  errors  macro_f1
+  hgb     all106   1.00000       0   0.80000
+  cnn      image   0.66667       2   0.56667
+  mlp     all106   1.00000       0   0.80000
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                  2                  0              2      0.5         0         2   0.33333      0.0   0.5875    primary     1.0
+    0 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0   0.00000      0.0   0.0000    primary     1.0
+    0 mlp:all106  cnn:image                  2                  0              2      0.5         0         2   0.33333      0.0   0.5875    primary     1.0
+    1 hgb:all106  cnn:image                  2                  0              2      0.5         0         2   0.33333      0.0   0.5875 seed_check     1.0
+    1 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0   0.00000      0.0   0.0000 seed_check     1.0
+    1 mlp:all106  cnn:image                  2                  0              2      0.5         0         2   0.33333      0.0   0.5875 seed_check     1.0
+    2 hgb:all106  cnn:image                  2                  0              2      0.5         0         2   0.33333      0.0   0.5875 seed_check     1.0
+    2 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0   0.00000      0.0   0.0000 seed_check     1.0
+    2 mlp:all106  cnn:image                  2                  0              2      0.5         0         2   0.33333      0.0   0.5875 seed_check     1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_1/no/such/folder/compare_confusion_test.png
+___ test_stage7_tables_stand_on_a_thin_read[one model wrong on every grain] ____
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_2/test_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_2/test_recall.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_2/test_confusion.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_2/test_seed_spread.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_2/test_mcnemar.csv
+model featureset  accuracy  errors  macro_f1
+  hgb     all106       1.0       0       1.0
+  cnn      image       0.0       6       0.0
+  mlp     all106       1.0       0       1.0
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                  6                  0              6  0.03125         0         6       1.0      1.0      1.0    primary 0.09375
+    0 hgb:all106 mlp:all106                  0                  0              0  1.00000         0         0       0.0      0.0      0.0    primary 1.00000
+    0 mlp:all106  cnn:image                  6                  0              6  0.03125         0         6       1.0      1.0      1.0    primary 0.09375
+    1 hgb:all106  cnn:image                  6                  0              6  0.03125         0         6       1.0      1.0      1.0 seed_check 0.09375
+    1 hgb:all106 mlp:all106                  0                  0              0  1.00000         0         0       0.0      0.0      0.0 seed_check 1.00000
+    1 mlp:all106  cnn:image                  6                  0              6  0.03125         0         6       1.0      1.0      1.0 seed_check 0.09375
+    2 hgb:all106  cnn:image                  6                  0              6  0.03125         0         6       1.0      1.0      1.0 seed_check 0.09375
+    2 hgb:all106 mlp:all106                  0                  0              0  1.00000         0         0       0.0      0.0      0.0 seed_check 1.00000
+    2 mlp:all106  cnn:image                  6                  0              6  0.03125         0         6       1.0      1.0      1.0 seed_check 0.09375
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_2/no/such/folder/compare_confusion_test.png
+___________ test_stage7_tables_stand_on_a_thin_read[one grain right] ___________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_3/test_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_3/test_recall.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_3/test_confusion.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_3/test_seed_spread.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_3/test_mcnemar.csv
+model featureset  accuracy  errors  macro_f1
+  hgb     all106       1.0       0       0.2
+  cnn      image       1.0       0       0.2
+  mlp     all106       1.0       0       0.2
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0    primary     1.0
+    0 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0    primary     1.0
+    0 mlp:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0    primary     1.0
+    1 hgb:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    1 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    1 mlp:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    2 hgb:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    2 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    2 mlp:all106  cnn:image                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_3/no/such/folder/compare_confusion_test.png
+___________ test_stage7_tables_stand_on_a_thin_read[one grain wrong] ___________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_4/test_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_4/test_recall.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_4/test_confusion.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_4/test_seed_spread.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_4/test_mcnemar.csv
+model featureset  accuracy  errors  macro_f1
+  hgb     all106       1.0       0       0.2
+  cnn      image       0.0       1       0.0
+  mlp     all106       1.0       0       0.2
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                  1                  0              1      1.0         0         1       1.0      1.0      1.0    primary     1.0
+    0 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0    primary     1.0
+    0 mlp:all106  cnn:image                  1                  0              1      1.0         0         1       1.0      1.0      1.0    primary     1.0
+    1 hgb:all106  cnn:image                  1                  0              1      1.0         0         1       1.0      1.0      1.0 seed_check     1.0
+    1 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    1 mlp:all106  cnn:image                  1                  0              1      1.0         0         1       1.0      1.0      1.0 seed_check     1.0
+    2 hgb:all106  cnn:image                  1                  0              1      1.0         0         1       1.0      1.0      1.0 seed_check     1.0
+    2 hgb:all106 mlp:all106                  0                  0              0      1.0         0         0       0.0      0.0      0.0 seed_check     1.0
+    2 mlp:all106  cnn:image                  1                  0              1      1.0         0         1       1.0      1.0      1.0 seed_check     1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_tables_stand_on_a_4/no/such/folder/compare_confusion_test.png
+___________ test_stage8_report_stands_with_empty_routes[all on hgb] ____________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with0/test_calibration.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with0/test_routes.csv
+split     model  n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed0  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed1  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed2  4       1.0      0.1          0.5478          3.0                 0.0
+split  seed                    route  grains  share  errors  accuracy
+ test     0                      hgb       4   1.00     0.0       1.0
+ test     0                      cnn       0   0.00     0.0       NaN
+ test     0                   unsure       0   0.00     NaN       NaN
+ test     0               unfamiliar       0   0.00     NaN       NaN
+ test     0           answered_total       4   1.00     0.0       1.0
+ test     0    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     0    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     0 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     1                      hgb       4   1.00     0.0       1.0
+ test     1                      cnn       0   0.00     0.0       NaN
+ test     1                   unsure       0   0.00     NaN       NaN
+ test     1               unfamiliar       0   0.00     NaN       NaN
+ test     1           answered_total       4   1.00     0.0       1.0
+ test     1    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     1    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     1 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     2                      hgb       4   1.00     0.0       1.0
+ test     2                      cnn       0   0.00     0.0       NaN
+ test     2                   unsure       0   0.00     NaN       NaN
+ test     2               unfamiliar       0   0.00     NaN       NaN
+ test     2           answered_total       4   1.00     0.0       1.0
+ test     2    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     2    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     2 chain_err_at_95_coverage       4   0.95     NaN       1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with0/no/such/folder/routing_risk_coverage_test.png
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with0/no/such/folder/routing_reliability_test.png
+_________ test_stage8_report_stands_with_empty_routes[all unfamiliar] __________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with1/test_calibration.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with1/test_routes.csv
+split     model  n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed0  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed1  4       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed2  4       1.0      0.1          0.5478          3.0                 0.0
+split  seed                    route  grains  share  errors  accuracy
+ test     0                      hgb       0   0.00     0.0       NaN
+ test     0                      cnn       0   0.00     0.0       NaN
+ test     0                   unsure       0   0.00     NaN       NaN
+ test     0               unfamiliar       4   1.00     NaN       NaN
+ test     0           answered_total       0   0.00     0.0       NaN
+ test     0    unfamiliar_table_gate       4   1.00     NaN       NaN
+ test     0    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     0 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     1                      hgb       0   0.00     0.0       NaN
+ test     1                      cnn       0   0.00     0.0       NaN
+ test     1                   unsure       0   0.00     NaN       NaN
+ test     1               unfamiliar       4   1.00     NaN       NaN
+ test     1           answered_total       0   0.00     0.0       NaN
+ test     1    unfamiliar_table_gate       4   1.00     NaN       NaN
+ test     1    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     1 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     2                      hgb       0   0.00     0.0       NaN
+ test     2                      cnn       0   0.00     0.0       NaN
+ test     2                   unsure       0   0.00     NaN       NaN
+ test     2               unfamiliar       4   1.00     NaN       NaN
+ test     2           answered_total       0   0.00     0.0       NaN
+ test     2    unfamiliar_table_gate       4   1.00     NaN       NaN
+ test     2    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     2 chain_err_at_95_coverage       4   0.95     NaN       1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with1/no/such/folder/routing_risk_coverage_test.png
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with1/no/such/folder/routing_reliability_test.png
+______ test_stage8_report_stands_with_empty_routes[confidence exactly 1] _______
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with2/test_calibration.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with2/test_routes.csv
+split     model  n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb  4       1.0      0.0          0.0000          1.0                 0.0
+ test cnn_seed0  4       1.0      0.0          0.0000          1.0                 0.0
+ test cnn_seed1  4       1.0      0.0          0.0000          1.0                 0.0
+ test cnn_seed2  4       1.0      0.0          0.0004          3.0                 0.0
+split  seed                    route  grains  share  errors  accuracy
+ test     0                      hgb       4   1.00     0.0       1.0
+ test     0                      cnn       0   0.00     0.0       NaN
+ test     0                   unsure       0   0.00     NaN       NaN
+ test     0               unfamiliar       0   0.00     NaN       NaN
+ test     0           answered_total       4   1.00     0.0       1.0
+ test     0    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     0    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     0 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     1                      hgb       4   1.00     0.0       1.0
+ test     1                      cnn       0   0.00     0.0       NaN
+ test     1                   unsure       0   0.00     NaN       NaN
+ test     1               unfamiliar       0   0.00     NaN       NaN
+ test     1           answered_total       4   1.00     0.0       1.0
+ test     1    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     1    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     1 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     2                      hgb       4   1.00     0.0       1.0
+ test     2                      cnn       0   0.00     0.0       NaN
+ test     2                   unsure       0   0.00     NaN       NaN
+ test     2               unfamiliar       0   0.00     NaN       NaN
+ test     2           answered_total       4   1.00     0.0       1.0
+ test     2    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     2    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     2 chain_err_at_95_coverage       4   0.95     NaN       1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with2/no/such/folder/routing_risk_coverage_test.png
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with2/no/such/folder/routing_reliability_test.png
+____________ test_stage8_report_stands_with_empty_routes[one grain] ____________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with3/test_calibration.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with3/test_routes.csv
+split     model  n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb  1       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed0  1       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed1  1       1.0      0.1          0.1000          1.0                 0.0
+ test cnn_seed2  1       1.0      0.1          0.5478          3.0                 0.0
+split  seed                    route  grains  share  errors  accuracy
+ test     0                      hgb       1   1.00     0.0       1.0
+ test     0                      cnn       0   0.00     0.0       NaN
+ test     0                   unsure       0   0.00     NaN       NaN
+ test     0               unfamiliar       0   0.00     NaN       NaN
+ test     0           answered_total       1   1.00     0.0       1.0
+ test     0    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     0    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     0 chain_err_at_95_coverage       1   0.95     NaN       1.0
+ test     1                      hgb       1   1.00     0.0       1.0
+ test     1                      cnn       0   0.00     0.0       NaN
+ test     1                   unsure       0   0.00     NaN       NaN
+ test     1               unfamiliar       0   0.00     NaN       NaN
+ test     1           answered_total       1   1.00     0.0       1.0
+ test     1    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     1    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     1 chain_err_at_95_coverage       1   0.95     NaN       1.0
+ test     2                      hgb       1   1.00     0.0       1.0
+ test     2                      cnn       0   0.00     0.0       NaN
+ test     2                   unsure       0   0.00     NaN       NaN
+ test     2               unfamiliar       0   0.00     NaN       NaN
+ test     2           answered_total       1   1.00     0.0       1.0
+ test     2    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     2    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     2 chain_err_at_95_coverage       1   0.95     NaN       1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with3/no/such/folder/routing_risk_coverage_test.png
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with3/no/such/folder/routing_reliability_test.png
+___________ test_stage8_report_stands_with_empty_routes[all unsure] ____________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with4/test_calibration.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with4/test_routes.csv
+split     model  n  accuracy  ece_raw  ece_calibrated  temperature  err_at_95_coverage
+ test       hgb  4       1.0      0.7          0.7000          1.0                 0.0
+ test cnn_seed0  4       1.0      0.7          0.7000          1.0                 0.0
+ test cnn_seed1  4       1.0      0.7          0.7000          1.0                 0.0
+ test cnn_seed2  4       1.0      0.7          0.7697          3.0                 0.0
+split  seed                    route  grains  share  errors  accuracy
+ test     0                      hgb       0   0.00     0.0       NaN
+ test     0                      cnn       0   0.00     0.0       NaN
+ test     0                   unsure       4   1.00     NaN       NaN
+ test     0               unfamiliar       0   0.00     NaN       NaN
+ test     0           answered_total       0   0.00     0.0       NaN
+ test     0    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     0    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     0 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     1                      hgb       0   0.00     0.0       NaN
+ test     1                      cnn       0   0.00     0.0       NaN
+ test     1                   unsure       4   1.00     NaN       NaN
+ test     1               unfamiliar       0   0.00     NaN       NaN
+ test     1           answered_total       0   0.00     0.0       NaN
+ test     1    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     1    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     1 chain_err_at_95_coverage       4   0.95     NaN       1.0
+ test     2                      hgb       0   0.00     0.0       NaN
+ test     2                      cnn       0   0.00     0.0       NaN
+ test     2                   unsure       4   1.00     NaN       NaN
+ test     2               unfamiliar       0   0.00     NaN       NaN
+ test     2           answered_total       0   0.00     0.0       NaN
+ test     2    unfamiliar_table_gate       0   0.00     NaN       NaN
+ test     2    unfamiliar_image_gate       0   0.00     NaN       NaN
+ test     2 chain_err_at_95_coverage       4   0.95     NaN       1.0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with4/no/such/folder/routing_risk_coverage_test.png
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage8_report_stands_with4/no/such/folder/routing_reliability_test.png
+___________ test_a_read_with_no_late_grain_in_test_leaves_empty_rows ___________
+----------------------------- Captured stdout call -----------------------------
+late grains: all 2, test 0
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_read_with_no_late_grain0/RES/robustness/late_recall.csv
+                 model    subset  n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all  2     1.0  0.3424      1.0              0.9                  0            
+    holdout_hgb:all106 late_test  0     NaN     NaN      NaN              NaN                  0            
+   holdout_hgb:shape16  late_all  2     1.0  0.3424      1.0              0.9                  0            
+   holdout_hgb:shape16 late_test  0     NaN     NaN      NaN              NaN                  0            
+ holdout_hgb:sizefree7  late_all  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+ holdout_hgb:sizefree7 late_test  0     NaN     NaN      NaN              NaN                  0  hgb:all106
+holdout_hgb:sizefree22  late_all  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22 late_test  0     NaN     NaN      NaN              NaN                  0  hgb:all106
+    full_hgb:sizefree7 late_test  0     NaN     NaN      NaN              NaN                  0  hgb:all106
+   full_hgb:sizefree22 late_test  0     NaN     NaN      NaN              NaN                  0  hgb:all106
+       full_hgb:all106 late_test  0     NaN     NaN      NaN              NaN                  0            
+      full_hgb:shape16 late_test  0     NaN     NaN      NaN              NaN                  0            
+     holdout_cnn:seed0  late_all  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed0 late_test  0     NaN     NaN      NaN              NaN                  0            
+        full_cnn:seed0 late_test  0     NaN     NaN      NaN              NaN                  0            
+     holdout_cnn:seed1  late_all  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed1 late_test  0     NaN     NaN      NaN              NaN                  0            
+        full_cnn:seed1 late_test  0     NaN     NaN      NaN              NaN                  0            
+     holdout_cnn:seed2  late_all  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed2 late_test  0     NaN     NaN      NaN              NaN                  0            
+        full_cnn:seed2 late_test  0     NaN     NaN      NaN              NaN                  0            
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_read_with_no_late_grain0/RES/robustness/late_chain.csv
+_________ test_every_late_grain_on_one_route_and_a_missing_cell_stand __________
+----------------------------- Captured stdout call -----------------------------
+late grains: all 4, test 2
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_every_late_grain_on_one_r0/RES/robustness/late_recall.csv
+                 model    subset  n  recall  ci_low  ci_high  mean_confidence  confidently_wrong params_from
+    holdout_hgb:all106  late_all  4     1.0  0.5101      1.0              0.9                  0            
+    holdout_hgb:all106 late_test  2     1.0  0.3424      1.0              0.9                  0            
+   holdout_hgb:shape16  late_all  4     1.0  0.5101      1.0              0.9                  0            
+   holdout_hgb:shape16 late_test  2     1.0  0.3424      1.0              0.9                  0            
+ holdout_hgb:sizefree7  late_all  4     1.0  0.5101      1.0              0.9                  0  hgb:all106
+ holdout_hgb:sizefree7 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22  late_all  4     1.0  0.5101      1.0              0.9                  0  hgb:all106
+holdout_hgb:sizefree22 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+    full_hgb:sizefree7 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+   full_hgb:sizefree22 late_test  2     1.0  0.3424      1.0              0.9                  0  hgb:all106
+       full_hgb:all106 late_test  2     1.0  0.3424      1.0              0.9                  0            
+      full_hgb:shape16 late_test  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed0  late_all  4     1.0  0.5101      1.0              0.9                  0            
+     holdout_cnn:seed0 late_test  2     1.0  0.3424      1.0              0.9                  0            
+        full_cnn:seed0 late_test  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed1  late_all  4     1.0  0.5101      1.0              0.9                  0            
+     holdout_cnn:seed1 late_test  2     1.0  0.3424      1.0              0.9                  0            
+        full_cnn:seed1 late_test  2     1.0  0.3424      1.0              0.9                  0            
+     holdout_cnn:seed2  late_all  4     1.0  0.5101      1.0              0.9                  0            
+     holdout_cnn:seed2 late_test  2     1.0  0.3424      1.0              0.9                  0            
+        full_cnn:seed2 late_test  2     1.0  0.3424      1.0              0.9                  0            
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_every_late_grain_on_one_r0/RES/robustness/late_chain.csv
+_____________________ test_missing_output_folders_are_made _____________________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_missing_output_folders_ar0/RES/preds/cnn__image__seed0__test.parquet
+_ test_no_late_test_grain_keeps_the_gain_tables_and_stops_before_the_tint_arms _
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_no_late_test_grain_keeps_0/RES/robustness/greyworld_gain_vs_area.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_no_late_test_grain_keeps_0/RES/robustness/mean_colour_check.csv
+no late test grains: tint arms not scored
+_______________ test_freeze_hashes_each_file_under_its_own_path ________________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_hashes_each_file_u0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_hashes_each_file_u0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_freeze_hashes_each_file_u0/frozen.json
+___ test_a_changed_file_changes_the_hash[results/baselines/best_params.json] ___
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th0/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th0/results/neural/control.csv
+frozen c95e1623a6acab91d620cc1122f48bd0a4b33548fcb78da3edfe80e167e38aa8 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th0/frozen.json
+____ test_a_changed_file_changes_the_hash[results/neural/best_config.json] _____
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th1/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th1/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th1/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th1/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th1/results/neural/control.csv
+frozen 75ba7e206bc37045ba3b877ad1df88ba54bf40813ffafcb83185c5e5709c3afb -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th1/frozen.json
+_____ test_a_changed_file_changes_the_hash[results/features/selected.json] _____
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th2/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th2/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th2/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th2/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th2/results/neural/control.csv
+frozen 89ba32273bb50603361f8e5acf1c87d319d2e4853cf5c3147f9e987ff68af372 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th2/frozen.json
+____________ test_a_changed_file_changes_the_hash[data/splits.csv] _____________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th3/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th3/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th3/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th3/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th3/results/neural/control.csv
+frozen d477b560d48ec2a37b78d21d9c50060d2a4d67c1378eea75a1d6823273cbc2c5 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th3/frozen.json
+__________ test_a_changed_file_changes_the_hash[models/routing.json] ___________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th4/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th4/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th4/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th4/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th4/results/neural/control.csv
+frozen f7bbe5ad33ee8013679f9eee0cf4d0ce40087029115169ce38f29603288c7c6a -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th4/frozen.json
+________ test_a_changed_file_changes_the_hash[models/gate_table.joblib] ________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th5/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th5/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th5/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th5/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th5/results/neural/control.csv
+frozen f4fe044dfa5f66c1f949e70a9a3a107b16d97a881efb7a9ac8dfb6d06177ae31 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th5/frozen.json
+________ test_a_changed_file_changes_the_hash[models/gate_image.joblib] ________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th6/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th6/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th6/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th6/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th6/results/neural/control.csv
+frozen 77a94af36ecf5388cd8da374addef9d565adffd0bf3c62975624dd6192ce0791 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th6/frozen.json
+______ test_a_changed_file_changes_the_hash[models/holdout/routing.json] _______
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th7/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th7/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th7/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th7/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th7/results/neural/control.csv
+frozen 21e0a957a47e5c882d723537ddf53a18dc1213a6182a406509de68a6102b1283 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th7/frozen.json
+____ test_a_changed_file_changes_the_hash[models/holdout/gate_table.joblib] ____
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th8/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th8/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th8/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th8/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th8/results/neural/control.csv
+frozen 86738080719b81a4786fec0646e29df219ac87585babff5d9372811990e8687f -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th8/frozen.json
+____ test_a_changed_file_changes_the_hash[models/holdout/gate_image.joblib] ____
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th9/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th9/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th9/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th9/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th9/results/neural/control.csv
+frozen c2d01f695b8f9964b4a63302f52e0a990e6db1137f92d8928cb1c1dbccf3ca99 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th9/frozen.json
+__________ test_a_changed_file_changes_the_hash[models/cnn_seed1.pt] ___________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th10/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th10/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th10/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th10/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th10/results/neural/control.csv
+frozen 0bb533ef9d3fe355fa94df8d9ae4efaa1ed98bfa514ad659e5139a65ef553a8c -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th10/frozen.json
+__________ test_a_changed_file_changes_the_hash[models/mlp_seed2.pt] ___________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th11/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th11/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th11/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th11/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th11/results/neural/control.csv
+frozen e6a79b49c65f1bb5690dd375a1962a986ef6ac43822ac6359bf649605d3eff98 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th11/frozen.json
+_________ test_a_changed_file_changes_the_hash[models/mlp_prep.joblib] _________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th12/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th12/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th12/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th12/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th12/results/neural/control.csv
+frozen a6493c97423847217547b4c2d5db5e1ecef3305f8635ec0a9e094a68b56f1dc4 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th12/frozen.json
+________ test_a_changed_file_changes_the_hash[models/hgb_all106.joblib] ________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th13/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th13/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th13/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th13/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th13/results/neural/control.csv
+frozen 2c9017a9a9b9e134e184e96571fec53c5e4ff09636de68aad314513907976983 -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th13/frozen.json
+__ test_a_changed_file_changes_the_hash[models/baselines/hgb__all106.joblib] ___
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th14/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th14/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th14/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th14/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th14/results/neural/control.csv
+frozen 933d1d4cf881bbe05e7b92317ec3ff1f9703b78f1043aa05992ac11edc944dfd -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th14/frozen.json
+______ test_a_changed_file_changes_the_hash[models/holdout/cnn_seed2.pt] _______
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th15/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th15/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th15/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th15/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th15/results/neural/control.csv
+frozen 267a601e067ff9d30ef82e5f7b8ad4645327f8c775caf5022ba2e1b9437146bf -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th15/frozen.json
+___ test_a_changed_file_changes_the_hash[models/holdout/hgb__shape16.joblib] ___
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th16/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th16/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th16/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th16/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th16/results/neural/control.csv
+frozen 9dfab1ff42909ab736d1da184a880734f8d70479dcaca9194c33ec8c02c55cbe -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th16/frozen.json
+_ test_a_changed_file_changes_the_hash[models/holdout/full_hgb__sizefree7.joblib] _
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th17/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th17/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th17/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th17/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th17/results/neural/control.csv
+frozen 8ba82f7458d56e10664a165518cdaabd87baa3db9a6d590e61920ad11f69c79c -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_changed_file_changes_th17/frozen.json
+_____________ test_a_failed_freeze_removes_the_older_file[control] _____________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t0/frozen.json
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t0/results/neural/control.csv
+cannot freeze, controls:
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t0/results/baselines/control.csv: CONTROL FAILED: 2 of 2 rows in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t0/results/baselines/control.csv at or above 90% or empty
+  model featureset  val_accuracy
+0   hgb     all106          0.95
+1    nb     all106          0.95
+______________ test_a_failed_freeze_removes_the_older_file[part] _______________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t1/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t1/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t1/frozen.json
+cannot freeze, missing:
+  /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t1/models/routing.json
+______________ test_a_failed_freeze_removes_the_older_file[crash] ______________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t2/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t2/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_failed_freeze_removes_t2/frozen.json
+_______________ test_a_log_with_no_rows_does_not_stop_a_freeze[] _______________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_log_with_no_rows_does_n0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_log_with_no_rows_does_n0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_log_with_no_rows_does_n0/frozen.json
+__ test_a_log_with_no_rows_does_not_stop_a_freeze[caller,time,frozen_hash\n] ___
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_log_with_no_rows_does_n1/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_log_with_no_rows_does_n1/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_log_with_no_rows_does_n1/frozen.json
+___________________ test_a_read_after_freeze_passes_and_logs ___________________
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_read_after_freeze_passe0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_read_after_freeze_passe0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_read_after_freeze_passe0/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[models/routing.json-changed] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free0/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[models/routing.json-gone] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free1/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free1/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free1/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[models/holdout/cnn_seed0.pt-changed] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free2/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free2/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free2/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[models/holdout/cnn_seed0.pt-gone] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free3/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free3/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free3/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[results/features/selected.json-changed] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free4/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free4/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free4/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[results/features/selected.json-gone] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free5/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free5/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free5/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[data/splits.csv-changed] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free6/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free6/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free6/frozen.json
+_ test_a_file_changed_since_freeze_stops_the_read_unlogged[data/splits.csv-gone] _
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free7/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free7/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_file_changed_since_free7/frozen.json
+______________ test_a_change_between_reads_stops_the_second_read _______________
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_change_between_reads_st0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_change_between_reads_st0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_change_between_reads_st0/frozen.json
+___________ test_a_redirected_models_folder_stops_the_read_unlogged ____________
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_redirected_models_folde0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_redirected_models_folde0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_redirected_models_folde0/frozen.json
+____________________ test_the_per_batch_gate_hashes_nothing ____________________
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_the_per_batch_gate_hashes0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_the_per_batch_gate_hashes0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_the_per_batch_gate_hashes0/frozen.json
+_____________ test_a_smoke_read_goes_through_the_gate_and_the_log ______________
+---------------------------- Captured stdout setup -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_smoke_read_goes_through0/results/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_smoke_read_goes_through0/results/neural/control.csv
+frozen cfce8eea417298330b11ed3a100b5ab4d1551e9b0be3044cf3330d1f1a2472fa -> /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_smoke_read_goes_through0/frozen.json
+_ test_stage9_train_stops_on_the_controls_before_any_fit[kw1-baselines/control.csv] _
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_train_stops_on_the1/RES/neural/control.csv
+__ test_stage9_train_stops_on_the_controls_before_any_fit[kw2-no row for mlp] __
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_train_stops_on_the2/RES/baselines/control.csv
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_train_stops_on_the2/RES/neural/control.csv
+________ test_stage9_controls_pass_when_clean_and_smoke_checks_them_too ________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_controls_pass_when0/RES/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_controls_pass_when0/RES/neural/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_controls_pass_when0/RES/baselines/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_controls_pass_when0/RES/neural/control.csv
+controls passed: 2 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage9_controls_pass_when0/RES/neural/control.csv
+__________________ test_tint_arms_score_late_test_grains_only __________________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_tint_arms_score_late_test0/greyworld_gain_vs_area.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_tint_arms_score_late_test0/mean_colour_check.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_tint_arms_score_late_test0/greyworld_results.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_tint_arms_score_late_test0/greyworld_control.csv
+              arm       variant  n  accuracy
+mean_colour_model           raw  7    0.2857
+mean_colour_model    grey_world  7    0.2857
+        cnn_seed0 raw_same_path  7    0.2857
+        cnn_seed0    grey_world  7    0.2857
+        cnn_seed1 raw_same_path  7    0.2857
+        cnn_seed1    grey_world  7    0.2857
+        cnn_seed2 raw_same_path  7    0.2857
+        cnn_seed2    grey_world  7    0.2857
+Empty DataFrame
+Columns: []
+Index: []
+_______________ test_val_results_has_fit_seconds_as_last_column ________________
+----------------------------- Captured stdout call -----------------------------
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.2, 'val_macro_f1': 0.06666666666666667, 'val_macro_precision': 0.04, 'val_macro_recall': 0.2, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 1.374981366097927e-06}
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_val_results_has_fit_secon0/grid.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_val_results_has_fit_secon0/val_results.csv
+_________ test_stage7_test_tables_use_the_read_frame_and_leave_blanks __________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_recall.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_by_lot.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_by_angle.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_by_angle_lot.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_confusion.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_seed_spread.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/test_mcnemar.csv
+model featureset  accuracy  errors  macro_f1
+  hgb     all106   0.66667       2       0.5
+Empty DataFrame
+Columns: []
+Index: []
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_use_th0/no/such/folder/compare_confusion_test.png
+__________ test_stage7_test_tables_stop_on_a_prediction_with_no_grain __________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_stop_o0/test_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_test_tables_stop_o0/test_recall.csv
+_________________ test_stage7_val_tables_still_use_load_grains _________________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_metrics.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_recall.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_by_lot.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_by_angle.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_by_angle_lot.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_confusion.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_seed_spread.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/val_mcnemar.csv
+model featureset  accuracy  errors  macro_f1
+  hgb     all106   0.66667       2       0.5
+Empty DataFrame
+Columns: []
+Index: []
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_stage7_val_tables_still_u0/no/such/folder/compare_confusion_val.png
+_ test_report_draws_learning_curve_and_late_recall_figures_with_an_empty_cell __
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_report_draws_learning_cur0/report_learning_curves.png
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_report_draws_learning_cur0/report_late_lot_recall.png
+__________ test_report_figures_draw_an_interval_that_misses_its_point __________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_report_figures_draw_an_in0/report_late_lot_recall.png
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_report_figures_draw_an_in0/summary_comparison.png
+_______ test_predict_exits_2_with_no_argument_and_on_an_unreadable_image _______
+----------------------------- Captured stderr call -----------------------------
+usage: python src/predict.py <image.jpg>
+cannot read image /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_predict_exits_2_with_no_a0/not_an_image.png: cannot identify image file '/private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_predict_exits_2_with_no_a0/not_an_image.png'
+________ test_report_figures_draw_nothing_from_a_missing_or_empty_file _________
+----------------------------- Captured stdout call -----------------------------
+no learning curves yet; figure skipped
+no learning curves yet; figure skipped
+no late-lot recall yet; figure skipped
+no late-lot recall yet; figure skipped
+____________ test_holdout_cnn_retrains_when_the_code_digest_changed ____________
+----------------------------- Captured stdout call -----------------------------
+reusing c.pt: same settings, same training rows
+____________ test_report_main_runs_with_run_log_and_ledger_missing _____________
+----------------------------- Captured stdout call -----------------------------
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_report_main_runs_with_run0/res/SUMMARY.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_report_main_runs_with_run0/res/DISCLOSURES.csv
+wrote /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_report_main_runs_with_run0/res/MANIFEST.csv
+no comparison metrics yet; figure skipped
+no learning curves yet; figure skipped
+no late-lot recall yet; figure skipped
+__________________________ test_epoch_log_rows_parse ___________________________
+----------------------------- Captured stdout call -----------------------------
+[t] epoch 1: 114.8 s/epoch on cpu 
+[t] epoch 2: 1.5 s/epoch on cpu 
+_______________ test_must_tune_reuses_only_the_winner[cnn-grid0] _______________
+----------------------------- Captured stdout call -----------------------------
+cnn: reusing the tuned config {'width': 16, 'lr': 0.0003, 'dropout': 0.3} for seeds [2]
+_______________ test_must_tune_reuses_only_the_winner[mlp-grid1] _______________
+----------------------------- Captured stdout call -----------------------------
+mlp: reusing the tuned config {'hidden': [100], 'lr': 0.0003, 'dropout': 0.2} for seeds [2]
+______________ test_crash_keeps_finished_jobs_and_full_run_clears ______________
+----------------------------- Captured stdout call -----------------------------
+{'model': 'nb', 'featureset': 'shape16', 'val_accuracy': 0.2, 'val_macro_f1': 0.06666666666666667, 'val_macro_precision': 0.04, 'val_macro_recall': 0.2, 'params': '{"var_smoothing": 1e-09}', 'fit_seconds': 1.49579718708992e-05}
+_____________________ test_wrong_image_exits_2[size0-RGB] ______________________
+----------------------------- Captured stderr call -----------------------------
+/private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_wrong_image_exits_2_size00/x.png: expected a 250x250 RGB image, got 100x100 RGB
+______________________ test_wrong_image_exits_2[size1-L] _______________________
+----------------------------- Captured stderr call -----------------------------
+/private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_wrong_image_exits_2_size10/x.png: expected a 250x250 RGB image, got 250x250 L
+________ test_stops_at_first_failed_check_and_resumes_without_repeating ________
+----------------------------- Captured stdout call -----------------------------
+row A: pass
+row B: fail: planted fault
+row B: pass
+row C: pass
+----------------------------- Captured stderr call -----------------------------
+STOP: row B failed; fix it, then run again
+_______ test_a_nonzero_exit_fails_the_row_even_when_the_check_would_pass _______
+----------------------------- Captured stdout call -----------------------------
+row A: fail: exit code 3
+----------------------------- Captured stderr call -----------------------------
+STOP: row A failed; fix it, then run again
+____________ test_a_torn_log_line_stops_the_runner_and_nothing_runs ____________
+----------------------------- Captured stderr call -----------------------------
+STOP: /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_a_torn_log_line_stops_the0/res/run_log.csv ends in a torn line; look at it before going on
+_______________ test_a_complete_log_line_is_read_back_as_passed ________________
+----------------------------- Captured stdout call -----------------------------
+nothing pending
+_____________ test_a_check_that_raises_fails_the_row_and_is_logged _____________
+----------------------------- Captured stdout call -----------------------------
+row A: fail: check raised ValueError: planted
+----------------------------- Captured stderr call -----------------------------
+STOP: row A failed; fix it, then run again
+_______________ test_control_check_names_each_stage_that_failed ________________
+----------------------------- Captured stdout call -----------------------------
+controls passed: 1 rows below 90% in /private/var/folders/kk/v75sxq593436btldg6_n89zm0000gn/T/pytest-of-y/pytest-3121/test_control_check_names_each_0/res/baselines/control.csv
+___________ test_a_spent_read_that_fails_its_check_is_never_retried ____________
+----------------------------- Captured stderr call -----------------------------
+STOP: read 12: spent, incomplete. Only `rerun-read 12 --reason ...` goes on
+STOP: no row 16
+____________ test_a_read_survives_a_dead_process_before_the_log_row ____________
+----------------------------- Captured stderr call -----------------------------
+STOP: read 12: spent, incomplete. Only `rerun-read 12 --reason ...` goes on
+_______ test_rerun_read_runs_again_discloses_the_extra_read_and_goes_on ________
+----------------------------- Captured stdout call -----------------------------
+nothing pending
+___________________ test_a_clean_read_leaves_an_empty_ledger ___________________
+----------------------------- Captured stdout call -----------------------------
+row 12: pass
+  12  Compare                    done
+nothing pending
+__ test_a_kill_between_a_rerun_and_its_ledger_row_recovers_through_rerun_read __
+----------------------------- Captured stdout call -----------------------------
+row 12: pass
+nothing pending
+____ test_a_stray_read_then_a_passing_rerun_ends_done_with_no_further_read _____
+----------------------------- Captured stdout call -----------------------------
+nothing pending
+___________ test_start_stops_when_an_extra_read_is_not_in_the_ledger ___________
+----------------------------- Captured stdout call -----------------------------
+row A: pass
+___ test_code_lock_records_then_refuses_a_changed_file_until_given_a_reason ____
+----------------------------- Captured stdout call -----------------------------
+row B: pass
+________________ test_code_lock_ignores_report_py_and_a_restamp ________________
+----------------------------- Captured stdout call -----------------------------
+row A: pass
+row B: pass
+________________ test_code_lock_covers_freeze_and_the_makefile _________________
+----------------------------- Captured stdout call -----------------------------
+row A: pass
+----------------------------- Captured stderr call -----------------------------
+STOP: code changed since the lock was recorded; give --code-changed REASON to go on, and it will be disclosed
+___ test_reopen_reruns_from_that_row_up_to_the_read_and_keeps_every_log_line ___
+----------------------------- Captured stdout call -----------------------------
+row A: pass
+row B: pass
+row C1: pass
+row C2: pass
+row B: reopened
+row C1: reopened
+row C2: reopened
+row B: pass
+row C1: pass
+row C2: pass
+______________ test_next_cannot_spend_a_read_past_a_reopened_row _______________
+----------------------------- Captured stdout call -----------------------------
+row A: pass
+row B: pass
+row C1: pass
+row C2: pass
+row B: reopened
+row C1: reopened
+row C2: reopened
+row B: pass
+=========================== short test summary info ============================
+PASSED tests/test_awaiting_go.py::test_no_go_test_loads_a_test_predictions_file
+PASSED tests/test_awaiting_go.py::test_the_test_preds_check_fires_on_a_fault_and_stays_quiet_on_clean_text
+PASSED tests/test_contract.py::test_a_readers_ask_only_for_written_columns
+PASSED tests/test_contract.py::test_a_one_name_per_column
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[data/splits.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/cleaning_log.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/missing_cells.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/link_check.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/data_dictionary.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/entropy_check.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/validity.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/outliers.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/leak_audit.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/quality/outlier_picks.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/class_balance.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/copy_columns.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/corr_clusters.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/entropy_vs_logarea.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/file_order.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/insights.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/jasmine_lots.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/resize_area_check.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/shift_accounting.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/eda/tint_by_class.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/features/accuracy_vs_k.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/features/cluster_representatives.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/features/ranking.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/features/selected_info.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/features/set_comparison.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/features/stability.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/cluster_metrics.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/heldout.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/gmm_stability.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/late_lot_check.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/pca_variance.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/cluster/profiles.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/checks/recheck_clusters.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/checks/recheck_features.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/checks/recheck_summary.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/baselines/grid.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/baselines/val_results.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/baselines/control.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/epoch_times.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/curves.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/tuning_mlp.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/tuning_cnn.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/neural/control.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_metrics.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_metrics.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_by_lot.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_by_lot.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_by_angle.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_by_angle.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_by_angle_lot.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_by_angle_lot.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_recall.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_recall.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_confusion.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_confusion.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_seed_spread.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_seed_spread.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/val_mcnemar.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/compare/test_mcnemar.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/val_calibration.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/test_calibration.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/val_routes.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/routing/test_routes.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/late_recall.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/late_chain.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/greyworld_gain_vs_area.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/mean_colour_check.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/greyworld_results.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/robustness/greyworld_control.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/test_reads.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/run_log.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/test_reads_disclosed.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/DISCLOSURES.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/SUMMARY.csv]
+PASSED tests/test_contract.py::test_b_csv_header_matches_entry[results/MANIFEST.csv]
+PASSED tests/test_contract.py::test_c_no_stage_redefines_common
+PASSED tests/test_contract.py::test_names_match_the_code
+PASSED tests/test_contract.py::test_settle_passes_listed_and_fails_new_or_stale
+PASSED tests/test_contract.py::test_known_list_parsing
+PASSED tests/test_contract.py::test_scan_finds_a_column_the_writer_lacks
+PASSED tests/test_contract.py::test_writer_check_finds_a_column_the_code_never_names
+PASSED tests/test_contract.py::test_alias_check_flags_a_banned_name
+PASSED tests/test_contract.py::test_function_check_ignores_methods
+PASSED tests/test_contract.py::test_header_check_on_a_made_up_file
+PASSED tests/test_control_gate.py::test_clean_control_passes[stage5]
+PASSED tests/test_control_gate.py::test_clean_control_passes[stage6_mlp]
+PASSED tests/test_control_gate.py::test_shuffle_that_does_nothing_stops_the_run[stage5]
+PASSED tests/test_control_gate.py::test_shuffle_that_does_nothing_stops_the_run[stage6_mlp]
+PASSED tests/test_control_gate.py::test_cnn_shuffle_that_does_nothing_stops_the_run
+PASSED tests/test_control_gate.py::test_real_labels_reaching_the_model_stops_the_run[stage5]
+PASSED tests/test_control_gate.py::test_real_labels_reaching_the_model_stops_the_run[stage6_mlp]
+PASSED tests/test_control_gate.py::test_cnn_row_reaches_the_gate[0.2-False]
+PASSED tests/test_control_gate.py::test_cnn_row_reaches_the_gate[0.99-True]
+PASSED tests/test_control_gate.py::test_clean_scores_outside_the_band_do_not_stop[0.0004]
+PASSED tests/test_control_gate.py::test_clean_scores_outside_the_band_do_not_stop[0.478]
+PASSED tests/test_control_gate.py::test_clean_scores_outside_the_band_do_not_stop[0.731]
+PASSED tests/test_control_gate.py::test_missing_score_stops
+PASSED tests/test_control_gate.py::test_old_failed_row_cannot_hide_behind_a_rerun
+PASSED tests/test_control_gate.py::test_fair_shuffle_passes_and_smoke_only_prints
+PASSED tests/test_data.py::test_jasmine_lots_index_is_named
+PASSED tests/test_data.py::test_jasmine_lots_header_on_made_up_frame
+PASSED tests/test_data.py::test_manual_text_names_get_data_target
+PASSED tests/test_data.py::test_download_dropped_connection_leaves_no_partial_file
+PASSED tests/test_data.py::test_download_success_publishes_complete_file
+PASSED tests/test_data.py::test_make_read_only_handles_apostrophe_in_path
+PASSED tests/test_data.py::test_eda_uses_splits_for_class_counts_only
+PASSED tests/test_data.py::test_make_runs_features_before_eda
+PASSED tests/test_data.py::test_write_derived_success_publishes_both_and_leaves_no_tmp
+PASSED tests/test_data.py::test_write_derived_crash_in_cache_keeps_old_files_byte_identical
+PASSED tests/test_data.py::test_write_derived_crash_in_parquet_keeps_old_files
+PASSED tests/test_data.py::test_atomic_parquet_crash_keeps_old_file
+PASSED tests/test_data.py::test_main_publishes_through_the_safe_helpers
+PASSED tests/test_data.py::test_subset_outside_smoke_is_refused_before_any_write
+PASSED tests/test_data.py::test_leak_audit_clean_data_reports_no_overlap
+PASSED tests/test_data.py::test_leak_audit_detects_planted_overlaps
+PASSED tests/test_data.py::test_leak_audit_flatten_names_and_values
+PASSED tests/test_data.py::test_leak_audit_csv_columns_and_atomic_write
+PASSED tests/test_data.py::test_leak_audit_source_rules
+PASSED tests/test_data.py::test_make_read_only_raises_when_chmod_fails
+PASSED tests/test_data.py::test_write_derived_renames_memmap_before_parquet
+PASSED tests/test_data.py::test_leak_audit_crash_mid_write_keeps_old_csv
+PASSED tests/test_data.py::test_insight_n_defaults_to_all_grains_and_takes_the_rows_used
+PASSED tests/test_data.py::test_each_insight_on_a_subset_states_its_own_rows
+PASSED tests/test_data.py::test_validity_log_counts_rows_not_cells
+PASSED tests/test_data.py::test_outlier_log_counts_rows_not_cells
+PASSED tests/test_data.py::test_eda_titles_state_n
+PASSED tests/test_data.py::test_cluster_titles_state_their_own_n
+PASSED tests/test_data.py::test_part_filled_folder_is_filled_from_the_zip
+PASSED tests/test_data.py::test_part_written_file_is_replaced
+PASSED tests/test_data.py::test_part_filled_read_only_folder_stops_loudly
+PASSED tests/test_data.py::test_full_folder_is_left_alone
+PASSED tests/test_data.py::test_leak_audit_counts_parquet_rows_not_in_csv
+PASSED tests/test_data.py::test_stage9_has_no_size_cols_constant
+PASSED tests/test_evaluation.py::test_stage7_stops_before_the_read
+PASSED tests/test_evaluation.py::test_stage7_never_drops_a_model_on_test
+PASSED tests/test_evaluation.py::test_stage7_validation_stays_tolerant
+PASSED tests/test_evaluation.py::test_stage8_stops_before_the_read
+PASSED tests/test_evaluation.py::test_stage9_stops_before_the_read
+PASSED tests/test_evaluation.py::test_stage9_train_stops_before_any_fit
+PASSED tests/test_evaluation.py::test_untuned_sets_take_the_all106_point_and_say_so
+PASSED tests/test_evaluation.py::test_late_grains_never_reach_a_holdout_fit
+PASSED tests/test_evaluation.py::test_control_records_and_carries_on
+PASSED tests/test_evaluation.py::test_class_is_the_one_name
+PASSED tests/test_evaluation.py::test_paired_hand_example
+PASSED tests/test_evaluation.py::test_only_holdout_rows_cover_every_late_grain
+PASSED tests/test_evaluation.py::test_freeze_passes_clean_controls
+PASSED tests/test_evaluation.py::test_freeze_refuses_missing_control
+PASSED tests/test_evaluation.py::test_freeze_refuses_failed_control
+PASSED tests/test_evaluation.py::test_freeze_refuses_a_control_with_a_row_missing
+PASSED tests/test_evaluation.py::test_freeze_checks_controls_in_smoke_too
+PASSED tests/test_evaluation.py::test_fit_stores_every_seed_and_keeps_the_keys_predict_reads
+PASSED tests/test_evaluation.py::test_cnn_floor_comes_from_the_grains_hgb_declines
+PASSED tests/test_evaluation.py::test_cnn_answers_nothing_when_hgb_declines_nothing
+PASSED tests/test_evaluation.py::test_holdout_routing_uses_the_same_floor_rule_and_keeps_its_keys
+PASSED tests/test_evaluation.py::test_route_table_has_one_block_per_seed_on_its_own_numbers
+PASSED tests/test_evaluation.py::test_fit_stops_on_a_seed_with_no_validation_predictions
+PASSED tests/test_evaluation.py::test_score_stops_before_the_read_on_a_routing_file_with_a_seed_missing
+PASSED tests/test_evaluation.py::test_a_saved_seed_counts_only_from_the_same_run
+PASSED tests/test_evaluation.py::test_a_missing_or_torn_file_is_never_reused
+PASSED tests/test_evaluation.py::test_holdout_cnn_trains_only_when_it_must
+PASSED tests/test_evaluation.py::test_grey_world_is_handed_the_late_test_grains_at_the_call_site
+PASSED tests/test_evaluation.py::test_grey_world_gets_the_late_stand_ins_in_smoke
+PASSED tests/test_evaluation.py::test_a_scored_grain_in_train_stops_the_tint_arms
+PASSED tests/test_evaluation.py::test_each_saved_table_record_holds_the_rows_it_was_fitted_on
+PASSED tests/test_evaluation.py::test_a_saved_cnn_record_holds_the_rows_it_was_fitted_on
+PASSED tests/test_evaluation.py::test_late_recall_says_which_arm_borrowed_its_point
+PASSED tests/test_evaluation.py::test_paired_gives_what_the_inline_lines_gave
+PASSED tests/test_evaluation.py::test_an_infinite_cell_is_missing_once_the_read_returns[src/07_compare.py]
+PASSED tests/test_evaluation.py::test_an_infinite_cell_is_missing_once_the_read_returns[src/08_routing.py]
+PASSED tests/test_evaluation.py::test_an_infinite_cell_is_missing_once_the_read_returns[src/09_robustness.py]
+PASSED tests/test_evaluation.py::test_a_stage_reads_test_in_one_place[src/07_compare.py]
+PASSED tests/test_evaluation.py::test_a_stage_reads_test_in_one_place[src/08_routing.py]
+PASSED tests/test_evaluation.py::test_a_stage_reads_test_in_one_place[src/09_robustness.py]
+PASSED tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[no disagreements]
+PASSED tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[class 4 absent]
+PASSED tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[one model wrong on every grain]
+PASSED tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[one grain right]
+PASSED tests/test_evaluation.py::test_stage7_tables_stand_on_a_thin_read[one grain wrong]
+PASSED tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[all on hgb]
+PASSED tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[all unfamiliar]
+PASSED tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[confidence exactly 1]
+PASSED tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[one grain]
+PASSED tests/test_evaluation.py::test_stage8_report_stands_with_empty_routes[all unsure]
+PASSED tests/test_evaluation.py::test_a_read_with_no_late_grain_in_test_leaves_empty_rows
+PASSED tests/test_evaluation.py::test_every_late_grain_on_one_route_and_a_missing_cell_stand
+PASSED tests/test_evaluation.py::test_empty_inputs_give_a_stated_answer
+PASSED tests/test_evaluation.py::test_missing_output_folders_are_made
+PASSED tests/test_evaluation.py::test_a_channel_with_no_answer_fails_the_gain_check
+PASSED tests/test_evaluation.py::test_no_late_test_grain_keeps_the_gain_tables_and_stops_before_the_tint_arms
+PASSED tests/test_evaluation.py::test_stage9_stops_before_the_read_with_no_late_rows
+PASSED tests/test_evaluation.py::test_freeze_hashes_each_file_under_its_own_path
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[results/baselines/best_params.json]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[results/neural/best_config.json]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[results/features/selected.json]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[data/splits.csv]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/routing.json]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/gate_table.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/gate_image.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/routing.json]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/gate_table.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/gate_image.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/cnn_seed1.pt]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/mlp_seed2.pt]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/mlp_prep.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/hgb_all106.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/baselines/hgb__all106.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/cnn_seed2.pt]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/hgb__shape16.joblib]
+PASSED tests/test_evaluation.py::test_a_changed_file_changes_the_hash[models/holdout/full_hgb__sizefree7.joblib]
+PASSED tests/test_evaluation.py::test_freeze_hashes_nothing_a_read_writes
+PASSED tests/test_evaluation.py::test_freeze_refuses_a_missing_file[models/holdout/routing.json]
+PASSED tests/test_evaluation.py::test_freeze_refuses_a_missing_file[models/holdout/cnn_seed0.pt]
+PASSED tests/test_evaluation.py::test_freeze_refuses_a_missing_file[models/cnn_seed1.pt]
+PASSED tests/test_evaluation.py::test_freeze_refuses_a_missing_file[results/features/selected.json]
+PASSED tests/test_evaluation.py::test_no_refreeze_once_a_read_is_logged[none]
+PASSED tests/test_evaluation.py::test_no_refreeze_once_a_read_is_logged[control]
+PASSED tests/test_evaluation.py::test_no_refreeze_once_a_read_is_logged[part]
+PASSED tests/test_evaluation.py::test_a_failed_freeze_removes_the_older_file[control]
+PASSED tests/test_evaluation.py::test_a_failed_freeze_removes_the_older_file[part]
+PASSED tests/test_evaluation.py::test_a_failed_freeze_removes_the_older_file[crash]
+PASSED tests/test_evaluation.py::test_a_log_with_no_rows_does_not_stop_a_freeze[]
+PASSED tests/test_evaluation.py::test_a_log_with_no_rows_does_not_stop_a_freeze[caller,time,frozen_hash\n]
+PASSED tests/test_evaluation.py::test_a_read_after_freeze_passes_and_logs
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/routing.json-changed]
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/routing.json-gone]
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/holdout/cnn_seed0.pt-changed]
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[models/holdout/cnn_seed0.pt-gone]
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[results/features/selected.json-changed]
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[results/features/selected.json-gone]
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[data/splits.csv-changed]
+PASSED tests/test_evaluation.py::test_a_file_changed_since_freeze_stops_the_read_unlogged[data/splits.csv-gone]
+PASSED tests/test_evaluation.py::test_a_change_between_reads_stops_the_second_read
+PASSED tests/test_evaluation.py::test_a_redirected_models_folder_stops_the_read_unlogged
+PASSED tests/test_evaluation.py::test_freeze_refuses_a_redirected_models_folder
+PASSED tests/test_evaluation.py::test_the_per_batch_gate_hashes_nothing
+PASSED tests/test_evaluation.py::test_a_smoke_read_goes_through_the_gate_and_the_log
+PASSED tests/test_evaluation.py::test_stage9_train_stops_on_the_controls_before_any_fit[kw0-control.csv: missing]
+PASSED tests/test_evaluation.py::test_stage9_train_stops_on_the_controls_before_any_fit[kw1-baselines/control.csv]
+PASSED tests/test_evaluation.py::test_stage9_train_stops_on_the_controls_before_any_fit[kw2-no row for mlp]
+PASSED tests/test_evaluation.py::test_stage9_controls_pass_when_clean_and_smoke_checks_them_too
+PASSED tests/test_foundation.py::test_floor_ignores_a_tie_that_would_let_a_wrong_answer_in
+PASSED tests/test_foundation.py::test_smoke_predict_passes_each_path_whole
+PASSED tests/test_foundation.py::test_smoke_predict_fails_when_a_step_fails
+PASSED tests/test_foundation.py::test_smoke_goes_through_the_runner_and_starts_with_stage_0
+PASSED tests/test_foundation.py::test_smoke_images_prints_one_path_per_line
+PASSED tests/test_foundation.py::test_each_stage_stamps_its_own_prompt
+PASSED tests/test_foundation.py::test_report_writes_inside_results
+PASSED tests/test_foundation.py::test_manifest_points_at_real_artefacts
+PASSED tests/test_foundation.py::test_manifest_control_rows_point_at_the_control_files
+PASSED tests/test_foundation.py::test_read_images_gates_test_rows_in_full_mode
+PASSED tests/test_foundation.py::test_grain_mask_on_a_blank_image_is_none
+PASSED tests/test_foundation.py::test_wilson_with_no_grains_is_nan
+PASSED tests/test_foundation.py::test_selected_features_come_from_stage_3
+PASSED tests/test_gate.py::test_unlisted_caller_refused
+PASSED tests/test_gate.py::test_other_stage_name_refused
+PASSED tests/test_gate.py::test_refused_when_not_frozen
+PASSED tests/test_gate.py::test_permitted_read_is_logged_with_hash
+PASSED tests/test_gate.py::test_routing_only_reads_test_when_scoring
+PASSED tests/test_gate.py::test_train_and_val_loads_need_no_gate
+PASSED tests/test_gate.py::test_only_holdout_models_score_every_late_grain
+PASSED tests/test_gate.py::test_tint_arms_score_late_test_grains_only
+PASSED tests/test_harden_seal.py::test_pool_keeps_train_and_val_only_and_drops_unlisted_twins
+PASSED tests/test_harden_seal.py::test_pool_keeps_everything_when_no_test_rows
+PASSED tests/test_harden_seal.py::test_slice_stops_when_a_class_lacks_a_split
+PASSED tests/test_harden_seal.py::test_slice_passes_when_every_class_has_every_split
+PASSED tests/test_harden_seal.py::test_main_restricts_the_pool_before_it_slices
+PASSED tests/test_harden_seal.py::test_real_mode_keeps_todays_exact_paths
+PASSED tests/test_harden_seal.py::test_smoke_freeze_file_log_and_models_sit_in_smoke_folders
+PASSED tests/test_harden_seal.py::test_a_smoke_read_writes_only_inside_the_smoke_folders
+PASSED tests/test_harden_seal.py::test_a_smoke_read_by_an_unlisted_caller_is_refused_and_logs_nothing
+PASSED tests/test_harden_seal.py::test_smoke_runs_overfit_and_both_controls_before_freeze
+PASSED tests/test_harden_seal.py::test_smoke_runs_each_stage_once_and_stage_3_before_2
+PASSED tests/test_harden_seal.py::test_all_stops_after_freeze_unless_reads_is_yes
+PASSED tests/test_harden_seal.py::test_smoke_clears_its_folders_and_the_controls_check_follows_the_mode
+PASSED tests/test_harden_seal.py::test_perceptron_reloads_in_a_fresh_process_with_equal_predictions
+PASSED tests/test_harden_seal.py::test_stage5_has_29_jobs_and_the_two_new_grids
+PASSED tests/test_harden_seal.py::test_stage5_builds_the_two_new_models_behind_the_shared_preprocessing
+PASSED tests/test_harden_seal.py::test_stage7_scores_the_two_new_models_on_every_feature_set
+PASSED tests/test_harden_seal.py::test_tree4_is_a_scored_model_but_not_a_job
+PASSED tests/test_harden_seal.py::test_val_results_has_fit_seconds_as_last_column
+PASSED tests/test_harden_seal.py::test_stage7_test_tables_use_the_read_frame_and_leave_blanks
+PASSED tests/test_harden_seal.py::test_stage7_test_tables_stop_on_a_prediction_with_no_grain
+PASSED tests/test_harden_seal.py::test_stage7_val_tables_still_use_load_grains
+PASSED tests/test_harden_seal.py::test_stage7_main_passes_the_read_frame_and_reads_once
+PASSED tests/test_harden_seal.py::test_report_draws_learning_curve_and_late_recall_figures_with_an_empty_cell
+PASSED tests/test_harden_seal.py::test_wilson_ends_are_exact_and_every_interval_holds_its_point
+PASSED tests/test_harden_seal.py::test_report_figures_draw_an_interval_that_misses_its_point
+PASSED tests/test_harden_seal.py::test_cnn_stops_after_patience_and_returns_the_best_epochs_weights
+PASSED tests/test_harden_seal.py::test_predict_takes_the_cnn_route_when_only_the_image_side_clears_its_floor
+PASSED tests/test_harden_seal.py::test_predict_exits_2_with_no_argument_and_on_an_unreadable_image
+PASSED tests/test_harden_seal.py::test_report_figures_draw_nothing_from_a_missing_or_empty_file
+PASSED tests/test_harden_seal.py::test_code_digest_ignores_the_prompt_record_block_and_sees_an_edit
+PASSED tests/test_harden_seal.py::test_code_digest_ignores_any_edit_inside_a_real_stamped_record
+PASSED tests/test_harden_seal.py::test_holdout_cnn_retrains_when_the_code_digest_changed
+PASSED tests/test_harden_seal.py::test_report_main_runs_with_run_log_and_ledger_missing
+PASSED tests/test_harden_seal.py::test_disclosures_count_the_ledger_and_name_it
+PASSED tests/test_harden_seal.py::test_every_evidence_file_and_new_output_is_in_the_manifest
+PASSED tests/test_harden_seal.py::test_disclosures_state_the_overlap_and_the_control_as_found
+PASSED tests/test_harden_seal.py::test_go_tests_skip_without_rice_go_and_read_the_mode_folders
+PASSED tests/test_metrics.py::test_macro_precision_recall_hand_worked
+PASSED tests/test_models.py::test_epoch_log_rows_parse
+PASSED tests/test_models.py::test_mlp_logs_each_epoch_as_cpu
+PASSED tests/test_models.py::test_curves_keep_contract_order[order0]
+PASSED tests/test_models.py::test_curves_keep_contract_order[order1]
+PASSED tests/test_models.py::test_curves_saved_inside_each_seed_loop
+PASSED tests/test_models.py::test_crash_mid_write_keeps_last_good_file[merge_rows-k]
+PASSED tests/test_models.py::test_crash_mid_write_keeps_last_good_file[merge_csv-key1]
+PASSED tests/test_models.py::test_control_rows_merge_by_model
+PASSED tests/test_models.py::test_main_merges_control_csv
+PASSED tests/test_models.py::test_must_tune_reuses_only_the_winner[cnn-grid0]
+PASSED tests/test_models.py::test_must_tune_reuses_only_the_winner[mlp-grid1]
+PASSED tests/test_models.py::test_mlp_config_saved_before_its_seeds
+PASSED tests/test_models.py::test_crash_keeps_finished_jobs_and_full_run_clears
+PASSED tests/test_models.py::test_full_run_calls_clear_results
+PASSED tests/test_models.py::test_chan_stats_hold_at_full_sample
+PASSED tests/test_models.py::test_controls_target_text
+PASSED tests/test_models.py::test_table_row_reads_no_labels_and_survives_gaps
+PASSED tests/test_models.py::test_wrong_image_exits_2[size0-RGB]
+PASSED tests/test_models.py::test_wrong_image_exits_2[size1-L]
+PASSED tests/test_models.py::test_missing_file_exits_3_and_names_both_targets
+PASSED tests/test_models.py::test_overfit_limit_raised_and_bar_kept
+PASSED tests/test_r2_fixes.py::test_first_silhouette_draw_keeps_its_old_stream
+PASSED tests/test_r2_fixes.py::test_silhouette_row_keeps_first_draw_and_adds_spread
+PASSED tests/test_r2_fixes.py::test_recheck_agrees_with_the_stages_on_every_row
+PASSED tests/test_r2_fixes.py::test_recheck_fails_on_a_changed_saved_value[cluster/cluster_metrics.csv-ARI-clusters]
+PASSED tests/test_r2_fixes.py::test_recheck_fails_on_a_changed_saved_value[features/accuracy_vs_k.csv-hgb_val_accuracy-features]
+PASSED tests/test_r2_fixes.py::test_recheck_tolerance_is_stated_and_applied
+PASSED tests/test_r2_fixes.py::test_recheck_draws_the_same_silhouette_samples_as_stage_4_when_sampling_bites
+PASSED tests/test_r2_fixes.py::test_heldout_fits_on_train_rows_and_predicts_validation_rows
+PASSED tests/test_r2_fixes.py::test_heldout_table_sits_beside_the_existing_rows
+PASSED tests/test_r2_fixes.py::test_rule_k_is_the_smallest_near_best_k_then_the_larger_model
+PASSED tests/test_r2_fixes.py::test_selection_follows_the_inner_curve_and_keeps_the_old_rule_beside_it
+PASSED tests/test_r2_fixes.py::test_sweep_inner_columns_fit_and_score_on_train_rows_only
+PASSED tests/test_r2_fixes.py::test_inner_split_is_stratified_seeded_and_covers_train_once
+PASSED tests/test_r2_fixes.py::test_stage_3_saves_both_rules_and_recheck_covers_the_inner_columns
+PASSED tests/test_r2_fixes.py::test_effect_is_signed_against_the_reference_with_an_interval
+PASSED tests/test_r2_fixes.py::test_column_effects_flag_the_late_shift_and_not_the_control
+PASSED tests/test_r2_fixes.py::test_split_shares_come_from_counts_and_sum_to_one
+PASSED tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[0-0]
+PASSED tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[90-0]
+PASSED tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[45-45]
+PASSED tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[135-45]
+PASSED tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[20-20]
+PASSED tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[110-20]
+PASSED tests/test_r2_fixes.py::test_off_axis_folds_to_degrees_from_the_image_axes[70-20]
+PASSED tests/test_r2_fixes.py::test_extent_effect_shrinks_when_angle_explains_it
+PASSED tests/test_r2_fixes.py::test_late_drift_reports_a_median_per_file_block
+PASSED tests/test_r2_fixes.py::test_rows_with_no_usable_mask_are_dropped_from_the_angle_check
+PASSED tests/test_r2_fixes.py::test_shift_run_section_writes_the_contract_table_and_survives_a_slice_with_no_late_rows[True-sections0]
+PASSED tests/test_r2_fixes.py::test_shift_run_section_writes_the_contract_table_and_survives_a_slice_with_no_late_rows[False-sections1]
+PASSED tests/test_r2_fixes.py::test_eda_shift_table_uses_counts_only_from_splits
+PASSED tests/test_r2_fixes.py::test_val_by_lot_scores_each_class_and_lot_on_its_own_rows
+PASSED tests/test_r2_fixes.py::test_val_by_lot_hook_lines_up_on_grain_id_and_runs_on_validation_only
+PASSED tests/test_r2_fixes.py::test_angle_bands_are_the_ones_fixed_before_scoring_and_cover_the_fold
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[0-0-10]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[9.99-0-10]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[10-10-20]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[19.99-10-20]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[20-20-30]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[29.99-20-30]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[30-30-45]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[44.9-30-45]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[45-30-45]
+PASSED tests/test_r2_fixes.py::test_angle_band_edges[nan-no_mask]
+PASSED tests/test_r2_fixes.py::test_angle_band_does_not_move_with_the_rows_it_is_given
+PASSED tests/test_r2_fixes.py::test_angle_rows_score_each_band_overall_and_per_class
+PASSED tests/test_r2_fixes.py::test_band_macro_f1_averages_only_the_classes_with_rows_in_that_band
+PASSED tests/test_r2_fixes.py::test_every_band_is_listed_and_the_counts_add_up_to_all_rows
+PASSED tests/test_r2_fixes.py::test_band_counts_do_not_depend_on_the_predictions
+PASSED tests/test_r2_fixes.py::test_angles_read_the_image_and_no_table_column
+PASSED tests/test_r2_fixes.py::test_val_by_angle_hook_lines_up_on_grain_id_uses_image_angle_and_runs_on_validation_only
+PASSED tests/test_r2_fixes.py::test_angle_lot_rows_scores_each_band_class_and_lot_on_its_own_rows
+PASSED tests/test_r2_fixes.py::test_no_output_name_or_table_column_carries_a_reading_of_the_angle
+PASSED tests/test_rescore.py::test_rescore_passes_clean_models_and_float_noise
+PASSED tests/test_rescore.py::test_rescore_sees_infinite_cells_as_missing
+PASSED tests/test_rescore.py::test_rescore_catches_a_class_flip_at_a_clear_margin
+PASSED tests/test_rescore.py::test_rescore_allows_a_flip_between_a_true_near_tie
+PASSED tests/test_rescore.py::test_rescore_catches_a_model_with_no_saved_predictions
+PASSED tests/test_rescore.py::test_rescore_reports_a_model_it_cannot_score
+PASSED tests/test_rescore.py::test_rescore_catches_a_corrupted_weight_file
+PASSED tests/test_rescore.py::test_rescore_main_needs_the_validation_split
+PASSED tests/test_run_order.py::test_stops_at_first_failed_check_and_resumes_without_repeating
+PASSED tests/test_run_order.py::test_a_nonzero_exit_fails_the_row_even_when_the_check_would_pass
+PASSED tests/test_run_order.py::test_a_torn_log_line_stops_the_runner_and_nothing_runs
+PASSED tests/test_run_order.py::test_a_complete_log_line_is_read_back_as_passed
+PASSED tests/test_run_order.py::test_a_second_runner_is_refused_and_a_stale_lock_is_cleared
+PASSED tests/test_run_order.py::test_a_stage_left_by_a_killed_runner_keeps_the_lock
+PASSED tests/test_run_order.py::test_a_check_that_raises_fails_the_row_and_is_logged
+PASSED tests/test_run_order.py::test_epoch_check_reads_the_full_size_epoch_and_not_the_overfit_rows
+PASSED tests/test_run_order.py::test_control_check_names_each_stage_that_failed
+PASSED tests/test_run_order.py::test_start_checks_stop_the_runner_before_any_row
+PASSED tests/test_run_order.py::test_raw_checksums_catch_a_changed_file_and_pass_a_clean_one
+PASSED tests/test_run_order.py::test_smoke_start_checks_skip_power_and_disk
+PASSED tests/test_run_order.py::test_read_rows_need_spend_read_and_through_stops_before_them
+PASSED tests/test_run_order.py::test_a_spent_read_that_fails_its_check_is_never_retried
+PASSED tests/test_run_order.py::test_a_read_survives_a_dead_process_before_the_log_row
+PASSED tests/test_run_order.py::test_rerun_read_runs_again_discloses_the_extra_read_and_goes_on
+PASSED tests/test_run_order.py::test_a_clean_read_leaves_an_empty_ledger
+PASSED tests/test_run_order.py::test_a_kill_between_a_rerun_and_its_ledger_row_recovers_through_rerun_read
+PASSED tests/test_run_order.py::test_a_stray_read_then_a_passing_rerun_ends_done_with_no_further_read
+PASSED tests/test_run_order.py::test_a_rerun_that_fails_after_a_pass_stops_next_and_runs_nothing_after_it
+PASSED tests/test_run_order.py::test_a_read_later_than_the_last_pass_is_incomplete_even_when_disclosed
+PASSED tests/test_run_order.py::test_rerun_read_is_refused_for_an_unspent_read
+PASSED tests/test_run_order.py::test_start_stops_when_an_extra_read_is_not_in_the_ledger
+PASSED tests/test_run_order.py::test_code_lock_records_then_refuses_a_changed_file_until_given_a_reason
+PASSED tests/test_run_order.py::test_code_lock_ignores_report_py_and_a_restamp
+PASSED tests/test_run_order.py::test_code_lock_covers_freeze_and_the_makefile
+PASSED tests/test_run_order.py::test_row_order_is_the_handoff_list_plus_10a
+PASSED tests/test_run_order.py::test_every_row_from_the_first_lock_on_is_locked_and_the_reads_stay_awake
+PASSED tests/test_run_order.py::test_wedge_is_off_unless_asked
+PASSED tests/test_run_order.py::test_smoke_list_has_no_row_one_and_runs_stage_three_before_two
+PASSED tests/test_run_order.py::test_row_fifteen_without_images_stops_with_a_message
+PASSED tests/test_run_order.py::test_table_prints_every_row
+PASSED tests/test_run_order.py::test_reopen_reruns_from_that_row_up_to_the_read_and_keeps_every_log_line
+PASSED tests/test_run_order.py::test_status_shows_a_reopened_row_as_pending
+PASSED tests/test_run_order.py::test_next_cannot_spend_a_read_past_a_reopened_row
+PASSED tests/test_run_order.py::test_reopen_is_refused_once_a_read_is_spent
+PASSED tests/test_run_order.py::test_reopen_needs_a_reason_and_a_row_before_the_first_read
+PASSED tests/test_run_order.py::test_a_step_that_fails_after_a_pass_counts_as_not_done
+PASSED tests/test_splits_features.py::test_grain_ids_unique_and_disjoint
+PASSED tests/test_splits_features.py::test_class_and_lot_shares_match
+PASSED tests/test_splits_features.py::test_sizefree_lists_have_no_size_columns
+PASSED tests/test_splits_features.py::test_feature_sets_are_inside_all106
+PASSED tests/test_splits_features.py::test_grey_world_gains_use_mask_only
+PASSED tests/test_splits_features.py::test_unit_gain_leaves_image_unchanged
+PASSED tests/test_splits_features.py::test_floor_for_and_wilson
+SKIPPED [1] tests/test_awaiting_go.py:163: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:168: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:176: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:187: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:196: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:212: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:240: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:279: awaits go
+SKIPPED [1] tests/test_awaiting_go.py:288: awaits go
+============ 430 passed, 9 skipped, 72 warnings in 66.63s (0:01:06) ============

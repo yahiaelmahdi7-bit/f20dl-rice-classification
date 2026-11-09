@@ -1,0 +1,19 @@
+=== noise250
+image: noise250.png
+image side: Arborio (confidence 1.0000)
+table side: no table row for this image
+route: unfamiliar
+familiarity: unfamiliar (table gate False, image gate True)
+answer: none (this grain looks unlike the training grains)
+exit 0
+=== blocks250
+image: blocks250.png
+image side: Ipsala (confidence 1.0000)
+table side: no table row for this image
+route: unfamiliar
+familiarity: unfamiliar (table gate False, image gate True)
+answer: none (this grain looks unlike the training grains)
+exit 0
+=== small100
+/private/tmp/claude-501/-Users-y/242c7dd8-cbe5-4c5b-9caa-a7e3eda69a23/scratchpad/hand/small100.png: expected a 250x250 RGB image, got 100x100 RGB
+exit 2

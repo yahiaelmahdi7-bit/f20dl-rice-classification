@@ -1,0 +1,156 @@
+AC power 01:15:54, row 12
+/Users/y/Academic/courses/f20dl/.venv/bin/python src/07_compare.py --split test
+test read: 11206 grains, 0 infinite cells made missing
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__selected__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__shape16__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__colour90__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/hgb__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/gmm__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/logreg__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/perceptron__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/knn__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2823: UserWarning: X has feature names, but SimpleImputer was fitted without feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/nb__distinct91__seed0__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/preds/tree4__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/mlp__all106__seed0__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/mlp__all106__seed1__test.parquet
+/Users/y/Academic/courses/f20dl/.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2830: UserWarning: X does not have valid feature names, but SimpleImputer was fitted with feature names
+  warnings.warn(
+wrote /Users/y/Academic/courses/f20dl/results/preds/mlp__all106__seed2__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/preds/cnn__image__seed0__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/preds/cnn__image__seed1__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/preds/cnn__image__seed2__test.parquet
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_metrics.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_recall.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_by_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_by_angle.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_by_angle_lot.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_confusion.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_seed_spread.csv
+wrote /Users/y/Academic/courses/f20dl/results/compare/test_mcnemar.csv
+     model featureset  accuracy  errors  macro_f1
+       hgb   selected   0.99884      13   0.99884
+        nb   selected   0.99081     103   0.99086
+       gmm   selected   0.99813      21   0.99813
+      tree   selected   0.99634      41   0.99635
+    logreg   selected   0.99777      25   0.99778
+perceptron   selected   0.99545      51   0.99547
+       knn   selected   0.99830      19   0.99831
+       hgb    shape16   0.97992     225   0.97998
+        nb    shape16   0.97180     316   0.97192
+       gmm    shape16   0.97787     248   0.97794
+      tree    shape16   0.97707     257   0.97714
+    logreg    shape16   0.97733     254   0.97740
+perceptron    shape16   0.96439     399   0.96443
+       knn    shape16   0.97912     234   0.97919
+       hgb   colour90   0.99143      96   0.99147
+        nb   colour90   0.94913     570   0.94935
+       gmm   colour90   0.98260     195   0.98267
+      tree   colour90   0.97314     301   0.97325
+    logreg   colour90   0.98947     118   0.98951
+perceptron   colour90   0.97448     286   0.97455
+       knn   colour90   0.98429     176   0.98435
+       hgb     all106   0.99884      13   0.99884
+        nb     all106   0.99054     106   0.99059
+       gmm     all106   0.99697      34   0.99698
+      tree     all106   0.99607      44   0.99609
+    logreg     all106   0.99830      19   0.99831
+perceptron     all106   0.99670      37   0.99671
+       knn     all106   0.99786      24   0.99787
+        nb distinct91   0.99001     112   0.99005
+     tree4     all106   0.99027     109   0.99031
+       mlp     all106   0.99902      11   0.99902
+       cnn      image   0.99554      50   0.99556
+ seed    model_a    model_b  b_a_right_b_wrong  c_a_wrong_b_right  disagreements  p_exact  errors_a  errors_b  acc_diff  diff_lo  diff_hi     family  p_holm
+    0 hgb:all106  cnn:image                 45                  8             53  0.00000        13        50   0.00330  0.00205  0.00464    primary 0.00000
+    0 hgb:all106 mlp:all106                  3                  5              8  0.72656        13        11  -0.00018 -0.00062  0.00027    primary 0.72656
+    0 mlp:all106  cnn:image                 46                  7             53  0.00000        11        50   0.00348  0.00223  0.00482    primary 0.00000
+    1 hgb:all106  cnn:image                 12                 10             22  0.83181        13        15   0.00018 -0.00062  0.00098 seed_check 0.83181
+    1 hgb:all106 mlp:all106                  3                  7             10  0.34375        13         9  -0.00036 -0.00089  0.00018 seed_check 0.78953
+    1 mlp:all106  cnn:image                 13                  7             20  0.26318         9        15   0.00054 -0.00018  0.00134 seed_check 0.78953
+    2 hgb:all106  cnn:image                 34                  8             42  0.00007        13        39   0.00232  0.00125  0.00339 seed_check 0.00014
+    2 hgb:all106 mlp:all106                  3                  8             11  0.22656        13         8  -0.00045 -0.00107  0.00018 seed_check 0.22656
+    2 mlp:all106  cnn:image                 36                  5             41  0.00000         8        39   0.00277  0.00170  0.00384 seed_check 0.00000
+wrote /Users/y/Academic/courses/f20dl/figures/compare_confusion_test.png
+row 12: pass
