@@ -1,0 +1,34 @@
+requirement,stage,output_file,covers_R2,covers_R3,covers_R4,generative_task,discriminative_task,exists
+data audit and quality logs,1,quality/,1,0,0,0,0,True
+"class and lot balance, distributions",2,eda/,1,0,0,0,0,True
+"feature dictionary, validity, outliers",2,quality/,1,0,0,0,0,True
+feature ranking and stability,3,features/,1,1,0,0,1,True
+clustering: k-means and Gaussian mixture,4,cluster/,1,0,0,1,0,True
+"table baselines: NB, GMM, tree, logreg, HGB",5,baselines/val_results.csv,0,1,0,1,1,True
+baseline tuning grid and shuffled-label control,5,baselines/control.csv,0,1,0,0,1,True
+"MLP and SmallCNN, three seeds",6,neural/curves.csv,0,0,1,0,1,True
+neural tuning and shuffled-label control,6,neural/control.csv,0,0,1,0,1,True
+neural training time and epochs per run,6,neural/epoch_times.csv,0,0,1,0,1,True
+model comparison with intervals,7,compare/test_metrics.csv,0,1,1,0,1,True
+paired tests between models,7,compare/test_mcnemar.csv,0,1,1,0,1,True
+per-class recall and confusion,7,compare/test_recall.csv,0,1,1,0,1,True
+calibration and confidence floors,8,routing/val_calibration.csv,0,1,1,0,1,True
+familiarity gates and routing chain,8,routing/test_routes.csv,0,1,1,1,1,True
+late-lot hold-out recall,9,robustness/late_recall.csv,0,1,1,0,1,True
+late-lot confidence chain,9,robustness/late_chain.csv,0,1,1,0,1,True
+grey-world tint arm,9,robustness/greyworld_results.csv,0,0,1,0,1,True
+single-image prediction,10,src/predict.py,0,0,0,0,1,True
+validation tables by lot,7,compare/val_by_lot.csv,0,1,1,0,1,True
+validation tables by angle,7,compare/val_by_angle.csv,0,1,1,0,1,True
+validation tables by angle and lot,7,compare/val_by_angle_lot.csv,0,1,1,0,1,True
+test tables by lot,7,compare/test_by_lot.csv,0,1,1,0,1,True
+test tables by angle,7,compare/test_by_angle.csv,0,1,1,0,1,True
+test tables by angle and lot,7,compare/test_by_angle_lot.csv,0,1,1,0,1,True
+robustness: mean-colour check and unchanged-image control,9,robustness/mean_colour_check.csv,0,0,1,0,1,True
+"grey-world gain against grain area, per class",9,robustness/greyworld_gain_vs_area.csv,0,0,1,0,1,True
+old smoke overlap with the real splits,0,results/smoke_overlap.csv,0,0,0,0,0,True
+disclosures for the report,11,DISCLOSURES.csv,0,0,0,0,0,True
+run log: time and memory per row,11,run_log.csv,0,0,0,0,0,True
+"extra test reads, with reasons",11,test_reads_disclosed.csv,0,0,0,0,0,True
+code lock and logged code changes,11,code_lock.json,0,0,0,0,0,True
+frozen settings and model hashes,11,frozen.json,0,0,0,0,0,True
